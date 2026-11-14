@@ -60,7 +60,7 @@ The harmonization method, the validation protocol and its failure modes are docu
 Requires Node.js ≥ 20.9. The app has no runtime backend, but the dev server uses Next.js.
 
 ```bash
-git clone <repo-url> ninacal
+git clone https://github.com/hanserlodev/ninacal.git
 cd ninacal/apps/web
 npm install
 npm run dev        # http://localhost:3000

@@ -1,8 +1,8 @@
 blank_issues_enabled: false
 contact_links:
   - name: Question or open discussion
-    url: https://github.com/
+    url: https://github.com/hanserlodev/ninacal/discussions
     about: Use Discussions for questions, ideas and demo feedback.
   - name: Security vulnerability
-    url: https://github.com/
+    url: https://github.com/hanserlodev/ninacal/security/advisories/new
     about: Report privately following SECURITY.md. Never open a public issue.

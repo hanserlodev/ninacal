@@ -16,7 +16,7 @@ requests get merged quickly.
 Requirements: Node.js ≥ 20.9 (for the web app) and Python 3.11+ (for the pipeline).
 
 ```bash
-git clone <repo-url> ninacal
+git clone https://github.com/hanserlodev/ninacal.git
 cd ninacal
 
 # Web

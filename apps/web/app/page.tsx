@@ -1,7 +1,7 @@
 import { Fragment } from "react";
 
 // TODO: replace with the real repository URL before deployment.
-const REPO_URL = "https://github.com/";
+const REPO_URL = "https://github.com/hanserlodev/ninacal";
 
 const YEARS = Array.from({ length: 27 }, (_, index) => 2000 + index);
 const MONTHS = ["J", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D"];
