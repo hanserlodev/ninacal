@@ -1,0 +1,50 @@
+name: Data issue
+description: A number, cell or year looks wrong.
+title: "[data] "
+labels: ["data"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this template when the app works but the numbers look wrong. Please be specific:
+        a data issue without a cell/year/month cannot be traced back to the pipeline.
+  - type: input
+    id: coordinates
+    attributes:
+      label: Cell or coordinates
+      placeholder: "e.g. cell -10.2_-73.5, or bbox around it"
+    validations:
+      required: true
+  - type: input
+    id: period
+    attributes:
+      label: Year(s) and month(s)
+      placeholder: "e.g. 2019-09, or 2012-2020"
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect, and why?
+      description: Reference the data dictionary or a known source if possible.
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: What does the data say?
+      description: Paste the row(s) from data/processed/{year}.json if you have them.
+    validations:
+      required: true
+  - type: dropdown
+    id: kind
+    attributes:
+      label: Suspected cause
+      options:
+        - Wrong count (too high / too low)
+        - Missing data (nulls where there should be values)
+        - Grid or cell alignment
+        - Calibration / harm field
+        - Not sure
+    validations:
+      required: true

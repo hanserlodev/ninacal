@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ninacal.dev/schemas/processed-year.schema.json",
+  "title": "NinaCal processed year file",
+  "description": "data/processed/{year}.json — harmonized counts per 0.1° cell and month.",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["cell", "y", "m", "modis", "viirs", "harm"],
+    "properties": {
+      "cell": {
+        "type": "string",
+        "pattern": "^-?\\d+(\\.\\d+)?_-?\\d+(\\.\\d+)?$",
+        "description": "Grid cell anchor as \"<lat>_<lon>\", one decimal place."
+      },
+      "y": {
+        "type": "integer",
+        "minimum": 2000,
+        "maximum": 2100
+      },
+      "m": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 12
+      },
+      "modis": {
+        "type": ["integer", "null"],
+        "minimum": 0,
+        "description": "Raw MODIS detection count; null when not measured."
+      },
+      "viirs": {
+        "type": ["integer", "null"],
+        "minimum": 0,
+        "description": "Raw VIIRS S-NPP detection count; 0 before 2012."
+      },
+      "harm": {
+        "type": ["number", "null"],
+        "minimum": 0,
+        "description": "MODIS-equivalent harmonized count; the only field the calendar uses."
+      }
+    }
+  }
+}

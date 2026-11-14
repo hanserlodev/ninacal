@@ -1,0 +1,40 @@
+name: Feature request
+description: Propose an improvement or a new capability.
+title: "[feat] "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem does it solve?
+      description: Describe the user and the situation, not the implementation.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: A sketch is enough. Mention alternatives you considered.
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Map / region selection
+        - Calendar and charts
+        - Data pipeline
+        - Export CSV
+        - Documentation
+        - Accessibility
+        - Other
+    validations:
+      required: true
+  - type: checkboxes
+    id: scope
+    attributes:
+      label: Scope check
+      options:
+        - label: This does not require a backend or accounts
+        - label: This does not change the data contract (or I opened a discussion about it)
