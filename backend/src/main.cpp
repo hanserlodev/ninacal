@@ -283,6 +283,18 @@ int main(int argc, char **argv) {
             send_error(response, response.status, response.status == 404 ? "Not found" : "Request failed");
         }
     });
+
+    // Liveness on a dedicated port/thread: the main pool may be busy with large
+    // grids, but the container must still be able to answer its healthcheck.
+    httplib::Server liveness;
+    liveness.Get("/health", [](const httplib::Request &, httplib::Response &response) {
+        send_json(response, {{"status", "ok"}});
+    });
+    std::thread([&liveness, &options] {
+        if (!liveness.listen("127.0.0.1", options.port + 1)) {
+            std::cerr << "cannot listen for liveness on 127.0.0.1:" << options.port + 1 << "\n";
+        }
+    }).detach();
     server.set_logger([](const httplib::Request &request, const httplib::Response &response) {
         std::cerr << response.status << " " << request.method << " " << request.path << "\n";
     });

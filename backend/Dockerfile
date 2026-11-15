@@ -23,7 +23,7 @@ COPY --from=build /src/build/ninacal-server /usr/local/bin/ninacal-server
 
 EXPOSE 8080
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-    CMD curl -fsS http://127.0.0.1:8080/health || exit 1
+    CMD curl -fsS http://127.0.0.1:8081/health || exit 1
 
 ENTRYPOINT ["ninacal-server"]
-CMD ["--db", "/data/ninacal.sqlite", "--data", "/data/web", "--host", "0.0.0.0", "--port", "8080", "--threads", "4"]
+CMD ["--db", "/data/ninacal.sqlite", "--data", "/data/web", "--host", "0.0.0.0", "--port", "8080", "--threads", "8"]
