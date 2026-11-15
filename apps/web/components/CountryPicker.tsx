@@ -24,9 +24,19 @@ export default function CountryPicker({
   const options = useMemo(() => {
     const needle = query.trim().toLowerCase();
     if (!needle) return COUNTRIES;
-    return COUNTRIES.filter((country) =>
-      `${country.name} ${country.code} ${country.iso3}`.toLowerCase().includes(needle),
-    );
+    const scored: { country: (typeof COUNTRIES)[number]; score: number }[] = [];
+    for (const country of COUNTRIES) {
+      const name = country.name.toLowerCase();
+      const code = country.code.toLowerCase();
+      const iso3 = country.iso3.toLowerCase();
+      let score = -1;
+      if (name.startsWith(needle) || code === needle || iso3 === needle) score = 0;
+      else if (name.split(/\s+/).some((word) => word.startsWith(needle))) score = 1;
+      else if (name.includes(needle) || code.includes(needle) || iso3.includes(needle)) score = 2;
+      if (score >= 0) scored.push({ country, score });
+    }
+    scored.sort((a, b) => a.score - b.score || a.country.name.localeCompare(b.country.name));
+    return scored.map((entry) => entry.country);
     // COUNTRIES is replaced in place by the API catalogue.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [query, version]);
