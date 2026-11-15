@@ -474,6 +474,10 @@ function V2ValidationPanel({
                 <dd>{cv ? formatDecimal(cv.rmse) : "—"}</dd>
               </div>
               <div>
+                <dt>Bias</dt>
+                <dd>{cv ? `${formatDecimal(cv.bias_pct)}%` : "—"}</dd>
+              </div>
+              <div>
                 <dt>2021–22 WAPE</dt>
                 <dd>{retrospective ? `${formatDecimal(retrospective.wape_pct)}%` : "—"}</dd>
               </div>
@@ -514,10 +518,20 @@ function ValidationReadout({
       <div className="mc-val-grid mc-val-grid--v2">
         {metadata.map((item) => {
           const cv = item.models.temporal_cv_selected_model?.country;
+          const supported = item.calibration?.model?.training_supported_cells ?? 0;
+          const biased = cv && Math.abs(cv.bias_pct) >= 15;
+          const small = supported > 0 && supported < 800;
           return (
             <div key={item.country}>
               <span>{item.country} · CV WAPE</span>
               <strong>{cv ? `${formatDecimal(cv.wape_pct)}%` : "—"}</strong>
+              {biased ? (
+                <em className="mc-val-caveat">
+                  Bias {formatDecimal(cv.bias_pct)}% · {cv.bias_pct > 0 ? "over" : "under"}estimates
+                </em>
+              ) : small ? (
+                <em className="mc-val-caveat">Small sample · aggregate indication only</em>
+              ) : null}
             </div>
           );
         })}

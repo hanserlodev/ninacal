@@ -4703,3 +4703,14 @@ code {
 .mc-compare-scale-note strong {
   color: var(--ink);
 }
+
+.mc-val-caveat {
+  display: block;
+  margin-top: 0.2rem;
+  color: #c98a6b;
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  font-style: normal;
+  letter-spacing: 0.03em;
+  line-height: 1.35;
+}
