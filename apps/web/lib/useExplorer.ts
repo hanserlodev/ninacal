@@ -159,12 +159,20 @@ export function useExplorer() {
   const [range, setRange] = useState<[number, number]>([FIRST_HARMONIZED_YEAR, INITIAL_YEAR]);
   const [mapYear, setMapYear] = useState(INITIAL_YEAR);
   const [calibration, setCalibration] = useState<Calibration | null>(null);
-  const [selection, setSelection] = useState<Selection>({
+  const [selection, setSelectionState] = useState<Selection>({
     bbox: INITIAL_REGION.bbox,
     allCellsFor: INITIAL_REGION.allCellsFor,
     countries: INITIAL_REGION.countries,
     label: INITIAL_REGION.label,
   });
+  const userSelected = useRef(false);
+  // Public setter: marks the selection as user-driven. Without this, the
+  // shared-link restore can run a few seconds after load and overwrite a
+  // country the user just picked.
+  const setSelection = useCallback((next: Selection) => {
+    userSelected.current = true;
+    setSelectionState(next);
+  }, []);
   const [liveRows, setLiveRows] = useState<Row[]>([]);
   const [v2Rows, setV2Rows] = useState<Row[]>([]);
   const [knownCells, setKnownCells] = useState<string[]>([]);
@@ -284,20 +292,25 @@ export function useExplorer() {
   // Restore a shared link once the year catalogue is known.
   useEffect(() => {
     if (!booted || urlReady || availableYears.length === 0) return;
+    if (userSelected.current) {
+      // The user already chose something while the app was booting: respect it.
+      setUrlReady(true);
+      return;
+    }
     const url = readUrlState();
     const low = availableYears[0];
     const high = availableYears[availableYears.length - 1];
     if (url.region) {
       const region = REGIONS.find((entry) => entry.id === url.region);
       if (region)
-        setSelection({
+        setSelectionState({
           bbox: region.bbox,
           allCellsFor: region.allCellsFor,
           countries: region.countries,
           label: region.label ?? region.name,
         });
     } else if (url.bbox) {
-      setSelection({ bbox: url.bbox, country: url.country, label: url.label });
+      setSelectionState({ bbox: url.bbox, country: url.country, label: url.label });
     }
     if (url.from !== undefined || url.to !== undefined) {
       const from = Math.max(low, Math.min(high, url.from ?? low));
