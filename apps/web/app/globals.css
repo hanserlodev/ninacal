@@ -4436,3 +4436,55 @@ code {
   letter-spacing: 0.06em;
   text-transform: uppercase;
 }
+
+/* ---------- Meteomatics weather panel ---------- */
+
+.mc-weather-date {
+  display: grid;
+  gap: 0.35rem;
+  margin-bottom: 0.8rem;
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.mc-weather-date input {
+  padding: 0.42rem 0.55rem;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface-deep);
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color-scheme: dark;
+}
+
+.mc-weather-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.7rem;
+  margin: 0;
+}
+
+.mc-weather-grid div {
+  display: grid;
+  gap: 0.1rem;
+  min-width: 0;
+}
+
+.mc-weather-grid dt {
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.mc-weather-grid dd {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  font-variant-numeric: tabular-nums;
+}

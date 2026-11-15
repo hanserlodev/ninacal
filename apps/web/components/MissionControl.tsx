@@ -7,6 +7,7 @@ import CalibrationPanel from "./CalibrationPanel";
 import ComparisonPanel from "./ComparisonPanel";
 import SeasonalityChart from "./SeasonalityChart";
 import ContextPanel from "./ContextPanel";
+import WeatherPanel from "./WeatherPanel";
 import SeriesChart from "./SeriesChart";
 import WorldPicker from "./WorldPicker";
 import { computeStats, median, monthHistory } from "@/lib/aggregate";
@@ -899,6 +900,13 @@ export default function MissionControl() {
                   : state.selection.allCellsFor
             }
             year={state.mapYear}
+          />
+
+          <WeatherPanel
+            bbox={state.selection.bbox}
+            year={state.mapYear}
+            peakMonth={grid.peak?.m ?? null}
+            hidden={state.worldView}
           />
 
           <section className="mc-panel">

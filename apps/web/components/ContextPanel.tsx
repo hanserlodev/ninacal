@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { DATA_BASE } from "@/lib/api";
 
 type Context = {
   landcover?: {
@@ -43,7 +42,7 @@ export default function ContextPanel({ code, year }: { code?: string; year: numb
     }
     let alive = true;
     setData(null);
-    fetch(`${DATA_BASE}/context/${code}-${year}.json`, { cache: "force-cache" })
+    fetch(`/context/${code}-${year}.json`, { cache: "force-cache" })
       .then((response) => (response.ok ? (response.json() as Promise<Context>) : null))
       .then((value) => {
         if (alive) setData(value);

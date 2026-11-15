@@ -37,8 +37,10 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - `scripts/planetary_context.py`: land-cover and burned-area context from the public
   Microsoft Planetary Computer STAC API (no account needed).
-- `deploy/weather-worker/`: Cloudflare Worker proxy for Meteomatics with edge cache and
-  restricted CORS.
+- `deploy/weather-worker/` and `deploy/weather-proxy/`: Meteomatics proxies with edge cache
+  and restricted CORS (the Vercel function is the deployed one).
+- Console context panels: Planetary Computer land cover/burned area and daily weather at the
+  selection centre.
 - `deploy/gcp/`: temporary high-CPU VM scripts to run the pipeline from a GCS tarball.
 - `deploy/DOMAIN.md`: custom domain, Cloudflare cache, rate limit and real-IP guide.
 - Data issue template with cell/year/month fields, to trace numbers back to the pipeline.
