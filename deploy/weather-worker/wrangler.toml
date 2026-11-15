@@ -1,0 +1,10 @@
+name = "ninacal-weather"
+main = "src/index.js"
+compatibility_date = "2026-11-01"
+
+[vars]
+ALLOWED_ORIGIN = "https://ninacal.vercel.app"
+
+# Secrets (never put them here):
+#   wrangler secret put METEO_USER
+#   wrangler secret put METEO_PASS

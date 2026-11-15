@@ -35,6 +35,12 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- `scripts/planetary_context.py`: land-cover and burned-area context from the public
+  Microsoft Planetary Computer STAC API (no account needed).
+- `deploy/weather-worker/`: Cloudflare Worker proxy for Meteomatics with edge cache and
+  restricted CORS.
+- `deploy/gcp/`: temporary high-CPU VM scripts to run the pipeline from a GCS tarball.
+- `deploy/DOMAIN.md`: custom domain, Cloudflare cache, rate limit and real-IP guide.
 - Data issue template with cell/year/month fields, to trace numbers back to the pipeline.
 - `scripts/validate_data.py`: contract checks for processed files, calibration and the mock.
 - Interactive explorer: MapLibre map with rectangle/polygon drawing, region presets, bounding
