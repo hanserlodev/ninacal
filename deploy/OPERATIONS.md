@@ -100,6 +100,19 @@ make download          # usa countries.json y salta lo existente
 4. Redeploy del frontend.
 5. Probar `/health`, `/api/countries`, `/data/boundaries/...` y CORS.
 
+## Caché y CDN
+
+- El frontend guarda respuestas JSON deterministas en IndexedDB (`apps/web/lib/cache.ts`):
+  manifiesto, calibración, series, región y grilla anual. Una segunda visita al mismo
+  país/año/región no vuelve a pedir esos datos.
+- Los tiles del mapa ya usan la caché HTTP del navegador y el CDN de Esri.
+- Para el VPS, `deploy/nginx-cache.conf` añade proxy-cache para `/data/` (1 hora, manifiesto sin caché) y `/api/`
+  (5 minutos), sin tocar FILAM.
+- Si hay Cloudflare delante de la API, se puede cachear `/data/*` y `/api/{countries,series}`
+  con reglas de 5–30 min; `/api/region` y `/api/grid` son deterministas y también se pueden
+  cachear unos minutos. No cachear POST.
+- Tras actualizar datos, hacer hard refresh o borrar IndexedDB para saltar la caché local.
+
 ## Verificación mínima después de cada cambio de datos
 
 ```bash

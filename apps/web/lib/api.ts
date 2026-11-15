@@ -1,5 +1,6 @@
 import type { Aggregated, BBox, DataCountry, Row, V2CountryMetadata, V2Manifest } from "./types";
 import type { LoadProgress } from "./data";
+import { cachedJson } from "./cache";
 
 const RAW_API = (process.env.NEXT_PUBLIC_API_BASE ?? "").replace(/\/+$/, "");
 const RAW_DATA = (process.env.NEXT_PUBLIC_DATA_BASE ?? "").replace(/\/+$/, "");
@@ -63,15 +64,12 @@ export type ApiSeriesRow = {
   reference_years?: number;
 };
 
-async function fetchJson<T>(url: string, signal?: AbortSignal): Promise<T> {
-  const response = await fetch(url, { signal, headers: { Accept: "application/json" } });
-  if (!response.ok) throw new Error(`HTTP ${response.status}: ${url}`);
-  return (await response.json()) as T;
-}
-
 export async function loadApiManifest(signal?: AbortSignal): Promise<V2Manifest | null> {
   try {
-    const value = await fetchJson<V2Manifest>(`${DATA_BASE}/manifest.json`, signal);
+    const value = await cachedJson<V2Manifest>(`${DATA_BASE}/manifest.json`, {
+      signal,
+      ttl: 5 * 60 * 1000,
+    });
     if (value.schema_version !== 2 || !value.countries?.PE || !value.countries?.US) return null;
     return value;
   } catch {
@@ -86,8 +84,8 @@ export async function loadApiMetadata(
   return Promise.all(
     countries.map(async (country) => {
       const [calibration, models] = await Promise.all([
-        fetchJson(`${DATA_BASE}/${country}/calibration.json`, signal),
-        fetchJson(`${DATA_BASE}/${country}/models.json`, signal),
+        cachedJson(`${DATA_BASE}/${country}/calibration.json`, { signal }),
+        cachedJson(`${DATA_BASE}/${country}/models.json`, { signal }),
       ]);
       return {
         country,
@@ -135,7 +133,7 @@ export async function loadApiRegion(query: RegionQuery, signal?: AbortSignal): P
     end: String(query.end),
   });
   if (query.bbox) params.set("bbox", bboxParam(query.bbox));
-  return fetchJson<ApiRegion>(`${API_BASE}/api/region?${params.toString()}`, signal);
+  return cachedJson<ApiRegion>(`${API_BASE}/api/region?${params.toString()}`, { signal });
 }
 
 const gridCache = new Map<string, ApiGrid>();
@@ -151,7 +149,10 @@ export async function loadApiGrid(
   if (cached) return cached;
   const params = new URLSearchParams({ year: String(year) });
   if (bbox) params.set("bbox", bboxParam(bbox));
-  const value = await fetchJson<ApiGrid>(`${API_BASE}/api/grid/${country}?${params.toString()}`, signal);
+  const value = await cachedJson<ApiGrid>(`${API_BASE}/api/grid/${country}?${params.toString()}`, {
+    signal,
+    ttl: 24 * 60 * 60 * 1000,
+  });
   gridCache.set(key, value);
   return value;
 }
@@ -160,7 +161,7 @@ export async function loadApiSeriesIndex(
   country: DataCountry,
   signal?: AbortSignal,
 ): Promise<ApiSeriesSummary[]> {
-  return fetchJson<ApiSeriesSummary[]>(`${API_BASE}/api/series/${country}`, signal);
+  return cachedJson<ApiSeriesSummary[]>(`${API_BASE}/api/series/${country}`, { signal });
 }
 
 export async function loadApiSeries(
@@ -169,7 +170,9 @@ export async function loadApiSeries(
   level: "months" | "quarters" | "years",
   signal?: AbortSignal,
 ): Promise<{ id: string; name: string; rows: ApiSeriesRow[] }> {
-  return fetchJson(`${API_BASE}/api/series/${country}/${encodeURIComponent(id)}?level=${level}`, signal);
+  return cachedJson(`${API_BASE}/api/series/${country}/${encodeURIComponent(id)}?level=${level}`, {
+    signal,
+  });
 }
 
 export function mergeRegions(regions: ApiRegion[], years: number[]): Aggregated | null {

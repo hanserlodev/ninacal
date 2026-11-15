@@ -16,7 +16,7 @@ export const REGIONS: Region[] = [
     label: "World",
   },
   ...COUNTRIES.map((country) => ({
-    id: country.code.toLowerCase(),
+    id: country.code === "PE" ? "peru" : country.code === "US" ? "usa" : country.code.toLowerCase(),
     name: country.name,
     detail: country.iso3,
     bbox: country.viewBbox,

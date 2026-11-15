@@ -275,17 +275,26 @@ function AnomalyReadout({
   const stats = computeStats(values, latest.value);
   const delta = stats.median > 0 ? ((latest.value - stats.median) / stats.median) * 100 : 0;
   const percentile = Math.round(stats.percentile * 100);
-  const level =
-    percentile >= 90 ? "critical" : percentile >= 75 ? "elevated" : percentile <= 25 ? "low" : "normal";
-  const label =
-    level === "critical"
+  const hasHistory = previous.length > 0;
+  const level = !hasHistory
+    ? "normal"
+    : percentile >= 90
+      ? "critical"
+      : percentile >= 75
+        ? "elevated"
+        : percentile <= 25
+          ? "low"
+          : "normal";
+  const label = !hasHistory
+    ? "No baseline"
+    : level === "critical"
       ? "Critical"
       : level === "elevated"
         ? "Elevated"
         : level === "low"
           ? "Low"
           : "Normal";
-  const barMax = Math.max(1, ...values);
+  const barMax = Math.max(1, ...history.map((entry) => entry.value));
   const higher = previous.filter((entry) => entry.value < latest.value).length;
   const medians = Array.from({ length: 12 }, (_, index) =>
     median(monthHistory(grid, index + 1).map((entry) => entry.value)),

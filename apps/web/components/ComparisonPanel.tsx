@@ -1,37 +1,107 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { COUNTRIES } from "@/lib/countries";
 import { formatCompact, formatDecimal } from "@/lib/format";
 import { loadSeriesEntry, loadSeriesIndex, type SeriesLevel } from "@/lib/series";
-import type { ApiSeriesRow } from "@/lib/api";
-import type { DataCountry } from "@/lib/types";
-
-type Option = { country: DataCountry; id: string; name: string };
+import type { ApiSeriesRow, ApiSeriesSummary } from "@/lib/api";
 
 const W = 520;
 const H = 150;
 const PAD = { top: 10, right: 8, bottom: 18, left: 8 };
+
+type Side = {
+  country: string;
+  region: string;
+  options: ApiSeriesSummary[];
+  rows: ApiSeriesRow[];
+  loading: boolean;
+};
 
 function valueFor(rows: ApiSeriesRow[], year: number): number | null {
   const row = rows.find((entry) => entry.year === year);
   return row && row.value !== null ? row.value : null;
 }
 
-function seriesPath(rows: ApiSeriesRow[], years: number[], max: number, color: string): string {
+function seriesMarkup(rows: ApiSeriesRow[], years: number[], max: number, color: string): string {
   let open = false;
   let path = "";
+  let dots = "";
   years.forEach((year, index) => {
     const value = valueFor(rows, year);
     if (value === null) {
       open = false;
       return;
     }
-    const x = PAD.left + (years.length <= 1 ? 0 : (index / (years.length - 1)) * (W - PAD.left - PAD.right));
+    const x =
+      PAD.left +
+      (years.length <= 1 ? (W - PAD.left - PAD.right) / 2 : (index / (years.length - 1)) * (W - PAD.left - PAD.right));
     const y = H - PAD.bottom - (value / max) * (H - PAD.top - PAD.bottom);
     path += `${open ? "L" : "M"}${x.toFixed(1)},${y.toFixed(1)}`;
+    dots += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="2.3" fill="${color}" />`;
     open = true;
   });
-  return path ? `<path d="${path}" fill="none" stroke="${color}" stroke-width="1.6" />` : "";
+  return `${path ? `<path d="${path}" fill="none" stroke="${color}" stroke-width="1.6" />` : ""}${dots}`;
+}
+
+function countryName(code: string): string {
+  return COUNTRIES.find((country) => country.code === code)?.name ?? code;
+}
+
+function defaultB(code: string): string {
+  if (code !== "US" && COUNTRIES.some((country) => country.code === "US")) return "US";
+  if (code !== "PE" && COUNTRIES.some((country) => country.code === "PE")) return "PE";
+  return COUNTRIES.find((country) => country.code !== code)?.code ?? code;
+}
+
+function SidePicker({
+  side,
+  label,
+  state,
+  onChange,
+}: {
+  side: "a" | "b";
+  label: string;
+  state: Side;
+  onChange: (patch: Partial<Side>) => void;
+}) {
+  const regions = state.options.filter((entry) => entry.id !== state.country);
+  return (
+    <div className="mc-compare-side">
+      <div className="mc-compare-side-head">
+        <span className={`mc-compare-key is-${side}`} aria-hidden="true" />
+        <strong>{label}</strong>
+        {state.loading ? <em>loading…</em> : null}
+      </div>
+      <label>
+        <span>Country</span>
+        <select
+          value={state.country}
+          onChange={(event) => onChange({ country: event.target.value, region: event.target.value })}
+        >
+          {COUNTRIES.map((entry) => (
+            <option key={`${side}-${entry.code}`} value={entry.code}>
+              {entry.name}
+            </option>
+          ))}
+        </select>
+      </label>
+      <label>
+        <span>Region / state</span>
+        <select
+          value={state.region}
+          onChange={(event) => onChange({ region: event.target.value })}
+        >
+          <option value={state.country}>{countryName(state.country)} · whole country</option>
+          {regions.map((entry) => (
+            <option key={`${side}-${entry.id}`} value={entry.id}>
+              {entry.name} · {entry.cells} cells
+            </option>
+          ))}
+        </select>
+      </label>
+    </div>
+  );
 }
 
 export default function ComparisonPanel({
@@ -41,72 +111,96 @@ export default function ComparisonPanel({
   range: [number, number];
   country?: string;
 }) {
-  const [options, setOptions] = useState<Option[]>([]);
-  const [a, setA] = useState("PE");
-  const [b, setB] = useState("US");
-  const [rowsA, setRowsA] = useState<ApiSeriesRow[]>([]);
-  const [rowsB, setRowsB] = useState<ApiSeriesRow[]>([]);
-  const [loading, setLoading] = useState(true);
+  const initialA = country && COUNTRIES.some((entry) => entry.code === country) ? country : "PE";
+  const [a, setA] = useState<Side>({
+    country: initialA,
+    region: initialA,
+    options: [],
+    rows: [],
+    loading: true,
+  });
+  const [b, setB] = useState<Side>({
+    country: defaultB(initialA),
+    region: defaultB(initialA),
+    options: [],
+    rows: [],
+    loading: true,
+  });
 
+  // Map selection drives side A, but manual comparison choices stay put unless
+  // the selected country actually changes.
   useEffect(() => {
-    let alive = true;
-    const countries: DataCountry[] = ["PE", "US"];
-    if (country && !countries.includes(country)) countries.push(country);
-    Promise.all(countries.map((code) => loadSeriesIndex(code)))
-      .then((indexes) => {
-        if (!alive) return;
-        const list: Option[] = indexes.flatMap((entries, position) =>
-          entries.map((entry) => ({
-            country: countries[position],
-            id: entry.id,
-            name: entry.name,
-          })),
-        );
-        setOptions(list);
-        if (!list.some((entry) => entry.id === "PE")) setA(list[0]?.id ?? "");
-        if (!list.some((entry) => entry.id === "US")) setB(list[1]?.id ?? "");
-      })
-      .catch(() => {
-        if (alive) setOptions([]);
-      });
-    return () => {
-      alive = false;
-    };
+    if (!country || !COUNTRIES.some((entry) => entry.code === country)) return;
+    setA((current) =>
+      current.country === country
+        ? current
+        : { ...current, country, region: country, options: [], rows: [], loading: true },
+    );
   }, [country]);
 
   useEffect(() => {
-    if (!country || options.length === 0) return;
-    if (!options.some((entry) => entry.id === country)) return;
-    setA(country);
-    const other = options.find((entry) => entry.id !== country && entry.id.length <= 3);
-    if (other) setB(other.id);
-  }, [country, options]);
-
-  useEffect(() => {
-    if (!a || !b || options.length === 0) return;
-    const optionA = options.find((entry) => entry.id === a);
-    const optionB = options.find((entry) => entry.id === b);
-    if (!optionA || !optionB) return;
     let alive = true;
-    setLoading(true);
-    const level: SeriesLevel = "years";
-    Promise.all([
-      loadSeriesEntry(optionA.country, optionA.id, level),
-      loadSeriesEntry(optionB.country, optionB.id, level),
-    ])
-      .then(([first, second]) => {
+    setA((current) => ({ ...current, options: [], loading: true }));
+    loadSeriesIndex(a.country)
+      .then((options) => {
         if (!alive) return;
-        setRowsA(first.rows);
-        setRowsB(second.rows);
-        setLoading(false);
+        setA((current) => ({ ...current, options, loading: false }));
       })
       .catch(() => {
-        if (alive) setLoading(false);
+        if (alive) setA((current) => ({ ...current, options: [], loading: false }));
       });
     return () => {
       alive = false;
     };
-  }, [a, b, options]);
+  }, [a.country]);
+
+  useEffect(() => {
+    let alive = true;
+    setB((current) => ({ ...current, options: [], loading: true }));
+    loadSeriesIndex(b.country)
+      .then((options) => {
+        if (!alive) return;
+        setB((current) => ({ ...current, options, loading: false }));
+      })
+      .catch(() => {
+        if (alive) setB((current) => ({ ...current, options: [], loading: false }));
+      });
+    return () => {
+      alive = false;
+    };
+  }, [b.country]);
+
+  useEffect(() => {
+    let alive = true;
+    const level: SeriesLevel = "years";
+    const id = a.region || a.country;
+    loadSeriesEntry(a.country, id, level)
+      .then((entry) => {
+        if (alive) setA((current) => ({ ...current, rows: entry.rows }));
+      })
+      .catch(() => {
+        if (alive) setA((current) => ({ ...current, rows: [] }));
+      });
+    return () => {
+      alive = false;
+    };
+  }, [a.country, a.region]);
+
+  useEffect(() => {
+    let alive = true;
+    const level: SeriesLevel = "years";
+    const id = b.region || b.country;
+    loadSeriesEntry(b.country, id, level)
+      .then((entry) => {
+        if (alive) setB((current) => ({ ...current, rows: entry.rows }));
+      })
+      .catch(() => {
+        if (alive) setB((current) => ({ ...current, rows: [] }));
+      });
+    return () => {
+      alive = false;
+    };
+  }, [b.country, b.region]);
 
   const years = useMemo(() => {
     const values: number[] = [];
@@ -117,18 +211,23 @@ export default function ComparisonPanel({
   const max = useMemo(() => {
     let largest = 1;
     for (const year of years) {
-      for (const rows of [rowsA, rowsB]) {
+      for (const rows of [a.rows, b.rows]) {
         const value = valueFor(rows, year);
         if (value !== null) largest = Math.max(largest, value);
       }
     }
     return largest;
-  }, [years, rowsA, rowsB]);
+  }, [years, a.rows, b.rows]);
 
-  const labelA = options.find((entry) => entry.id === a)?.name ?? a;
-  const labelB = options.find((entry) => entry.id === b)?.name ?? b;
-  const totalA = years.reduce((sum, year) => sum + (valueFor(rowsA, year) ?? 0), 0);
-  const totalB = years.reduce((sum, year) => sum + (valueFor(rowsB, year) ?? 0), 0);
+  const regionName = (side: Side): string => {
+    if (side.region === side.country) return countryName(side.country);
+    return side.options.find((entry) => entry.id === side.region)?.name ?? side.region;
+  };
+
+  const labelA = regionName(a);
+  const labelB = regionName(b);
+  const totalA = years.reduce((sum, year) => sum + (valueFor(a.rows, year) ?? 0), 0);
+  const totalB = years.reduce((sum, year) => sum + (valueFor(b.rows, year) ?? 0), 0);
   const delta = totalB > 0 ? ((totalA - totalB) / totalB) * 100 : 0;
 
   return (
@@ -144,26 +243,18 @@ export default function ComparisonPanel({
       </div>
 
       <div className="mc-compare-pickers">
-        <label>
-          <span>Region A</span>
-          <select value={a} onChange={(event) => setA(event.target.value)}>
-            {options.map((entry) => (
-              <option key={`a-${entry.country}-${entry.id}`} value={entry.id}>
-                {entry.country} · {entry.name}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label>
-          <span>Region B</span>
-          <select value={b} onChange={(event) => setB(event.target.value)}>
-            {options.map((entry) => (
-              <option key={`b-${entry.country}-${entry.id}`} value={entry.id}>
-                {entry.country} · {entry.name}
-              </option>
-            ))}
-          </select>
-        </label>
+        <SidePicker
+          side="a"
+          label="Region A"
+          state={a}
+          onChange={(patch) => setA((current) => ({ ...current, ...patch, rows: [] }))}
+        />
+        <SidePicker
+          side="b"
+          label="Region B"
+          state={b}
+          onChange={(patch) => setB((current) => ({ ...current, ...patch, rows: [] }))}
+        />
       </div>
 
       <div className="mc-compare-totals">
@@ -178,7 +269,7 @@ export default function ComparisonPanel({
           <em>{labelB} hotspot-days</em>
         </div>
         <div className={delta >= 0 ? "mc-compare-delta is-up" : "mc-compare-delta is-down"}>
-          {loading ? "…" : `${delta >= 0 ? "+" : ""}${formatDecimal(delta)}%`}
+          {a.loading || b.loading ? "…" : `${delta >= 0 ? "+" : ""}${formatDecimal(delta)}%`}
           <em>A vs B</em>
         </div>
       </div>
@@ -191,8 +282,8 @@ export default function ComparisonPanel({
         aria-label={`Annual hotspot-days for ${labelA} and ${labelB}, ${range[0]} to ${range[1]}.`}
         dangerouslySetInnerHTML={{
           __html:
-            seriesPath(rowsA, years, max, "#6fd6d0") +
-            seriesPath(rowsB, years, max, "#ff6b3d"),
+            seriesMarkup(a.rows, years, max, "#6fd6d0") +
+            seriesMarkup(b.rows, years, max, "#ff6b3d"),
         }}
       />
 
@@ -202,8 +293,8 @@ export default function ComparisonPanel({
       </div>
 
       <p className="mc-compare-note">
-        Annual totals from the country/department series. Compare shapes and levels; both use
-        detected hotspot-days on the same Suomi-NPP scale.
+        Annual totals from the country/department series. Pick any country and region on each
+        side; both use detected hotspot-days on the same Suomi-NPP scale.
       </p>
     </div>
   );
