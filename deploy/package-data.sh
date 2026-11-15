@@ -42,6 +42,11 @@ mkdir -p "$OUT/data/v2" "$OUT/backend/data"
 echo "== manifest"
 cp "$SRC_DATA/manifest.json" "$OUT/data/v2/manifest.json"
 
+if [ -d "$SRC_DATA/context" ]; then
+  echo "== planetary context"
+  cp -r "$SRC_DATA/context" "$OUT/data/v2/context"
+fi
+
 echo "== per-country backend + frontend metadata"
 count=0
 for dir in "$SRC_DATA"/*/; do

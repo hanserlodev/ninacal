@@ -6,6 +6,7 @@ import CalendarHeatmap from "./CalendarHeatmap";
 import CalibrationPanel from "./CalibrationPanel";
 import ComparisonPanel from "./ComparisonPanel";
 import SeasonalityChart from "./SeasonalityChart";
+import ContextPanel from "./ContextPanel";
 import SeriesChart from "./SeriesChart";
 import WorldPicker from "./WorldPicker";
 import { computeStats, median, monthHistory } from "@/lib/aggregate";
@@ -888,6 +889,17 @@ export default function MissionControl() {
             </header>
             <SeasonPeaks grid={grid} />
           </section>
+
+          <ContextPanel
+            code={
+              state.worldView
+                ? undefined
+                : state.dataCountries.length === 1
+                  ? state.dataCountries[0]
+                  : state.selection.allCellsFor
+            }
+            year={state.mapYear}
+          />
 
           <section className="mc-panel">
             <header className="mc-panel-head">
