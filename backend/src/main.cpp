@@ -126,12 +126,12 @@ void routes(httplib::Server &server, const ninacal::Store &store) {
         send_json(response, list);
     });
 
-    server.Get(R"(/api/series/([A-Za-z]{2}))", [&store](const httplib::Request &request, httplib::Response &response) {
+    server.Get(R"(/api/series/([A-Za-z]{2,3}))", [&store](const httplib::Request &request, httplib::Response &response) {
         const auto &country = ninacal::require_country(store, request.matches[1].str());
         response.set_content(store.series_index(country), "application/json");
     });
 
-    server.Get(R"(/api/series/([A-Za-z]{2})/([^/]+))",
+    server.Get(R"(/api/series/([A-Za-z]{2,3})/([^/]+))",
                [&store](const httplib::Request &request, httplib::Response &response) {
                    const auto &country = ninacal::require_country(store, request.matches[1].str());
                    std::string id = request.matches[2].str();
@@ -157,7 +157,7 @@ void routes(httplib::Server &server, const ninacal::Store &store) {
                    send_json(response, body);
                });
 
-    server.Get(R"(/api/grid/([A-Za-z]{2}))", [&store](const httplib::Request &request, httplib::Response &response) {
+    server.Get(R"(/api/grid/([A-Za-z]{2,3}))", [&store](const httplib::Request &request, httplib::Response &response) {
         const auto &country = ninacal::require_country(store, request.matches[1].str());
         if (!request.has_param("year")) {
             throw ninacal::BadRequest("year is required");
