@@ -14,7 +14,7 @@ Array of rows. One row = one grid cell, one month, one year.
 
 | Field   | Type             | Required | Description                                                       |
 | ------- | ---------------- | -------- | ----------------------------------------------------------------- |
-| `cell`  | string           | yes      | Anchor of the 0.1° cell: `"<lat>_<lon>"`, e.g. `"-10.2_-73.5"`.    |
+| `cell`  | string           | yes      | Anchor of the 0.05° cell: `"<lat>_<lon>"`, e.g. `"-10.2_-73.5"`.    |
 | `y`     | integer          | yes      | Calendar year, 2000–2100.                                         |
 | `m`     | integer          | yes      | Calendar month, 1–12.                                             |
 | `modis` | integer \| null  | yes      | Raw MODIS C6.1 detection count for the cell-month.                |
@@ -26,7 +26,7 @@ Array of rows. One row = one grid cell, one month, one year.
 - **`cell` format**: `^-?\d+(\.\d+)?_-?\d+(\.\d+)?$`. Latitude first, longitude second.
   Anchor convention: **cell center** (decision recorded here; the pipeline and frontend must
   both use it).
-- **Precision**: one decimal place is enough for a 0.1° grid (`-10.2`, not `-10.200001`).
+- **Precision**: one decimal place is enough for a 0.05° grid (`-10.2`, not `-10.200001`).
 - **`null` vs `0`**: `null` means "no measurement / not applicable". `0` means "measured,
   nothing detected". Never use `0` to fill a missing value, and never drop a row because a
   field is null.

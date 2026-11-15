@@ -1,5 +1,12 @@
 # Methodology
 
+> **Current web data:** the console now reads the v2 research bundle documented in
+> [`data-v2/README.md`](data-v2/README.md) and [`data-v2/DATA_CONTRACT.md`](data-v2/DATA_CONTRACT.md).
+> It is 2003–2025 detected hotspot-days on the Suomi-NPP scale, using Aqua/MODIS estimation,
+> observed Suomi-NPP from February 2012, and selected NOAA-20 outage fallbacks. The earlier
+> v1 pipeline below describes the original project design; do not use its MODIS-equivalent
+> units or schema to interpret v2 values.
+
 How NinaCal turns two incompatible satellite fire records into one series you can compare
 across 25 years. This document is written to be read by a judge: it states what we do, what
 we measured, and what we could not fix.
@@ -22,7 +29,7 @@ counts is wrong, and why we calibrate instead of concatenating.
 ## 2. Aggregation
 
 1. Read FIRMS CSVs and keep the detection timestamp, latitude and longitude.
-2. Snap each detection to a **0.1° × 0.1° grid cell** (roughly 11 km at the equator).
+2. Snap each detection to a **0.05° × 0.05° grid cell** (roughly 5.5 km at the equator).
 3. Count detections per cell per month for each product independently.
 4. Write one row per cell-month per product; the final file merges them.
 
@@ -49,7 +56,7 @@ training signal.
 3. Store the chosen method, the coefficients `k_m` and the fit metrics in
    `data/processed/calibration.json`.
 
-Ratios are computed on aggregated counts, not on single detections: at 0.1° and one month,
+Ratios are computed on aggregated counts, not on single detections: at 0.05° and one month,
 the counts are large enough for a stable factor, and the calendar only ever shows those
 aggregates.
 

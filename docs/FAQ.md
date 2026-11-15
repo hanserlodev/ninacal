@@ -2,15 +2,22 @@
 
 ## What is NinaCal?
 
-A static web app that shows a year × month calendar of fire detections for a region you
-choose, built from a harmonized MODIS + VIIRS series that spans 2000 to today.
+A web app that shows a year × month calendar of detected hotspot-days for a region you choose,
+built from the v2 Aqua/MODIS + Suomi-NPP/VIIRS series for 2003–2025. The frontend can run as a
+static export or read the optional read-only API.
 
 ## Why do MODIS and VIIRS need "harmonizing"?
 
 They are different instruments with different pixel sizes, overpass times and detection
-thresholds. Concatenating them produces fake trends around 2012; calibrating VIIRS to
-MODIS-equivalent counts on the years both exist makes the series comparable. Details in
+thresholds. The current v2 bundle converts Aqua/MODIS hotspot-days onto the Suomi-NPP scale and
+uses NOAA-20 as an explicitly estimated fallback for selected Suomi-NPP outages. See the
+[v2 contract](data-v2/DATA_CONTRACT.md); the older v1 pipeline method remains in
 [methodology](methodology.md).
+
+## Where is the map?
+
+The homepage (`/`) is the project overview. Open **Mission control** from the hero or header,
+or visit `/console/` directly for the full-screen map, region tools and analysis panels.
 
 ## Is this a fire map or an alert system?
 
@@ -19,25 +26,29 @@ live alerts, no incident confirmation and no risk score. See [limitations](limit
 
 ## Which regions are covered?
 
-Whatever the committed dataset covers — initially **Peru** at 0.1° resolution. You can draw
-any region, but outside the processed grid the app honestly returns nothing.
+The committed dataset covers **12 countries** at 0.05° resolution: Peru, the United States,
+Ecuador, Chile, Colombia, Paraguay, Mexico, Bolivia, Venezuela, Argentina, Australia and
+Brazil. The globe always shows the world; countries without a published bundle are dimmed.
+The pipeline can register up to 158 FIRMS countries with `make add-world`.
 
-## Why 0.1° cells and monthly counts?
+## Why 0.05° cells and monthly counts?
 
-Because shipping individual detections for 25 years would be enormous, and the questions the
+Because shipping individual detections for 23 harmonized years would be enormous, and the questions the
 calendar answers ("which months burn most", "is this month unusual") only need aggregated
 counts. Individual hotspots remain available from NASA FIRMS.
 
 ## Where does the CSV come from?
 
-It is generated in the browser from the current selection: harmonized counts per cell and
-month. No server round-trip, no personal data.
+It is generated for the current selection: from the browser bundle in static mode, or from
+`GET/POST /api/region?format=csv` in API mode. No personal data is involved.
 
-## Why is there no backend?
+## Is there a backend?
 
-The data is small after aggregation and changes when the team updates it, not per request.
-A static app is cheaper, faster and impossible to take down during a demo. See
-[ADR 0001](decisions/0001-static-next-export.md).
+Yes, optionally. `backend/` is a small read-only C++/SQLite server for the VPS. The Vercel
+frontend ships code only and points at it with `NEXT_PUBLIC_API_BASE`; without that variable
+the app stays a self-contained static export. See
+[ADR 0001](decisions/0001-static-next-export.md) for the original static decision and the
+[architecture](ARCHITECTURE.md) for the hybrid deployment.
 
 ## Can I reuse the code or the data?
 
@@ -46,8 +57,10 @@ and the product you use.
 
 ## How do I run it?
 
-`cd apps/web && npm install && npm run dev`. The app reads the sample file until processed
-data exists. See the [README](../README.md).
+Static: `cd apps/web && npm install && npm run dev`. API mode: run
+`backend/scripts/setup.sh && backend/scripts/run-dev.sh`, set
+`NEXT_PUBLIC_API_BASE=http://127.0.0.1:8080`, then start the frontend. See the
+[README](../README.md).
 
 ## How do I report a bug or a data problem?
 

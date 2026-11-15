@@ -23,6 +23,7 @@ required=(
   "data/schemas/processed-year.schema.json"
   "data/schemas/calibration.schema.json"
   "data/samples/mock.json"
+  "data/v2/manifest.json"
   "apps/web/package.json"
 )
 for file in "${required[@]}"; do
@@ -36,6 +37,12 @@ else
   bad "data files"
 fi
 
+if python3 scripts/validate_v2_data.py; then
+  ok "v2 data contract"
+else
+  bad "v2 data contract"
+fi
+
 echo "Line endings and whitespace"
 while IFS= read -r file; do
   if grep -q $'\r' "$file"; then bad "CRLF found: $file"; fi
@@ -44,6 +51,7 @@ done < <(git ls-files -- '*.md' '*.json' '*.yml' '*.yaml' '*.ts' '*.tsx' '*.css'
 while IFS= read -r match; do
   bad "trailing whitespace: $match"
 done < <(grep -rnI --exclude-dir=.git --exclude-dir=node_modules --exclude-dir=.next --exclude-dir=out \
+  --exclude-dir=build --exclude-dir=__pycache__ --exclude='*.sqlite' \
   --include='*.json' --include='*.ts' --include='*.tsx' --include='*.css' --include='*.yml' \
   --include='*.yaml' --include='*.sh' --include='Makefile' ' $' . 2>/dev/null | grep -v '^./package-lock.json' || true)
 

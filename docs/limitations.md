@@ -13,36 +13,53 @@ judges and users.
 - Attribution ("this is a wildfire" vs "this is agricultural burning") is **not** in the
   data. Do not infer it from the calendar.
 
-## Sensor limits
+## v2 data and sensor limits
 
-- **MODIS** (1 km) is less sensitive to small fires than **VIIRS** (375 m). Part of the
-  apparent increase after 2012 is instrumentation, not necessarily more fire. The
-  calibration reduces this effect; it does not erase it.
-- **VIIRS starts in 2012.** Pre-2012 values come from MODIS alone, so early years are
-  structurally less sensitive. This is labeled in the interface.
+- The current bundle covers **2003–2025**. `harm` is daytime detected **hotspot-days** on the
+  Suomi-NPP scale, not raw pixel detections or fire counts. Raw 2000–2002 rows are present
+  only for audit and are not plotted because they are not harmonized.
+- Aqua/MODIS is converted to the Suomi-NPP scale through January 2012; Suomi-NPP is observed
+  from February 2012. **NOAA-20** provides an estimated fallback for selected Suomi-NPP
+  outage months. The calendar marks estimated and mixed-source months.
+- Aqua/MODIS (1 km), Suomi-NPP/VIIRS (375 m) and NOAA-20 have different sensitivity and
+  overpass times. Harmonization reduces the seam; it does not remove sensor or cloud bias.
 - Detections depend on **cloud cover, overpass time and algorithm version**. Two products
   can observe the same fire different numbers of times.
-- FIRMS timestamps are **UTC**. Local-time interpretations can shift a day (and therefore a
-  month) at the edge of a month.
+- v2 dates use **local mean solar time**, not a national civil timezone.
 
 ## Coverage and aggregation
 
-- Data is processed for the **study region(s) committed by the team** — initially Peru. The
-  app does not promise global coverage; drawing outside the covered grid returns no data.
-- The exported CSV contains **harmonized counts per 0.1° cell and month**, not individual
+- Data is processed for **12 countries** (South America, the United States and Australia); the
+  pipeline can add more, up to the whole world. Within those countries, only
+  cells represented in the published support are known. Selecting an area with no published
+  cells is not evidence of zero activity.
+- The exported CSV contains **harmonized detected hotspot-days per 0.05° cell and month**, not individual
   hotspot records. Individual points are far too heavy to ship as static files and are
   already available from FIRMS.
-- A 0.1° cell is ~11 km at the equator. Small regions inside one cell cannot be separated.
-- Counts are **detections**, not events: a single large fire can be detected many times.
+- A 0.05° cell is ~5.5 km at the equator. Cells have different physical areas by latitude;
+  small regions within one cell cannot be separated.
+- A hotspot-day is counted at most once per day for a cell. It is still not an incident count,
+  acreage or fire probability.
 
 ## Harmonization uncertainty
 
-- The calibration is validated on 2021 → 2026 held-out years, but it is a statistical
-  correction. Expect residual error; see `metrics` in `calibration.json`.
-- Ratios are fitted per month, not per ecosystem. A month with unusual burning patterns may
-  fall outside the fitted range.
+- v2 is a **research prototype**. Error ranges are exploratory empirical ranges, never
+  confidence intervals. National measured coverage for 2021–2022 is about 65% for Peru and
+  70% for the U.S.; quarterly/annual national ranges are not validated.
+- Error is much larger for small selections: the source validation reports roughly 52–67%
+  WAPE for 0.5° rectangles, 35–50% at 1°, 25–35% at 2°, and lower errors for departments or
+  states and national totals. The map does not show a confidence band for arbitrary polygons.
+- A national model score must not be presented as the accuracy of a hand-drawn area.
 - Pre-2012 vs post-2012 comparability is **improved, not perfect**. The calendar is a
-  planning and communication tool, not an official fire statistic.
+  seasonal exploration tool, not an official fire statistic.
+
+## Demo mode
+
+- Only when neither the v2 bundle nor legacy processed files are available does the explorer
+  generate **synthetic rows**. The interface labels demo data, and the CSV filename says
+  `demo`.
+- Demo numbers are for reviewing the interface, never for citing a trend. As soon as a
+  published year exists, the app switches to real data automatically.
 
 ## Product scope
 

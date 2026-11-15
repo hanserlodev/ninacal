@@ -1,0 +1,20 @@
+# NinaCal API for the VPS. The data and SQLite database are generated on the
+# host and mounted read-only; the image itself stays small.
+services:
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    image: ninacal-api:local
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8080:8080"
+    volumes:
+      - ./data/v2:/data/web:ro
+      - ./backend/data/ninacal.sqlite:/data/ninacal.sqlite:ro
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:8080/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 5s

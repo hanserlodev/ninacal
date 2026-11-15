@@ -1,7 +1,7 @@
 # 0001 — Static Next.js export instead of a backend
 
 - **Date:** 2026-11-14
-- **Status:** accepted
+- **Status:** accepted; amended 2026-11-14 to allow an optional read-only API
 
 ## Context
 
@@ -22,6 +22,14 @@ file per year from the same origin. No API, no database, no server-side runtime.
 - **DuckDB-WASM / Parquet in the browser.** Attractive for large data, but more moving parts
   than JSON + `Array.prototype` for the expected payload sizes, and harder to explain.
 - **No web app, CSV only.** Fails the "calendar and comparison at a glance" goal.
+
+## Amendment (2026-11-14)
+
+The static export remains the default and the fallback. A second deployment mode adds a
+read-only C++/SQLite API (`backend/`) for a VPS: the Vercel frontend sets
+`NEXT_PUBLIC_API_BASE`, ships no data, and queries region/grid/series endpoints. This keeps
+the original benefits for the demo while letting the data bundle live outside the frontend
+upload. No writes, accounts or personal data are introduced.
 
 ## Consequences
 

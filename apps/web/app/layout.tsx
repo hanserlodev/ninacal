@@ -1,17 +1,18 @@
 import type { Metadata, Viewport } from "next";
+import "maplibre-gl/dist/maplibre-gl.css";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "NinaCal — 25 years of fire, one calendar",
+  title: "NinaCal — 23 years of fire, one calendar",
   description:
-    "NinaCal harmonizes NASA MODIS and VIIRS fire detections into one continuous burning-activity calendar for any region you draw.",
+    "NinaCal harmonizes Aqua/MODIS and Suomi-NPP/VIIRS detected hotspot-days into one 2003–2025 activity calendar for 12 countries across the Americas and Australia.",
   icons: {
     icon: "/favicon.svg",
   },
   openGraph: {
-    title: "NinaCal — 25 years of fire, one calendar",
+    title: "NinaCal — 23 years of fire, one calendar",
     description:
-      "A harmonized 2000→today calendar of satellite fire detections, built on NASA FIRMS data.",
+      "A harmonized 2003–2025 calendar of satellite detected hotspot-days for 12 countries, built on NASA FIRMS data.",
     type: "website",
   },
 };

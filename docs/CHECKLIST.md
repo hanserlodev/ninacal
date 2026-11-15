@@ -5,7 +5,7 @@ What "done" means for NASA Space Apps 2026. Owners: **H** = Hans, **D** = Data, 
 ## Product
 
 - [ ] Region selectable (draw a polygon or enter a bounding box) + date range — **H**
-- [ ] Calendar year × month, 2000 → today, with an accessible color ramp (viridis/cividis) — **H**
+- [ ] Calendar year × month, 2003–2025 harmonized hotspot-days, with an accessible color ramp — **H**
 - [ ] Current month vs historical median + standardized anomaly — **H/D**
 - [ ] MODIS ↔ VIIRS validation chart (observed vs predicted, held-out years) — **H/D**
 - [ ] CSV download works for the current selection — **H**
@@ -14,8 +14,8 @@ What "done" means for NASA Space Apps 2026. Owners: **H** = Hans, **D** = Data, 
 
 ## Data
 
-- [ ] `data/processed/{year}.json` for every year in the declared range — **D**
-- [ ] `data/processed/calibration.json` with method, factors and test metrics — **D**
+- [ ] `data/v2/{PE,US}/years/YYYY.json` validates against the v2 contract — **D**
+- [ ] v2 calibration, model evaluation and availability metadata are present — **D**
 - [ ] No `0` used for missing values; schema validation passes — **D**
 - [ ] Data dictionary matches the files actually committed — **D**
 - [ ] Years available and grid coverage stated in [limitations](limitations.md) — **D/P**

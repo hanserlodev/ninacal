@@ -1,0 +1,8 @@
+# Replace api.example.com with the real domain, then:
+#   docker run -d --name caddy --network host \
+#     -v $PWD/deploy/Caddyfile:/etc/caddy/Caddyfile:ro \
+#     -v caddy_data:/data -v caddy_config:/config caddy:2
+api.example.com {
+    encode gzip zstd
+    reverse_proxy 127.0.0.1:8080
+}
