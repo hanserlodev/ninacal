@@ -60,6 +60,7 @@ export default function Home() {
           <a href="/console/">Console</a>
           <a href="#how">Method</a>
           <a href="#data">Data</a>
+          <a href="/demo/">Demo</a>
           <a className="nav-cta" href={REPO_URL} target="_blank" rel="noreferrer">
             GitHub <span aria-hidden="true">↗</span>
           </a>
@@ -326,7 +327,9 @@ export default function Home() {
           </span>
           <p>
             Open source under MIT. Data from NASA FIRMS / EOSDIS. A world-ready pipeline served
-            through a read-only API. Built for the NASA Space Apps Challenge 2026.
+            through a read-only API. Built for the NASA Space Apps Challenge 2026. AI coding
+            assistance was used for code, documentation and analysis; all outputs were reviewed and
+            tested. No AI-generated imagery, audio or video.
           </p>
         </div>
         <ul className="footer-links">
