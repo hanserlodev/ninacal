@@ -77,7 +77,10 @@ function SidePicker({
         <span>Country</span>
         <select
           value={state.country}
-          onChange={(event) => onChange({ country: event.target.value, region: event.target.value })}
+          onChange={(event) => {
+            if (event.target.value === state.country) return;
+            onChange({ country: event.target.value, region: event.target.value });
+          }}
         >
           {COUNTRIES.map((entry) => (
             <option key={`${side}-${entry.code}`} value={entry.code}>
@@ -260,16 +263,18 @@ export default function ComparisonPanel({
       <div className="mc-compare-totals">
         <div>
           <span className="mc-compare-key is-a" aria-hidden="true" />
-          <strong>{formatCompact(totalA)}</strong>
+          <strong>{a.rows.length === 0 ? "…" : formatCompact(totalA)}</strong>
           <em>{labelA} hotspot-days</em>
         </div>
         <div>
           <span className="mc-compare-key is-b" aria-hidden="true" />
-          <strong>{formatCompact(totalB)}</strong>
+          <strong>{b.rows.length === 0 ? "…" : formatCompact(totalB)}</strong>
           <em>{labelB} hotspot-days</em>
         </div>
         <div className={delta >= 0 ? "mc-compare-delta is-up" : "mc-compare-delta is-down"}>
-          {a.loading || b.loading ? "…" : `${delta >= 0 ? "+" : ""}${formatDecimal(delta)}%`}
+          {a.loading || b.loading || a.rows.length === 0 || b.rows.length === 0
+            ? "…"
+            : `${delta >= 0 ? "+" : ""}${formatDecimal(delta)}%`}
           <em>A vs B</em>
         </div>
       </div>
