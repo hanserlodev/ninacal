@@ -1,10 +1,10 @@
 # Vercel hosts only the static frontend. Data and the C++ backend stay on the
 # VPS (or on the analyst's machine for local demos).
-backend/
-data/
-docs/
-pipelines/
-scripts/
+/backend/
+/data/
+/docs/
+/pipelines/
+/scripts/
 apps/web/public/data/
 apps/web/public/maplibre/
 apps/web/.next/
