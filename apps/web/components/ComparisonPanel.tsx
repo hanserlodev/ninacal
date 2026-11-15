@@ -5,6 +5,8 @@ import { COUNTRIES } from "@/lib/countries";
 import { formatCompact, formatDecimal } from "@/lib/format";
 import { loadSeriesEntry, loadSeriesIndex, type SeriesLevel } from "@/lib/series";
 import type { ApiSeriesRow, ApiSeriesSummary } from "@/lib/api";
+import CountryPicker from "./CountryPicker";
+import RegionPicker from "./RegionPicker";
 
 const W = 520;
 const H = 150;
@@ -23,7 +25,13 @@ function valueFor(rows: ApiSeriesRow[], year: number): number | null {
   return row && row.value !== null ? row.value : null;
 }
 
-function seriesMarkup(rows: ApiSeriesRow[], years: number[], max: number, color: string): string {
+function seriesMarkup(
+  rows: ApiSeriesRow[],
+  years: number[],
+  max: number,
+  color: string,
+  scale = 1,
+): string {
   let open = false;
   let path = "";
   let dots = "";
@@ -36,7 +44,7 @@ function seriesMarkup(rows: ApiSeriesRow[], years: number[], max: number, color:
     const x =
       PAD.left +
       (years.length <= 1 ? (W - PAD.left - PAD.right) / 2 : (index / (years.length - 1)) * (W - PAD.left - PAD.right));
-    const y = H - PAD.bottom - (value / max) * (H - PAD.top - PAD.bottom);
+    const y = H - PAD.bottom - ((value * scale) / max) * (H - PAD.top - PAD.bottom);
     path += `${open ? "L" : "M"}${x.toFixed(1)},${y.toFixed(1)}`;
     dots += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="2.3" fill="${color}" />`;
     open = true;
@@ -59,11 +67,13 @@ function SidePicker({
   label,
   state,
   onChange,
+  catalogVersion,
 }: {
   side: "a" | "b";
   label: string;
   state: Side;
   onChange: (patch: Partial<Side>) => void;
+  catalogVersion?: number;
 }) {
   const regions = state.options.filter((entry) => entry.id !== state.country);
   return (
@@ -73,36 +83,27 @@ function SidePicker({
         <strong>{label}</strong>
         {state.loading ? <em>loading…</em> : null}
       </div>
-      <label>
+      <div className="world-picker-field">
         <span>Country</span>
-        <select
+        <CountryPicker
           value={state.country}
-          onChange={(event) => {
-            if (event.target.value === state.country) return;
-            onChange({ country: event.target.value, region: event.target.value });
+          version={catalogVersion}
+          onChange={(code) => {
+            if (code === state.country) return;
+            onChange({ country: code, region: code });
           }}
-        >
-          {COUNTRIES.map((entry) => (
-            <option key={`${side}-${entry.code}`} value={entry.code}>
-              {entry.name}
-            </option>
-          ))}
-        </select>
-      </label>
-      <label>
+        />
+      </div>
+      <div className="world-picker-field">
         <span>Region / state</span>
-        <select
+        <RegionPicker
           value={state.region}
-          onChange={(event) => onChange({ region: event.target.value })}
-        >
-          <option value={state.country}>{countryName(state.country)} · whole country</option>
-          {regions.map((entry) => (
-            <option key={`${side}-${entry.id}`} value={entry.id}>
-              {entry.name} · {entry.cells} cells
-            </option>
-          ))}
-        </select>
-      </label>
+          options={regions}
+          wholeValue={state.country}
+          wholeLabel={`${countryName(state.country)} · whole country`}
+          onChange={(value) => onChange({ region: value })}
+        />
+      </div>
     </div>
   );
 }
@@ -110,10 +111,13 @@ function SidePicker({
 export default function ComparisonPanel({
   range,
   country,
+  catalogVersion,
 }: {
   range: [number, number];
   country?: string;
+  catalogVersion?: number;
 }) {
+  const [mode, setMode] = useState<"absolute" | "indexed">("absolute");
   const initialA = country && COUNTRIES.some((entry) => entry.code === country) ? country : "PE";
   const [a, setA] = useState<Side>({
     country: initialA,
@@ -211,16 +215,21 @@ export default function ComparisonPanel({
     return values;
   }, [range]);
 
-  const max = useMemo(() => {
+  const ownMax = (rows: ApiSeriesRow[]): number => {
     let largest = 1;
     for (const year of years) {
-      for (const rows of [a.rows, b.rows]) {
-        const value = valueFor(rows, year);
-        if (value !== null) largest = Math.max(largest, value);
-      }
+      const value = valueFor(rows, year);
+      if (value !== null) largest = Math.max(largest, value);
     }
     return largest;
-  }, [years, a.rows, b.rows]);
+  };
+  const maxA = useMemo(() => ownMax(a.rows), [a.rows, years]);
+  const maxB = useMemo(() => ownMax(b.rows), [b.rows, years]);
+  const indexed = mode === "indexed";
+  const max = indexed ? 100 : Math.max(maxA, maxB);
+  const scaleA = indexed ? 100 / maxA : 1;
+  const scaleB = indexed ? 100 / maxB : 1;
+  const ratio = Math.max(maxA, maxB) / Math.max(1, Math.min(maxA, maxB));
 
   const regionName = (side: Side): string => {
     if (side.region === side.country) return countryName(side.country);
@@ -240,9 +249,29 @@ export default function ComparisonPanel({
           <p className="eyebrow">Comparison</p>
           <h3>Two regions, one scale</h3>
         </div>
-        <span className="mc-head-meta">
-          {range[0]}–{range[1]}
-        </span>
+        <div className="mc-compare-head-right">
+          <div className="mc-compare-mode" role="group" aria-label="Comparison scale">
+            <button
+              type="button"
+              className={mode === "absolute" ? "is-active" : ""}
+              aria-pressed={mode === "absolute"}
+              onClick={() => setMode("absolute")}
+            >
+              Absolute
+            </button>
+            <button
+              type="button"
+              className={mode === "indexed" ? "is-active" : ""}
+              aria-pressed={mode === "indexed"}
+              onClick={() => setMode("indexed")}
+            >
+              Indexed
+            </button>
+          </div>
+          <span className="mc-head-meta">
+            {range[0]}–{range[1]}
+          </span>
+        </div>
       </div>
 
       <div className="mc-compare-pickers">
@@ -250,12 +279,14 @@ export default function ComparisonPanel({
           side="a"
           label="Region A"
           state={a}
+          catalogVersion={catalogVersion}
           onChange={(patch) => setA((current) => ({ ...current, ...patch, rows: [] }))}
         />
         <SidePicker
           side="b"
           label="Region B"
           state={b}
+          catalogVersion={catalogVersion}
           onChange={(patch) => setB((current) => ({ ...current, ...patch, rows: [] }))}
         />
       </div>
@@ -284,11 +315,11 @@ export default function ComparisonPanel({
         viewBox={`0 0 ${W} ${H}`}
         preserveAspectRatio="none"
         role="img"
-        aria-label={`Annual hotspot-days for ${labelA} and ${labelB}, ${range[0]} to ${range[1]}.`}
+        aria-label={`${indexed ? "Indexed" : "Absolute"} annual hotspot-days for ${labelA} and ${labelB}, ${range[0]} to ${range[1]}.`}
         dangerouslySetInnerHTML={{
           __html:
-            seriesMarkup(a.rows, years, max, "#6fd6d0") +
-            seriesMarkup(b.rows, years, max, "#ff6b3d"),
+            seriesMarkup(a.rows, years, max, "#6fd6d0", scaleA) +
+            seriesMarkup(b.rows, years, max, "#ff6b3d", scaleB),
         }}
       />
 
@@ -296,6 +327,13 @@ export default function ComparisonPanel({
         <span className="is-a">A</span>
         <span className="is-b">B</span>
       </div>
+
+      {!indexed && ratio > 8 ? (
+        <p className="mc-compare-scale-note">
+          A and B differ by {ratio.toFixed(0)}×. Relative heights are correct; switch to
+          <strong> Indexed</strong> to compare their yearly shapes.
+        </p>
+      ) : null}
 
       <p className="mc-compare-note">
         Annual totals from the country/department series. Pick any country and region on each

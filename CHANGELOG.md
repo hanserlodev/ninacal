@@ -43,8 +43,9 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   boundary) and daily weather at the selection centre.
 - Dynamic country catalogue: the console rebuilds the selector, regions and coverage from
   `/api/countries`, so adding a country to the bundle needs no frontend rebuild.
-- Searchable country picker with flags, globe intro drift, scrollable coverage list and
-  sticky telemetry rails.
+- Searchable country and region pickers with flags, a full globe orbit intro, scrollable
+  coverage list and sticky telemetry rails.
+- Comparison: Absolute/Indexed scale toggle and a hint when the two series differ by >8×.
 - `deploy/gcp/`: temporary high-CPU VM scripts to run the pipeline from a GCS tarball.
 - `deploy/DOMAIN.md`: custom domain, Cloudflare cache, rate limit and real-IP guide.
 - Data issue template with cell/year/month fields, to trace numbers back to the pipeline.

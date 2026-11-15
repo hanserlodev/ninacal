@@ -315,8 +315,8 @@ function AnomalyReadout({
             : "th";
   const sentence =
     previous.length > 0
-      ? `Peak season is ${monthName(peakMonth)}. ${monthName(latest.m)} ${latest.y} sits at the ${percentile}${suffix} percentile of the last ${previous.length} years.`
-      : `Peak season is ${monthName(peakMonth)}. There are not enough prior years to rank this month.`;
+      ? `Across the record, the median peak month is ${monthName(peakMonth)}. ${monthName(latest.m)} ${latest.y} sits at the ${percentile}${suffix} percentile of the last ${previous.length} years.`
+      : `Across the record, the median peak month is ${monthName(peakMonth)}. There are not enough prior years to rank this month.`;
 
   return (
     <div className="mc-anom">
@@ -353,6 +353,9 @@ function AnomalyReadout({
 
       <p className="mc-anom-caption">
         {monthName(latest.m)} · one bar per year · {history.length} years
+      </p>
+      <p className="mc-anom-scale">
+        Orange = {latest.y}. Taller bars are other years with more {monthName(latest.m)} activity.
       </p>
       <div className="mc-anom-bars" aria-hidden="true">
         {history.map((entry) => (
@@ -945,6 +948,7 @@ export default function MissionControl() {
             <ComparisonPanel
               range={state.range}
               country={state.dataCountries.length === 1 ? state.dataCountries[0] : undefined}
+              catalogVersion={state.catalogVersion}
             />
           </div>
           <div className="panel mc-card mc-card--archive" id="archive">

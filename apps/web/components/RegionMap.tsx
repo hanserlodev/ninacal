@@ -903,13 +903,13 @@ export default function RegionMap({
     };
   }, []);
 
-  // A short, one-shot globe drift makes the first paint feel alive without
-  // fighting the selection fly-to. Skipped for reduced motion and later visits.
+  // One full, slow orbit on the first world view of the session. The centre
+  // longitude wraps after 360°, so the globe returns to where it started.
   useEffect(() => {
     if (!ready || !worldView) return;
     const map = mapRef.current;
     if (!map) return;
-    const key = "ninacal-globe-intro";
+    const key = "ninacal-globe-orbit";
     try {
       if (window.sessionStorage.getItem(key)) return;
       window.sessionStorage.setItem(key, "1");
@@ -917,16 +917,39 @@ export default function RegionMap({
       return;
     }
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    try {
-      map.jumpTo({ center: [32, 6], zoom: 1.62 });
-    } catch {
-      return;
-    }
-    const timer = window.setTimeout(
-      () => safeEase(map, { center: [-72, 4], zoom: 1.92, duration: 3400, essential: true }),
-      260,
-    );
-    return () => window.clearTimeout(timer);
+
+    let cancelled = false;
+    let frame = 0;
+    const cancel = () => {
+      cancelled = true;
+    };
+    const started = performance.now();
+    const duration = 7000;
+    const tick = (now: number) => {
+      if (cancelled) return;
+      const t = Math.min(1, (now - started) / duration);
+      const eased = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+      try {
+        map.jumpTo({
+          center: [-40 + 360 * eased, 5],
+          zoom: 1.6 + 0.25 * Math.sin(Math.PI * t),
+        });
+      } catch {
+        return;
+      }
+      if (t < 1) frame = requestAnimationFrame(tick);
+    };
+    map.once("mousedown", cancel);
+    map.once("touchstart", cancel);
+    map.once("wheel", cancel);
+    frame = requestAnimationFrame(tick);
+    return () => {
+      cancelled = true;
+      cancelAnimationFrame(frame);
+      map.off("mousedown", cancel);
+      map.off("touchstart", cancel);
+      map.off("wheel", cancel);
+    };
   }, [ready, worldView]);
 
   // Basemap swap keeps both sources warm; only visibility changes.

@@ -6,6 +6,7 @@ import { loadSeriesIndex } from "@/lib/series";
 import type { ApiSeriesSummary } from "@/lib/api";
 import type { ExplorerState } from "@/lib/useExplorer";
 import CountryPicker from "./CountryPicker";
+import RegionPicker from "./RegionPicker";
 
 const WHOLE_COUNTRY = "__country__";
 
@@ -151,21 +152,17 @@ export default function WorldPicker({ state }: { state: ExplorerState }) {
         />
       </div>
 
-      <label>
+      <div className="world-picker-field">
         <span>Region / state</span>
-        <select
+        <RegionPicker
           value={region}
-          onChange={(event) => selectRegion(event.target.value)}
+          options={options}
+          wholeValue={WHOLE_COUNTRY}
+          wholeLabel="Whole country"
+          onChange={selectRegion}
           disabled={!info}
-        >
-          <option value={WHOLE_COUNTRY}>Whole country</option>
-          {options.map((entry) => (
-            <option key={entry.id} value={entry.id}>
-              {entry.name} · {entry.cells} cells
-            </option>
-          ))}
-        </select>
-      </label>
+        />
+      </div>
 
       <p className="world-picker-note">
         {!state.apiEnabled && state.worldView

@@ -50,6 +50,22 @@ def main() -> int:
         inventory = manifest.get("countries", {}).get(country)
         if not isinstance(inventory, dict):
             fail(f"manifest is missing country {country}")
+        boundary = inventory.get("boundary")
+        if not isinstance(boundary, str) or not boundary:
+            fail(f"manifest: {country} has no ADM1 boundary")
+        elif not (DATA / "boundaries" / boundary).exists():
+            fail(f"manifest: {country} boundary file not found: {boundary}")
+        view = inventory.get("view_bbox")
+        if not (
+            isinstance(view, list)
+            and len(view) == 4
+            and all(isinstance(value, (int, float)) and math.isfinite(value) for value in view)
+        ):
+            fail(f"manifest: {country} has no finite view_bbox")
+        if not isinstance(inventory.get("name"), str) or not inventory["name"].strip():
+            fail(f"manifest: {country} has no name")
+        if not isinstance(inventory.get("iso3"), str) or len(inventory["iso3"]) != 3:
+            fail(f"manifest: {country} has no ISO3")
 
         cells = read_json(country_dir / "cells.json")
         if cells.get("columns") != CELL_COLUMNS:
