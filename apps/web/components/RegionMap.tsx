@@ -325,10 +325,12 @@ export default function RegionMap({
   const cursorRef = useRef<HTMLSpanElement | null>(null);
   const zoomRef = useRef<HTMLSpanElement | null>(null);
   const lastBasemapRef = useRef<"dark" | "satellite">("dark");
+  const worldViewRef = useRef(Boolean(worldView));
 
   modeRef.current = mode;
   onChangeRef.current = onChange;
   selectionRef.current = selection;
+  worldViewRef.current = Boolean(worldView);
 
   const currentRing = (): Ring =>
     selectionRef.current.polygon && selectionRef.current.polygon.length >= 3
@@ -515,7 +517,7 @@ export default function RegionMap({
 
     // Google-Earth-like gestures: pan inertia is on by default; make rotate
     // and tilt explicit for mouse, trackpad and touch.
-    map.dragRotate.enable();
+    map.dragRotate.enable({ around: "pointer" });
     map.touchZoomRotate.enable();
     map.touchZoomRotate.enableRotation();
     map.touchPitch.enable();
@@ -679,13 +681,15 @@ export default function RegionMap({
 
       // Country selection on the globe (pan mode keeps drawing modes intact).
       map.on("mousemove", "world-fill", () => {
-        if (modeRef.current === "pan") map.getCanvas().style.cursor = "pointer";
+        if (worldViewRef.current && modeRef.current === "pan") {
+          map.getCanvas().style.cursor = "pointer";
+        }
       });
       map.on("mouseleave", "world-fill", () => {
         if (modeRef.current === "pan") map.getCanvas().style.cursor = "grab";
       });
       map.on("click", "world-fill", (event) => {
-        if (modeRef.current !== "pan") return;
+        if (!worldViewRef.current || modeRef.current !== "pan") return;
         const country = countryForFeature(
           (event.features?.[0]?.properties ?? null) as Record<string, unknown> | null,
         );
@@ -1070,7 +1074,7 @@ export default function RegionMap({
         </div>
         <div className="console-readout">
           <span>
-            <b>{formatCount(cellCount ?? cells.length)}</b> cells
+            <b>{busyLabel ? "—" : formatCount(cellCount ?? cells.length)}</b> cells
           </span>
           <span className="console-grid">
             <b>{cellSize.toFixed(cellSize < 0.1 ? 2 : 1)}°</b> grid
