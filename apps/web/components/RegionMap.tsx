@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import type { Feature, FeatureCollection, Geometry, LineString, Polygon } from "geojson";
 import {
   AttributionControl,
+  FullscreenControl,
   Map as MapLibreMap,
   NavigationControl,
   ScaleControl,
@@ -12,7 +13,7 @@ import {
   type StyleSpecification,
 } from "maplibre-gl";
 import { MAP_MAX_BOUNDS } from "@/lib/coverage";
-import { COUNTRY_BY_CODE, countryForIso2 } from "@/lib/countries";
+import { COUNTRY_BY_CODE, countryForFeature } from "@/lib/countries";
 import { DATA_BASE } from "@/lib/api";
 import worldBoundaries from "@/lib/boundaries/world.json";
 import { bboxLabel, bboxRing, parseCell, ringBBox } from "@/lib/geo";
@@ -31,11 +32,15 @@ const WORLD = worldBoundaries as unknown as FeatureCollection;
 function coveredCollection(totals: Record<string, number>): FeatureCollection {
   const features: Feature[] = [];
   for (const feature of WORLD.features) {
-    const iso2 = String(feature.properties?.iso2 ?? "");
-    if (!COUNTRY_BY_CODE.has(iso2)) continue;
+    const country = countryForFeature(feature.properties as Record<string, unknown> | null);
+    if (!country) continue;
     features.push({
       type: "Feature",
-      properties: { ...(feature.properties ?? {}), total: totals[iso2] ?? 0 },
+      properties: {
+        ...(feature.properties ?? {}),
+        code: country.code,
+        total: totals[country.code] ?? 0,
+      },
       geometry: feature.geometry,
     });
   }
@@ -67,7 +72,9 @@ function oriented(ring: Ring, clockwise: boolean): Ring {
 
 function maskForCountry(code: string | undefined): FeatureCollection {
   if (!code) return EMPTY;
-  const feature = WORLD.features.find((item) => item.properties?.iso2 === code);
+  const feature = WORLD.features.find(
+    (item) => countryForFeature(item.properties as Record<string, unknown> | null)?.code === code,
+  );
   if (!feature || !feature.geometry) return EMPTY;
   const geometry = feature.geometry;
   const polygons =
@@ -272,6 +279,7 @@ export default function RegionMap({
   measureLabel,
   busyLabel,
   onChange,
+  onGlobe,
 }: {
   selection: Selection;
   cells: CellPoint[];
@@ -288,15 +296,13 @@ export default function RegionMap({
   measureLabel: string;
   busyLabel: string | null;
   onChange: (selection: Selection) => void;
+  onGlobe?: () => void;
 }) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<MapLibreMap | null>(null);
   const [ready, setReady] = useState(false);
-  const [mode, setMode] = useState<"rect" | "poly" | "pan">(() =>
-    typeof window !== "undefined" && window.matchMedia("(pointer: coarse)").matches
-      ? "pan"
-      : "rect",
-  );
+  const [mode, setMode] = useState<"rect" | "poly" | "pan">("pan");
+  const [shortcutsOpen, setShortcutsOpen] = useState(false);
   const [basemap, setBasemap] = useState<"dark" | "satellite">("dark");
   const [zoomLevel, setZoomLevel] = useState(1.8);
   const [vertices, setVertices] = useState(0);
@@ -361,19 +367,56 @@ export default function RegionMap({
     polygonRef.current = [];
     setVertices(0);
     onChangeRef.current({ bbox: ringBBox(ring), polygon: ring });
+    setMode("pan");
   };
 
-  const fitSelection = () => {
+  const flyToBBox = (bbox: BBox, duration = 1100) => {
     const map = mapRef.current;
     if (!map) return;
-    const b = selectionRef.current.bbox;
-    map.fitBounds(
+    const camera = map.cameraForBounds(
       [
-        [b.minLon, b.minLat],
-        [b.maxLon, b.maxLat],
+        [bbox.minLon, bbox.minLat],
+        [bbox.maxLon, bbox.maxLat],
       ],
-      { padding: 64, duration: 650, maxZoom: 7.5 },
+      { padding: 72, maxZoom: 8.5 },
     );
+    if (!camera?.center || camera.zoom === undefined) return;
+    const reduced =
+      typeof window !== "undefined" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    map.flyTo({
+      center: camera.center,
+      zoom: camera.zoom,
+      bearing: 0,
+      pitch: 0,
+      duration: reduced ? 0 : duration,
+      curve: 1.32,
+      essential: true,
+    });
+  };
+
+  const fitSelection = () => flyToBBox(selectionRef.current.bbox);
+
+  const globeView = () => {
+    const map = mapRef.current;
+    if (!map) return;
+    const reduced =
+      typeof window !== "undefined" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    map.flyTo({
+      center: [-60, -6],
+      zoom: 1.75,
+      bearing: 0,
+      pitch: 0,
+      duration: reduced ? 0 : 1200,
+      curve: 1.32,
+      essential: true,
+    });
+  };
+
+  const goHome = () => {
+    onGlobe?.();
+    globeView();
   };
 
   const finishPolygonRef = useRef(finishPolygon);
@@ -392,6 +435,51 @@ export default function RegionMap({
     return () => window.clearInterval(timer);
   }, []);
 
+  // Google-Earth-style keyboard shortcuts. Inputs/selects keep their keys.
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => {
+      const target = event.target as HTMLElement | null;
+      if (
+        event.metaKey ||
+        event.ctrlKey ||
+        event.altKey ||
+        target?.matches("input, select, textarea, [contenteditable='true']")
+      ) {
+        return;
+      }
+      const key = event.key.toLowerCase();
+      if (key === "g") {
+        event.preventDefault();
+        goHome();
+      } else if (key === "f") {
+        event.preventDefault();
+        fitSelection();
+      } else if (key === "r") {
+        event.preventDefault();
+        mapRef.current?.easeTo({ bearing: 0, pitch: 0, duration: 450, essential: true });
+      } else if (key === "?" || (event.shiftKey && key === "/")) {
+        event.preventDefault();
+        setShortcutsOpen((open) => !open);
+      } else if (key === "1") {
+        setMode("pan");
+      } else if (key === "2") {
+        setMode("rect");
+      } else if (key === "3") {
+        setMode("poly");
+      } else if (event.key === "Escape") {
+        cancelDrawingRef.current();
+        setMode("pan");
+        setShortcutsOpen(false);
+      } else if (event.key === "Enter" && modeRef.current === "poly") {
+        finishPolygonRef.current();
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+    // The callbacks read the latest refs; the effect only needs the listeners.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return;
 
@@ -404,16 +492,33 @@ export default function RegionMap({
       zoom: 1.5,
       minZoom: 1.2,
       maxZoom: 14,
+      maxPitch: 85,
+      pitchWithRotate: true,
       attributionControl: false,
       renderWorldCopies: false,
       maxBounds: MAP_MAX_BOUNDS,
       canvasContextAttributes: { preserveDrawingBuffer: true },
     });
     mapRef.current = map;
+    map.getCanvas().setAttribute(
+      "aria-label",
+      "Interactive world map. Drag to pan, scroll to zoom, right-drag or ctrl-drag to tilt.",
+    );
 
-    map.addControl(new NavigationControl({ showCompass: false }), "top-right");
+    map.addControl(
+      new NavigationControl({ showCompass: true, visualizePitch: true }),
+      "top-right",
+    );
+    map.addControl(new FullscreenControl({}), "top-right");
     map.addControl(new ScaleControl({ maxWidth: 90, unit: "metric" }), "bottom-right");
     map.addControl(new AttributionControl({ compact: true }), "bottom-right");
+
+    // Google-Earth-like gestures: pan inertia is on by default; make rotate
+    // and tilt explicit for mouse, trackpad and touch.
+    map.dragRotate.enable();
+    map.touchZoomRotate.enable();
+    map.touchZoomRotate.enableRotation();
+    map.touchPitch.enable();
 
     map.once("style.load", () => {
       map.addSource("graticule", { type: "geojson", data: graticule() });
@@ -581,8 +686,9 @@ export default function RegionMap({
       });
       map.on("click", "world-fill", (event) => {
         if (modeRef.current !== "pan") return;
-        const iso2 = String(event.features?.[0]?.properties?.iso2 ?? "");
-        const country = countryForIso2(iso2);
+        const country = countryForFeature(
+          (event.features?.[0]?.properties ?? null) as Record<string, unknown> | null,
+        );
         if (!country) return;
         onChangeRef.current({
           bbox: country.viewBbox,
@@ -695,6 +801,7 @@ export default function RegionMap({
         return;
       }
       onChangeRef.current({ bbox });
+      setMode("pan");
     };
 
     map.on("touchstart", (event) => {
@@ -716,18 +823,11 @@ export default function RegionMap({
       if (draggingRef.current) stopDrag();
     });
 
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") cancelDrawingRef.current();
-      if (event.key === "Enter" && modeRef.current === "poly") finishPolygonRef.current();
-    };
-
     window.addEventListener("mouseup", stopDrag);
-    window.addEventListener("keydown", onKeyDown);
-    map.getCanvas().style.cursor = "crosshair";
+    map.getCanvas().style.cursor = "grab";
 
     return () => {
       window.removeEventListener("mouseup", stopDrag);
-      window.removeEventListener("keydown", onKeyDown);
       map.remove();
       mapRef.current = null;
       setReady(false);
@@ -889,6 +989,7 @@ export default function RegionMap({
     const map = mapRef.current;
     if (!map || !ready || !activeCountry) return;
     const handler = (event: MapLayerMouseEvent) => {
+      if (modeRef.current !== "pan") return;
       const feature = event.features?.[0];
       if (!feature || !feature.geometry) return;
       const bbox = geometryBBox(feature.geometry as Geometry);
@@ -896,9 +997,19 @@ export default function RegionMap({
       const name = String(feature.properties?.shapeName ?? feature.properties?.name ?? "Region");
       onChangeRef.current({ bbox, label: name, country: activeCountry });
     };
+    const enter = () => {
+      if (modeRef.current === "pan") map.getCanvas().style.cursor = "pointer";
+    };
+    const leave = () => {
+      if (modeRef.current === "pan") map.getCanvas().style.cursor = "grab";
+    };
     map.on("click", "adm1-line", handler);
+    map.on("mousemove", "adm1-line", enter);
+    map.on("mouseleave", "adm1-line", leave);
     return () => {
       map.off("click", "adm1-line", handler);
+      map.off("mousemove", "adm1-line", enter);
+      map.off("mouseleave", "adm1-line", leave);
     };
   }, [ready, activeCountry]);
 
@@ -908,17 +1019,10 @@ export default function RegionMap({
     const map = mapRef.current;
     if (!map || !ready) return;
     if (worldView) {
-      map.jumpTo({ center: [-60, -6], zoom: 1.75 });
+      globeView();
       return;
     }
-    const b = selection.bbox;
-    map.fitBounds(
-      [
-        [b.minLon, b.minLat],
-        [b.maxLon, b.maxLat],
-      ],
-      { padding: 64, duration: 650, maxZoom: 7.5 },
-    );
+    flyToBBox(selection.bbox);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ready, worldView, selection.bbox.minLat, selection.bbox.minLon, selection.bbox.maxLat, selection.bbox.maxLon]);
 
@@ -948,9 +1052,11 @@ export default function RegionMap({
         : "Drag to draw a box"
       : mode === "poly"
         ? vertices > 0
-          ? `${vertices} point${vertices === 1 ? "" : "s"} · double-click to close`
-          : "Click to add points"
-        : "Drag to pan · scroll to zoom";
+          ? `${vertices} point${vertices === 1 ? "" : "s"} · double-click or Enter to close`
+          : "Click to add points · Esc to cancel"
+        : worldView
+          ? "Click a country · drag to orbit · scroll to zoom · right-drag to tilt"
+          : "Drag to explore · scroll to zoom · right-drag to tilt · double-click to zoom";
 
   return (
     <div className="map-console">
@@ -985,9 +1091,21 @@ export default function RegionMap({
         <div className="tool-group" role="group" aria-label="Map mode">
           <button
             type="button"
+            className={mode === "pan" ? "tool-btn is-active" : "tool-btn"}
+            aria-pressed={mode === "pan"}
+            aria-keyshortcuts="1"
+            onClick={() => setMode("pan")}
+            title="Pan and explore (1)"
+          >
+            Pan
+          </button>
+          <button
+            type="button"
             className={mode === "rect" ? "tool-btn is-active" : "tool-btn"}
             aria-pressed={mode === "rect"}
+            aria-keyshortcuts="2"
             onClick={() => setMode("rect")}
+            title="Draw a rectangular area (2)"
           >
             Box
           </button>
@@ -995,22 +1113,41 @@ export default function RegionMap({
             type="button"
             className={mode === "poly" ? "tool-btn is-active" : "tool-btn"}
             aria-pressed={mode === "poly"}
+            aria-keyshortcuts="3"
             onClick={() => setMode("poly")}
+            title="Draw a polygon (3)"
           >
             Polygon
           </button>
-          <button
-            type="button"
-            className={mode === "pan" ? "tool-btn is-active" : "tool-btn"}
-            aria-pressed={mode === "pan"}
-            onClick={() => setMode("pan")}
-          >
-            Pan
-          </button>
         </div>
 
-        <button type="button" className="tool-btn" onClick={fitSelection} title="Fit the selection">
+        <button
+          type="button"
+          className="tool-btn"
+          onClick={fitSelection}
+          title="Fit the selection (F)"
+          aria-keyshortcuts="f"
+        >
           Fit
+        </button>
+        <button
+          type="button"
+          className="tool-btn"
+          onClick={goHome}
+          title="Back to the globe (G)"
+          aria-keyshortcuts="g"
+        >
+          Globe
+        </button>
+        <button
+          type="button"
+          className={shortcutsOpen ? "tool-btn is-active" : "tool-btn"}
+          onClick={() => setShortcutsOpen((open) => !open)}
+          aria-expanded={shortcutsOpen}
+          title="Keyboard and map shortcuts (?)"
+          aria-keyshortcuts="?"
+        >
+          ?
         </button>
 
         <label className="console-zoom-control">
@@ -1026,7 +1163,14 @@ export default function RegionMap({
             onChange={(event) => {
               const nextZoom = Number(event.target.value);
               setZoomLevel(nextZoom);
-              mapRef.current?.jumpTo({ zoom: nextZoom });
+              const reduced =
+                typeof window !== "undefined" &&
+                window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+              mapRef.current?.easeTo({
+                zoom: nextZoom,
+                duration: reduced ? 0 : 180,
+                essential: true,
+              });
             }}
           />
           <span className="console-zoom-value">{zoomLevel.toFixed(1)}</span>
@@ -1084,6 +1228,28 @@ export default function RegionMap({
         ) : null}
 
         <div className="map-scan" aria-hidden="true" />
+
+        {shortcutsOpen ? (
+          <aside className="map-shortcuts" aria-label="Map shortcuts">
+            <div className="map-shortcuts-head">
+              <strong>Map controls</strong>
+              <button type="button" onClick={() => setShortcutsOpen(false)} aria-label="Close shortcuts">
+                ×
+              </button>
+            </div>
+            <dl>
+              <div><dt>Drag</dt><dd>Pan / orbit</dd></div>
+              <div><dt>Scroll</dt><dd>Zoom at cursor</dd></div>
+              <div><dt>Right-drag</dt><dd>Tilt and rotate</dd></div>
+              <div><dt>Double-click</dt><dd>Zoom in</dd></div>
+              <div><dt>Pan</dt><dd>Click a country to drill in</dd></div>
+              <div><dt>1 / 2 / 3</dt><dd>Pan / box / polygon</dd></div>
+              <div><dt>F / G</dt><dd>Fit selection / globe</dd></div>
+              <div><dt>R</dt><dd>Reset north and tilt</dd></div>
+              <div><dt>Esc</dt><dd>Cancel drawing</dd></div>
+            </dl>
+          </aside>
+        ) : null}
 
         {tooltip ? (
           <div

@@ -1,0 +1,146 @@
+[
+  {
+    "code": "AR",
+    "name": "Argentina",
+    "iso3": "ARG",
+    "boundary": "arg_adm1_simplified.geojson",
+    "viewBbox": {
+      "minLon": -72.97,
+      "minLat": -54.88,
+      "maxLon": -53.67,
+      "maxLat": -21.83
+    }
+  },
+  {
+    "code": "AU",
+    "name": "Australia",
+    "iso3": "AUS",
+    "boundary": "aus_adm1_simplified.geojson",
+    "viewBbox": {
+      "minLon": 113.12,
+      "minLat": -43.57,
+      "maxLon": 153.62,
+      "maxLat": -9.22
+    }
+  },
+  {
+    "code": "BO",
+    "name": "Bolivia",
+    "iso3": "BOL",
+    "boundary": "bol_adm1_simplified.geojson",
+    "viewBbox": {
+      "minLon": -69.62,
+      "minLat": -22.88,
+      "maxLon": -57.47,
+      "maxLat": -9.67
+    }
+  },
+  {
+    "code": "BR",
+    "name": "Brazil",
+    "iso3": "BRA",
+    "boundary": "bra_adm1_simplified.geojson",
+    "viewBbox": {
+      "minLon": -73.88,
+      "minLat": -33.72,
+      "maxLon": -34.78,
+      "maxLat": 5.23
+    }
+  },
+  {
+    "code": "CL",
+    "name": "Chile",
+    "iso3": "CHL",
+    "boundary": "chl_adm1_simplified.geojson",
+    "viewBbox": {
+      "minLon": -109.42,
+      "minLat": -53.77,
+      "maxLon": -67.07,
+      "maxLat": -17.62
+    }
+  },
+  {
+    "code": "CO",
+    "name": "Colombia",
+    "iso3": "COL",
+    "boundary": "col_adm1_simplified.geojson",
+    "viewBbox": {
+      "minLon": -81.72,
+      "minLat": -4.22,
+      "maxLon": -66.92,
+      "maxLat": 13.38
+    }
+  },
+  {
+    "code": "EC",
+    "name": "Ecuador",
+    "iso3": "ECU",
+    "boundary": "ecu_adm1_simplified.geojson",
+    "viewBbox": {
+      "minLon": -91.62,
+      "minLat": -5.02,
+      "maxLon": -75.27,
+      "maxLat": 1.43
+    }
+  },
+  {
+    "code": "MX",
+    "name": "Mexico",
+    "iso3": "MEX",
+    "boundary": "mex_adm1_simplified.geojson",
+    "viewBbox": {
+      "minLon": -118.32,
+      "minLat": 14.53,
+      "maxLon": -86.82,
+      "maxLat": 32.73
+    }
+  },
+  {
+    "code": "PY",
+    "name": "Paraguay",
+    "iso3": "PRY",
+    "boundary": "pry_adm1_simplified.geojson",
+    "viewBbox": {
+      "minLon": -62.62,
+      "minLat": -27.52,
+      "maxLon": -54.27,
+      "maxLat": -19.27
+    }
+  },
+  {
+    "code": "PE",
+    "name": "Peru",
+    "iso3": "PER",
+    "boundary": "peru_adm1_simplified.geojson",
+    "viewBbox": {
+      "minLon": -81.27,
+      "minLat": -18.33,
+      "maxLon": -68.67,
+      "maxLat": -0.02
+    }
+  },
+  {
+    "code": "US",
+    "name": "United States",
+    "iso3": "USA",
+    "boundary": "us_adm1_simplified.geojson",
+    "viewBbox": {
+      "minLon": -176.62,
+      "minLat": 18.93,
+      "maxLon": -66.97,
+      "maxLat": 71.33
+    }
+  },
+  {
+    "code": "VE",
+    "name": "Venezuela",
+    "iso3": "VEN",
+    "boundary": "ven_adm1_simplified.geojson",
+    "viewBbox": {
+      "minLon": -73.38,
+      "minLat": 0.78,
+      "maxLon": -59.82,
+      "maxLat": 12.18
+    }
+  }
+]
