@@ -42,8 +42,16 @@ export default function ContextPanel({ code, year }: { code?: string; year: numb
     }
     let alive = true;
     setData(null);
-    fetch(`/context/${code}-${year}.json`, { cache: "force-cache" })
-      .then((response) => (response.ok ? (response.json() as Promise<Context>) : null))
+    const load = async () => {
+      for (const candidate of [...new Set([year, 2023])]) {
+        const response = await fetch(`/context/${code}-${candidate}.json`, {
+          cache: "force-cache",
+        });
+        if (response.ok) return (await response.json()) as Context;
+      }
+      return null;
+    };
+    load()
       .then((value) => {
         if (alive) setData(value);
       })
