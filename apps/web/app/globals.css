@@ -3747,3 +3747,90 @@ code {
   overflow-y: auto;
   padding-right: 2px;
 }
+
+/* ---------- Map movement / shortcuts ---------- */
+
+.map-shortcuts {
+  position: absolute;
+  left: 12px;
+  bottom: 12px;
+  z-index: 4;
+  width: min(260px, calc(100% - 24px));
+  padding: 9px 10px;
+  background: rgba(11, 10, 9, 0.92);
+  border: 1px solid var(--line-strong);
+  border-radius: 4px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(6px);
+}
+
+.map-shortcuts-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 6px;
+  font-family: var(--font-mono);
+  font-size: 0.5625rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.map-shortcuts-head button {
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  color: var(--muted);
+  font-size: 0.875rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.map-shortcuts dl {
+  display: grid;
+  gap: 3px;
+  margin: 0;
+}
+
+.map-shortcuts dl > div {
+  display: grid;
+  grid-template-columns: 5.2rem 1fr;
+  gap: 6px;
+  align-items: baseline;
+}
+
+.map-shortcuts dt {
+  color: var(--teal);
+  font-family: var(--font-mono);
+  font-size: 0.5rem;
+  letter-spacing: 0.03em;
+}
+
+.map-shortcuts dd {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.5625rem;
+  line-height: 1.35;
+}
+
+.maplibregl-ctrl-group {
+  background: rgba(11, 10, 9, 0.88) !important;
+  border: 1px solid var(--line) !important;
+}
+
+.maplibregl-ctrl-group button {
+  background-color: transparent !important;
+  filter: invert(0.8);
+}
+
+.maplibregl-ctrl-group button:hover {
+  background-color: rgba(111, 214, 208, 0.12) !important;
+}
+
+.maplibregl-ctrl-fullscreen .maplibregl-ctrl-icon,
+.maplibregl-ctrl-compass .maplibregl-ctrl-icon {
+  filter: invert(0.8);
+}

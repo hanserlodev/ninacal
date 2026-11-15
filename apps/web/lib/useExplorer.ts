@@ -740,6 +740,16 @@ export function useExplorer() {
     window.setTimeout(() => URL.revokeObjectURL(url), 1000);
   }, []);
 
+  const showWorld = useCallback(() => {
+    const world = REGIONS.find((entry) => entry.id === "world");
+    if (!world) return;
+    setSelection({
+      bbox: world.bbox,
+      countries: world.countries,
+      label: world.label ?? world.name,
+    });
+  }, []);
+
   const exportCsv = useCallback(() => {
     if (years.length === 0) return;
     const from = years[0];
@@ -840,6 +850,7 @@ export function useExplorer() {
     draftError,
     applyDraft,
     reset,
+    showWorld,
     showAmazon2024,
     exportCsv,
   };

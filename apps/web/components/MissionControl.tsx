@@ -785,6 +785,7 @@ export default function MissionControl() {
                 ? state.dataCountries[0]
                 : state.selection.allCellsFor ?? state.selection.country
             }
+            onGlobe={state.showWorld}
             regionName={state.regionName}
             yearCount={state.years.length}
             mapYear={state.mapYear}
