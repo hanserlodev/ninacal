@@ -39,8 +39,12 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   Microsoft Planetary Computer STAC API (no account needed).
 - `deploy/weather-worker/` and `deploy/weather-proxy/`: Meteomatics proxies with edge cache
   and restricted CORS (the Vercel function is the deployed one).
-- Console context panels: Planetary Computer land cover/burned area and daily weather at the
-  selection centre.
+- Console context panels: Planetary Computer land cover/burned area (masked to the country
+  boundary) and daily weather at the selection centre.
+- Dynamic country catalogue: the console rebuilds the selector, regions and coverage from
+  `/api/countries`, so adding a country to the bundle needs no frontend rebuild.
+- Searchable country picker with flags, globe intro drift, scrollable coverage list and
+  sticky telemetry rails.
 - `deploy/gcp/`: temporary high-CPU VM scripts to run the pipeline from a GCS tarball.
 - `deploy/DOMAIN.md`: custom domain, Cloudflare cache, rate limit and real-IP guide.
 - Data issue template with cell/year/month fields, to trace numbers back to the pipeline.

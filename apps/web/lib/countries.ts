@@ -59,7 +59,11 @@ export function countriesFromManifest(manifest: V2Manifest): CountryInfo[] {
     .map(([code, raw]) => {
       const entry = raw as Record<string, unknown>;
       const base = known.get(code);
-      const box = Array.isArray(entry.view_bbox) ? entry.view_bbox.map(Number) : [];
+      const box = Array.isArray(entry.view_bbox)
+        ? entry.view_bbox.map(Number)
+        : Array.isArray(entry.bbox)
+          ? entry.bbox.map(Number)
+          : [];
       const viewBbox: BBox =
         box.length === 4 && box.every(Number.isFinite)
           ? { minLon: box[0], minLat: box[1], maxLon: box[2], maxLat: box[3] }

@@ -1,7 +1,7 @@
 import type { Aggregated, BBox, DataCountry, Row, V2CountryMetadata, V2Manifest } from "./types";
 import type { LoadProgress } from "./data";
 import { cachedJson } from "./cache";
-import { COUNTRY_BY_CODE } from "./countries";
+import { COUNTRY_BY_CODE, type CountryInfo } from "./countries";
 
 const RAW_API = (process.env.NEXT_PUBLIC_API_BASE ?? "").replace(/\/+$/, "");
 const RAW_DATA = (process.env.NEXT_PUBLIC_DATA_BASE ?? "").replace(/\/+$/, "");
@@ -85,6 +85,42 @@ export async function loadApiManifest(signal?: AbortSignal): Promise<V2Manifest 
   } catch {
     return null;
   }
+}
+
+type ApiCountryRow = {
+  code: string;
+  name?: string;
+  iso3?: string;
+  boundary?: string;
+  bbox?: number[];
+  view_bbox?: number[];
+};
+
+/** Country list computed by the API (names, bbox, boundary), not the build. */
+export async function loadApiCountries(signal?: AbortSignal): Promise<CountryInfo[]> {
+  const rows = await cachedJson<ApiCountryRow[]>(`${API_BASE}/api/countries`, {
+    signal,
+    ttl: 5 * 60 * 1000,
+    validate: (raw) => Array.isArray(raw),
+  });
+  return rows
+    .filter((row) => typeof row.code === "string" && row.code.length >= 2)
+    .map((row) => {
+      const box = row.view_bbox ?? row.bbox ?? [-180, -60, 180, 75];
+      return {
+        code: row.code,
+        name: row.name?.trim() || row.code,
+        iso3: (row.iso3 || row.code).toUpperCase(),
+        boundary: row.boundary || "",
+        viewBbox: {
+          minLon: Number(box[0]),
+          minLat: Number(box[1]),
+          maxLon: Number(box[2]),
+          maxLat: Number(box[3]),
+        },
+      };
+    })
+    .sort((a, b) => a.name.localeCompare(b.name));
 }
 
 export async function loadApiMetadata(

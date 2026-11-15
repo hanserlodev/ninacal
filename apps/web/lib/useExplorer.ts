@@ -9,6 +9,7 @@ import {
   bandsFor,
   downloadApiCsv,
   hasApi,
+  loadApiCountries,
   loadApiGrid,
   loadApiManifest,
   loadApiMetadata,
@@ -233,10 +234,16 @@ export function useExplorer() {
     let alive = true;
     (async () => {
       if (hasApi) {
-        const apiManifest = await loadApiManifest();
+        const [apiManifest, apiCountries] = await Promise.all([
+          loadApiManifest(),
+          hasApi ? loadApiCountries().catch(() => null) : Promise.resolve(null),
+        ]);
         if (!alive) return;
         if (apiManifest) {
-          const fromApi = countriesFromManifest(apiManifest);
+          const fromApi =
+            apiCountries && apiCountries.length > 0
+              ? apiCountries
+              : countriesFromManifest(apiManifest);
           if (fromApi.length > 0) {
             setCountries(fromApi);
             setCatalogVersion((version) => version + 1);
