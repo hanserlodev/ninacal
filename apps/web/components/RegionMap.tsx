@@ -935,11 +935,15 @@ export default function RegionMap({
     hoverCellRef.current = null;
     setTooltip(null);
 
-    const values = cells.map((point) => point.value).sort((a, b) => a - b);
-    const p98 = values.length
-      ? values[Math.min(values.length - 1, Math.floor(values.length * 0.98))]
-      : 1;
-    const max = Math.max(1, valueScaleMax || p98);
+    const max = valueScaleMax
+      ? Math.max(1, valueScaleMax)
+      : (() => {
+          const values = cells.map((point) => point.value).sort((a, b) => a - b);
+          const p98 = values.length
+            ? values[Math.min(values.length - 1, Math.floor(values.length * 0.98))]
+            : 1;
+          return Math.max(1, p98);
+        })();
     const size = lodStep ?? cellStep ?? inferCellSize(cells);
 
     // Precision follows zoom: 0.05° cells at country zoom would be tens of
