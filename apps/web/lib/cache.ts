@@ -2,6 +2,9 @@ const DB_NAME = "ninacal-cache";
 const STORE = "json";
 const DB_VERSION = 1;
 const DEFAULT_TTL = 12 * 60 * 60 * 1000;
+// Bump on every data release. Keys are namespaced, so a new value retires
+// every cached response from the previous bundle without touching the API.
+const KEY_VERSION = "bundle-78";
 
 type Entry<T> = { value: T; expires: number };
 
@@ -51,7 +54,7 @@ export async function cachedJson<T>(
   options: { signal?: AbortSignal; ttl?: number } = {},
 ): Promise<T> {
   const now = Date.now();
-  const cached = await read<T>(url);
+  const cached = await read<T>(`${KEY_VERSION}:${url}`);
   if (cached && cached.expires > now) return cached.value;
 
   const response = await fetch(url, {
@@ -60,7 +63,7 @@ export async function cachedJson<T>(
   });
   if (!response.ok) throw new Error(`HTTP ${response.status}: ${url}`);
   const value = (await response.json()) as T;
-  void write(url, { value, expires: now + (options.ttl ?? DEFAULT_TTL) });
+  void write(`${KEY_VERSION}:${url}`, { value, expires: now + (options.ttl ?? DEFAULT_TTL) });
   return value;
 }
 
