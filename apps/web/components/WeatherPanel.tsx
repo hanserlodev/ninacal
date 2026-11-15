@@ -13,7 +13,8 @@ type Weather = {
   source?: string;
 };
 
-const WEATHER_API = process.env.NEXT_PUBLIC_WEATHER_API ?? "";
+const WEATHER_API =
+  process.env.NEXT_PUBLIC_WEATHER_API || "https://ninacal-weather.vercel.app/api/weather";
 
 function pad(value: number): string {
   return String(value).padStart(2, "0");

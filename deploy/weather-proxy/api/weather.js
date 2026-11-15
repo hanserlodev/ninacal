@@ -11,21 +11,10 @@ const PARAMS = [
   "precip_24h:mm",
 ].join(",");
 
-function allowed(origin, env) {
-  const list = (env.ALLOWED_ORIGIN || "https://ninacal.earth")
-    .split(",")
-    .map((value) => value.trim())
-    .filter(Boolean);
-  return list.includes(origin) || list.includes("*");
-}
-
 export default async function handler(request, response) {
-  const origin = request.headers.origin || "";
   const env = process.env;
-  if (origin && allowed(origin, env)) {
-    response.setHeader("Access-Control-Allow-Origin", origin);
-    response.setHeader("Vary", "Origin");
-  }
+  // Public, read-only weather data: a wildcard keeps the edge cache correct.
+  response.setHeader("Access-Control-Allow-Origin", "*");
   if (request.method === "OPTIONS") {
     response.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
     response.setHeader("Access-Control-Allow-Headers", "Content-Type");
