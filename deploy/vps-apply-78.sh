@@ -30,8 +30,16 @@ FREE_KB=$(df -Pk "$APP_DIR" | awk 'NR==2 {print $4}')
 echo "== payload"
 ls -lh "$PAYLOAD"
 if [ -f "${PAYLOAD}.sha256" ]; then
-  sha256sum -c "${PAYLOAD}.sha256" || die "checksum mismatch"
-  ok "checksum"
+  # Compare hashes directly: the .sha256 file stores a bare filename, so
+  # `sha256sum -c` would resolve it against the current directory.
+  EXPECTED=$(awk 'NR==1 {print $1}' "${PAYLOAD}.sha256")
+  ACTUAL=$(sha256sum "$PAYLOAD" | awk '{print $1}')
+  if [ -z "$EXPECTED" ] || [ "$EXPECTED" != "$ACTUAL" ]; then
+    echo "expected: $EXPECTED" >&2
+    echo "actual:   $ACTUAL" >&2
+    die "checksum mismatch"
+  fi
+  ok "checksum $ACTUAL"
 fi
 
 echo "== backup"
@@ -47,11 +55,16 @@ mkdir -p data backend/data
 
 rollback() {
   echo "== rollback"
-  rm -rf data/v2
-  [ -d "data/v2.bak-$STAMP" ] && mv "data/v2.bak-$STAMP" data/v2
-  rm -f backend/data/ninacal.sqlite
-  [ -f "backend/data/ninacal.sqlite.bak-$STAMP" ] && \
+  if [ -d "data/v2.bak-$STAMP" ]; then
+    rm -rf data/v2
+    mv "data/v2.bak-$STAMP" data/v2
+    echo "restored data/v2"
+  fi
+  if [ -f "backend/data/ninacal.sqlite.bak-$STAMP" ]; then
+    rm -f backend/data/ninacal.sqlite
     mv "backend/data/ninacal.sqlite.bak-$STAMP" backend/data/ninacal.sqlite
+    echo "restored ninacal.sqlite"
+  fi
   docker compose restart api >/dev/null 2>&1 || true
   die "deployment failed; previous data restored"
 }
