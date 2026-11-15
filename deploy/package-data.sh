@@ -15,9 +15,12 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 PIPELINE="${1:-$ROOT/../pipeline-work/ninacal-pipeline-v2.2}"
-OUT="${2:-/tmp/opencode/ninacal-78-payload}"
-SRC_DATA="$PIPELINE/web/data/v2"
-SRC_DB="$PIPELINE/data/derived/v2/ninacal.sqlite"
+OUT="${2:-/home/hans/Proyectos/nasa2026/ninacal-payload-78}"
+SRC_DATA="${NINACAL_DATA:-$ROOT/data/v2}"
+SRC_DB="${NINACAL_DB:-$ROOT/backend/data/ninacal.sqlite}"
+if [ ! -f "$SRC_DB" ]; then
+  SRC_DB="$PIPELINE/data/derived/v2/ninacal.sqlite"
+fi
 BOUNDARIES="$ROOT/data/v2/boundaries"
 
 for path in "$SRC_DATA/manifest.json" "$SRC_DB"; do
