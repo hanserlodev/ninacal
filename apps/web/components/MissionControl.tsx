@@ -614,6 +614,7 @@ function mapSourceLabel(source: string): string {
 
 function MapTimeline({ state }: { state: ExplorerState }) {
   const [playing, setPlaying] = useState(false);
+  const [buffering, setBuffering] = useState(false);
   const start = state.years[0] ?? state.mapYear;
   const end = state.years[state.years.length - 1] ?? state.mapYear;
   const mapSource = mapSourceLabel(state.mapYearSource);
@@ -625,7 +626,9 @@ function MapTimeline({ state }: { state: ExplorerState }) {
     // `ensureYear` warms it and bumps `gridVersion`, which re-runs this effect.
     // The first pass therefore stalls on missing years (allowed); every later
     // loop finds all years in memory and runs on the plain interval.
-    if (state.ensureYear && !state.ensureYear(next)) return;
+    const ready = state.ensureYear ? state.ensureYear(next) : true;
+    setBuffering(!ready);
+    if (!ready) return;
     const timer = window.setTimeout(
       () => {
         // Loop through the selected range: the second pass is local/cached.
@@ -646,6 +649,10 @@ function MapTimeline({ state }: { state: ExplorerState }) {
 
   useEffect(() => setPlaying(false), [start, end]);
 
+  useEffect(() => {
+    if (!playing) setBuffering(false);
+  }, [playing]);
+
   const togglePlayback = () => {
     if (playing) {
       setPlaying(false);
@@ -663,7 +670,9 @@ function MapTimeline({ state }: { state: ExplorerState }) {
         <div className="mc-timeline-title">
           <span className="mc-code">TIME</span>
           <strong>Map year</strong>
-          <span className="mc-timeline-source">{mapSource}</span>
+          <span className={buffering ? "mc-timeline-source is-buffering" : "mc-timeline-source"}>
+            {buffering ? "loading next year…" : mapSource}
+          </span>
         </div>
         <div className="mc-timeline-current">
           <span>{state.mapYear}</span>

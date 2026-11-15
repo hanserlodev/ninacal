@@ -4364,3 +4364,7 @@ code {
     animation: none;
   }
 }
+
+.mc-timeline-source.is-buffering {
+  color: var(--ember);
+}
