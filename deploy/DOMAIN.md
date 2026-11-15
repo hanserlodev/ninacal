@@ -6,9 +6,9 @@ incluido no sirve para Next.js ni para la API; el dominio sí.
 Resultado:
 
 ```
-ninacal.xxx          -> Vercel (frontend)
-www.ninacal.xxx      -> Vercel
-api.ninacal.xxx      -> Cloudflare (cache + rate limit) -> VPS 5.189.178.36
+ninacal.earth        -> Vercel (frontend)          [LIVE]
+www.ninacal.earth    -> Vercel (frontend)          [LIVE]
+api.ninacal.earth    -> Cloudflare -> VPS          [pendiente de certificado]
 ```
 
 ## 1. Reclamar el dominio

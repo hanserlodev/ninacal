@@ -15,7 +15,8 @@ printf '%s' "https://ninacal.earth,https://www.ninacal.earth,https://ninacal.ver
 vercel --prod --yes
 ```
 
-La URL queda `https://ninacal-weather.vercel.app/api/weather`.
+La URL queda `https://ninacal-weather.vercel.app/api/weather` (ya desplegada y en uso por
+`ninacal.earth`).
 
 ## Probar
 

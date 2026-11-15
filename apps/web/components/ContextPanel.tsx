@@ -95,8 +95,8 @@ export default function ContextPanel({ code, year }: { code?: string; year: numb
         </p>
       ) : null}
       <p className="mc-note">
-        Planetary Computer context for this country box. Not a hotspot count and not burned-area
-        validation of NinaCal.
+        Planetary Computer context masked to this country's ADM1 boundary. Not a hotspot count
+        and not burned-area validation of NinaCal.
       </p>
     </section>
   );
