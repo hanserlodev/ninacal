@@ -57,9 +57,9 @@ def robust_bbox(points: list[tuple[float, float]]) -> dict[str, float]:
 
 def main() -> int:
     manifest = json.loads((DATA / "manifest.json").read_text())
-    registry = {}
-    if REGISTRY.exists():
-        registry = {entry["code"]: entry for entry in json.loads(REGISTRY.read_text())}
+    if not REGISTRY.exists():
+        raise SystemExit(f"missing country registry: {REGISTRY}")
+    registry = {entry["code"]: entry for entry in json.loads(REGISTRY.read_text())}
     countries = []
     for code, entry in manifest["countries"].items():
         meta = registry.get(code, {})
@@ -74,8 +74,7 @@ def main() -> int:
         iso3 = entry.get("iso3") or meta.get("iso3") or code
         boundary = entry.get("boundary") or meta.get("boundary") or ""
         if not boundary or not (DATA / "boundaries" / boundary).exists():
-            print(f"SKIP {code}: boundary {boundary!r} missing")
-            continue
+            raise SystemExit(f"missing ADM1 boundary for {code}: {boundary!r}")
         rounded = {key: round(value, 4) for key, value in view.items()}
         entry["name"] = name
         entry["iso3"] = iso3

@@ -1,6 +1,7 @@
 import type { Aggregated, BBox, DataCountry, Row, V2CountryMetadata, V2Manifest } from "./types";
 import type { LoadProgress } from "./data";
 import { cachedJson } from "./cache";
+import { COUNTRY_BY_CODE } from "./countries";
 
 const RAW_API = (process.env.NEXT_PUBLIC_API_BASE ?? "").replace(/\/+$/, "");
 const RAW_DATA = (process.env.NEXT_PUBLIC_DATA_BASE ?? "").replace(/\/+$/, "");
@@ -69,8 +70,17 @@ export async function loadApiManifest(signal?: AbortSignal): Promise<V2Manifest 
     const value = await cachedJson<V2Manifest>(`${DATA_BASE}/manifest.json`, {
       signal,
       ttl: 5 * 60 * 1000,
+      validate: (raw) => {
+        const manifest = raw as V2Manifest | null;
+        return (
+          !!manifest &&
+          manifest.schema_version === 2 &&
+          !!manifest.countries &&
+          Object.keys(manifest.countries).length > 0
+        );
+      },
     });
-    if (value.schema_version !== 2 || !value.countries?.PE || !value.countries?.US) return null;
+    if (!value.countries || Object.keys(value.countries).length === 0) return null;
     return value;
   } catch {
     return null;
@@ -84,12 +94,18 @@ export async function loadApiMetadata(
   return Promise.all(
     countries.map(async (country) => {
       const [calibration, models] = await Promise.all([
-        cachedJson(`${DATA_BASE}/${country}/calibration.json`, { signal }),
-        cachedJson(`${DATA_BASE}/${country}/models.json`, { signal }),
+        cachedJson<Record<string, unknown>>(`${DATA_BASE}/${country}/calibration.json`, {
+          signal,
+          validate: (raw) => !!raw && typeof raw === "object" && !Array.isArray(raw),
+        }),
+        cachedJson<Record<string, unknown>>(`${DATA_BASE}/${country}/models.json`, {
+          signal,
+          validate: (raw) => !!raw && typeof raw === "object" && !Array.isArray(raw),
+        }),
       ]);
       return {
         country,
-        name: country === "PE" ? "Peru" : "United States",
+        name: COUNTRY_BY_CODE.get(country)?.name ?? country,
         calibration,
         models,
       } as V2CountryMetadata;
@@ -133,7 +149,10 @@ export async function loadApiRegion(query: RegionQuery, signal?: AbortSignal): P
     end: String(query.end),
   });
   if (query.bbox) params.set("bbox", bboxParam(query.bbox));
-  return cachedJson<ApiRegion>(`${API_BASE}/api/region?${params.toString()}`, { signal });
+  return cachedJson<ApiRegion>(`${API_BASE}/api/region?${params.toString()}`, {
+    signal,
+    validate: (raw) => !!raw && Array.isArray((raw as ApiRegion).months),
+  });
 }
 
 const gridCache = new Map<string, ApiGrid>();
@@ -175,7 +194,10 @@ export async function loadApiGrid(
   // IndexedDB caches, so the next loop through the timeline is instantaneous.
   const request = cachedJson<ApiGrid>(
     `${API_BASE}/api/grid/${country}?${params.toString()}`,
-    { ttl: 24 * 60 * 60 * 1000 },
+    {
+      ttl: 24 * 60 * 60 * 1000,
+      validate: (raw) => !!raw && Array.isArray((raw as ApiGrid).rows),
+    },
   )
     .then((value) => {
       gridCache.set(key, value);
@@ -190,7 +212,10 @@ export async function loadApiSeriesIndex(
   country: DataCountry,
   signal?: AbortSignal,
 ): Promise<ApiSeriesSummary[]> {
-  return cachedJson<ApiSeriesSummary[]>(`${API_BASE}/api/series/${country}`, { signal });
+  return cachedJson<ApiSeriesSummary[]>(`${API_BASE}/api/series/${country}`, {
+    signal,
+    validate: (raw) => Array.isArray(raw),
+  });
 }
 
 export async function loadApiSeries(

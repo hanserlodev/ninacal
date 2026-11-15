@@ -86,7 +86,7 @@ export default function Home() {
               <a className="btn btn--primary" href="/console/">
                 Open mission control <span aria-hidden="true">→</span>
               </a>
-              <a className="btn" href={`${REPO_URL}blob/main/docs/data-v2/DATA_CONTRACT.md`}>
+              <a className="btn" href={`${REPO_URL}/blob/main/docs/data-v2/DATA_CONTRACT.md`}>
                 Data contract
               </a>
             </div>
@@ -264,7 +264,7 @@ export default function Home() {
                   NOAA-20 fallback months, all on one scale.
                 </li>
               </ul>
-              <a className="text-link" href={`${REPO_URL}blob/main/docs/data-v2/DATA_CONTRACT.md`}>
+              <a className="text-link" href={`${REPO_URL}/blob/main/docs/data-v2/DATA_CONTRACT.md`}>
                 Read the v2 data contract <span aria-hidden="true">→</span>
               </a>
             </div>
@@ -313,7 +313,7 @@ export default function Home() {
             It cannot tell a wildfire from agricultural burning, and it misses small, cool or
             cloud-covered fires. Use it to see patterns and anomalies, not to count incidents.
           </p>
-          <a className="text-link" href={`${REPO_URL}blob/main/docs/limitations.md`}>
+          <a className="text-link" href={`${REPO_URL}/blob/main/docs/limitations.md`}>
             Full list of limitations <span aria-hidden="true">→</span>
           </a>
         </aside>
@@ -331,16 +331,16 @@ export default function Home() {
         </div>
         <ul className="footer-links">
           <li>
-            <a href={`${REPO_URL}blob/main/docs/methodology.md`}>Methodology</a>
+            <a href={`${REPO_URL}/blob/main/docs/methodology.md`}>Methodology</a>
           </li>
           <li>
-            <a href={`${REPO_URL}blob/main/CONTRIBUTING.md`}>Contributing</a>
+            <a href={`${REPO_URL}/blob/main/CONTRIBUTING.md`}>Contributing</a>
           </li>
           <li>
-            <a href={`${REPO_URL}blob/main/SECURITY.md`}>Security</a>
+            <a href={`${REPO_URL}/blob/main/SECURITY.md`}>Security</a>
           </li>
           <li>
-            <a href={`${REPO_URL}blob/main/LICENSE`}>MIT</a>
+            <a href={`${REPO_URL}/blob/main/LICENSE`}>MIT</a>
           </li>
         </ul>
       </footer>

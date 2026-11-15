@@ -88,28 +88,38 @@ std::optional<ninacal::Box> box_parameter(const httplib::Request &request) {
 void send_region(const httplib::Request &request, httplib::Response &response, const ninacal::Store &store,
                  const ninacal::RegionRequest &query) {
     std::string format = request.has_param("format") ? request.get_param_value("format") : "json";
+    if (format != "json" && format != "csv" && format != "cells") {
+        throw ninacal::BadRequest("format must be json, csv or cells");
+    }
+    const std::string filename = std::string("ninacal_") + (format == "cells" ? "hotspots_" : "") +
+                                 query.country + "_" + std::to_string(query.start) + "_" +
+                                 std::to_string(query.end) + ".csv";
     if (format == "cells") {
-        response.set_header("Content-Disposition", "attachment; filename=\"ninacal_hotspots_" + query.country + "_" +
-                                                       std::to_string(query.start) + "_" + std::to_string(query.end) +
-                                                       ".csv\"");
-        response.set_content(ninacal::cells_csv(store, query), "text/csv");
+        auto csv = ninacal::cells_csv(store, query);
+        response.set_header("Content-Disposition", "attachment; filename=\"" + filename + "\"");
+        response.set_content(csv, "text/csv");
         return;
     }
     auto result = ninacal::region(store, query);
     if (format == "csv") {
-        response.set_header("Content-Disposition", "attachment; filename=\"ninacal_" + query.country + "_" +
-                                                       std::to_string(query.start) + "_" + std::to_string(query.end) +
-                                                       ".csv\"");
-        response.set_content(ninacal::months_csv(result), "text/csv");
-    } else if (format == "json") {
-        send_json(response, result);
+        auto csv = ninacal::months_csv(result);
+        response.set_header("Content-Disposition", "attachment; filename=\"" + filename + "\"");
+        response.set_content(csv, "text/csv");
     } else {
-        throw ninacal::BadRequest("format must be json, csv or cells");
+        send_json(response, result);
     }
 }
 
 void routes(httplib::Server &server, const ninacal::Store &store) {
     server.Get("/health", [&store](const httplib::Request &, httplib::Response &response) {
+        try {
+            ninacal::Statement probe(store.connection(), "SELECT count(*) FROM metadata");
+            probe.step();
+        } catch (const std::exception &) {
+            response.status = 503;
+            send_json(response, {{"status", "degraded"}});
+            return;
+        }
         send_json(response, {{"status", "ok"}, {"countries", store.codes().size()}});
     });
 
@@ -236,7 +246,9 @@ int main(int argc, char **argv) {
     httplib::Server server;
     int threads = options.threads;
     server.new_task_queue = [threads] { return new httplib::ThreadPool(threads); };
-    server.set_payload_max_length(8 * 1024 * 1024);
+    server.set_payload_max_length(256 * 1024);
+    server.set_read_timeout(5);
+    server.set_write_timeout(30);
     server.set_default_headers({{"Access-Control-Allow-Origin", "*"},
                                 {"Access-Control-Allow-Methods", "GET, POST, OPTIONS"},
                                 {"Access-Control-Allow-Headers", "Content-Type"},
@@ -256,12 +268,14 @@ int main(int argc, char **argv) {
             send_error(response, 400, e.what());
         } catch (const ninacal::NotFound &e) {
             send_error(response, 404, e.what());
-        } catch (const nlohmann::json::exception &e) {
-            send_error(response, 400, e.what());
+        } catch (const nlohmann::json::exception &) {
+            send_error(response, 400, "invalid JSON value");
         } catch (const std::exception &e) {
-            send_error(response, 500, e.what());
+            // Keep paths, SQL and internal state out of the response.
+            std::cerr << "internal error: " << e.what() << "\n";
+            send_error(response, 500, "internal server error");
         } catch (...) {
-            send_error(response, 500, "unknown error");
+            send_error(response, 500, "internal server error");
         }
     });
     server.set_error_handler([](const httplib::Request &, httplib::Response &response) {

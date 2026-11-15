@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <array>
+#include <cmath>
 #include <fstream>
 #if defined(__GLIBC__)
 #include <malloc.h>
@@ -159,6 +160,9 @@ Store::Store(std::filesystem::path database, std::filesystem::path data)
                 nlohmann::json::parse(manifest["countries_interval_limit"][code].dump());
         }
         country->bands = nlohmann::json::parse(read_json(data_ / code / "uncertainty.json").dump());
+        if (!country->bands.contains("aqua") || !country->bands.contains("noaa20")) {
+            throw std::runtime_error("uncertainty.json for " + code + " is missing aqua/noaa20 bands");
+        }
         country->series_file = data_ / code / "series.json";
         codes_.push_back(code);
         countries_.emplace(code, std::move(country));
@@ -172,8 +176,13 @@ Store::Store(std::filesystem::path database, std::filesystem::path data)
             continue;
         }
         Country &country = *found->second;
+        double lat = cells.real(2);
+        double lon = cells.real(3);
+        if (!std::isfinite(lat) || !std::isfinite(lon) || lat < -90 || lat > 90 || lon < -180 || lon > 180) {
+            throw std::runtime_error("invalid cell coordinates for " + cells.text(0) + ": " + cells.text(1));
+        }
         country.index.emplace(cells.text(1), country.cells.size());
-        country.cells.push_back({cells.text(1), cells.real(2), cells.real(3), cells.real(4), cells.text(5)});
+        country.cells.push_back({cells.text(1), lat, lon, cells.real(4), cells.text(5)});
     }
     for (const auto &[code, country] : countries_) {
         if (country->cells.empty()) continue;
@@ -274,15 +283,20 @@ const Activity &Store::activity(const Country &country) const {
         std::vector<std::uint16_t> months;
         std::vector<double> harm;
         Statement rows(connection(), "SELECT cell,year,month,harm FROM activity "
-                                     "WHERE country=? AND year>=2003 AND harm IS NOT NULL");
+                                     "WHERE country=? AND year BETWEEN 2003 AND 2025 "
+                                     "AND month BETWEEN 1 AND 12 AND harm IS NOT NULL");
         rows.bind(1, country.code);
         while (rows.step()) {
             auto found = country.index.find(rows.text(0));
             if (found == country.index.end()) {
                 continue;
             }
+            int month = month_index(rows.integer(1), rows.integer(2));
+            if (month < 0 || month >= month_count) {
+                continue;
+            }
             cells.push_back(static_cast<std::uint32_t>(found->second));
-            months.push_back(static_cast<std::uint16_t>(month_index(rows.integer(1), rows.integer(2))));
+            months.push_back(static_cast<std::uint16_t>(month));
             harm.push_back(rows.real(3));
         }
         Activity result;

@@ -30,6 +30,12 @@ for path in "$SRC_DATA/manifest.json" "$SRC_DB"; do
   fi
 done
 
+case "$OUT" in
+  ""|"/"|"$HOME"|"$ROOT")
+    echo "refusing to delete unsafe output path: '$OUT'" >&2
+    exit 1
+    ;;
+esac
 rm -rf "$OUT"
 mkdir -p "$OUT/data/v2" "$OUT/backend/data"
 
@@ -51,11 +57,11 @@ done
 echo "   $count countries"
 
 echo "== boundaries"
-if [ -d "$BOUNDARIES" ]; then
-  cp -r "$BOUNDARIES" "$OUT/data/v2/boundaries"
-else
-  echo "WARNING: $BOUNDARIES not found; copy the ADM1 files before deploying" >&2
-fi
+[ -d "$BOUNDARIES" ] || {
+  echo "missing boundary directory: $BOUNDARIES" >&2
+  exit 1
+}
+cp -r "$BOUNDARIES" "$OUT/data/v2/boundaries"
 
 echo "== sqlite"
 cp "$SRC_DB" "$OUT/backend/data/ninacal.sqlite"

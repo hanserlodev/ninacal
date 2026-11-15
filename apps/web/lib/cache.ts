@@ -27,35 +27,52 @@ function openDatabase(): Promise<IDBDatabase | null> {
 }
 
 async function read<T>(key: string): Promise<Entry<T> | null> {
-  const db = await openDatabase();
-  if (!db) return null;
-  return new Promise((resolve) => {
-    const tx = db.transaction(STORE, "readonly");
-    const request = tx.objectStore(STORE).get(key);
-    request.onsuccess = () => resolve((request.result as Entry<T> | undefined) ?? null);
-    request.onerror = () => resolve(null);
-  });
+  try {
+    const db = await openDatabase();
+    if (!db) return null;
+    return await new Promise((resolve) => {
+      const tx = db.transaction(STORE, "readonly");
+      const request = tx.objectStore(STORE).get(key);
+      request.onsuccess = () => resolve((request.result as Entry<T> | undefined) ?? null);
+      request.onerror = () => resolve(null);
+    });
+  } catch {
+    // A closed/blocked IndexedDB connection must never break the data path.
+    return null;
+  }
 }
 
 async function write<T>(key: string, entry: Entry<T>): Promise<void> {
-  const db = await openDatabase();
-  if (!db) return;
-  await new Promise<void>((resolve) => {
-    const tx = db.transaction(STORE, "readwrite");
-    tx.objectStore(STORE).put(entry, key);
-    tx.oncomplete = () => resolve();
-    tx.onerror = () => resolve();
-  });
+  try {
+    const db = await openDatabase();
+    if (!db) return;
+    await new Promise<void>((resolve) => {
+      const tx = db.transaction(STORE, "readwrite");
+      tx.objectStore(STORE).put(entry, key);
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => resolve();
+    });
+  } catch {
+    // Quota or a closing connection: caching is best-effort.
+  }
 }
 
 /** Cached JSON fetch for deterministic GETs. Falls back to the network. */
 export async function cachedJson<T>(
   url: string,
-  options: { signal?: AbortSignal; ttl?: number } = {},
+  options: {
+    signal?: AbortSignal;
+    ttl?: number;
+    /** Reject cached/network values with an unexpected shape. */
+    validate?: (value: unknown) => boolean;
+  } = {},
 ): Promise<T> {
   const now = Date.now();
-  const cached = await read<T>(`${KEY_VERSION}:${url}`);
-  if (cached && cached.expires > now) return cached.value;
+  const key = `${KEY_VERSION}:${url}`;
+  const cached = await read<T>(key);
+  if (cached && cached.expires > now && (!options.validate || options.validate(cached.value))) {
+    return cached.value;
+  }
 
   const response = await fetch(url, {
     signal: options.signal,
@@ -63,7 +80,10 @@ export async function cachedJson<T>(
   });
   if (!response.ok) throw new Error(`HTTP ${response.status}: ${url}`);
   const value = (await response.json()) as T;
-  void write(`${KEY_VERSION}:${url}`, { value, expires: now + (options.ttl ?? DEFAULT_TTL) });
+  if (options.validate && !options.validate(value)) {
+    throw new Error(`Unexpected response shape: ${url}`);
+  }
+  void write(key, { value, expires: now + (options.ttl ?? DEFAULT_TTL) });
   return value;
 }
 

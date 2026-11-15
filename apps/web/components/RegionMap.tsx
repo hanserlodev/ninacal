@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { Feature, FeatureCollection, Geometry, LineString, Polygon } from "geojson";
 import {
   AttributionControl,
@@ -227,13 +227,22 @@ function squareRing(lat: number, lon: number, size: number): Ring {
   ];
 }
 
-/** MapLibre throws from inside easeTo when its camera state is not usable. */
+/** MapLibre throws from inside easeTo/flyTo when its camera state is not usable. */
 function safeEase(map: MapLibreMap | null, options: Parameters<MapLibreMap["easeTo"]>[0]) {
   if (!map) return;
   try {
     map.easeTo(options);
   } catch {
     // A destroyed or not-yet-initialised map must never crash the console.
+  }
+}
+
+function safeFly(map: MapLibreMap | null, options: Parameters<MapLibreMap["flyTo"]>[0]) {
+  if (!map) return;
+  try {
+    map.flyTo(options);
+  } catch {
+    // Same guard as safeEase: a bad camera must not replace the console.
   }
 }
 
@@ -352,7 +361,7 @@ export default function RegionMap({
     cell: string;
     value: number;
   } | null>(null);
-  const cellSize = cellStep ?? inferCellSize(cells);
+  const cellSize = useMemo(() => cellStep ?? inferCellSize(cells), [cellStep, cells]);
   // Level of detail ladder for the drawn squares. A whole country fits at zoom
   // ~4, where 0.05° cells are sub-pixel; aggregate there, then reveal finer
   // cells as the user zooms. Very large selections (Brazil, USA, China) get an
@@ -437,7 +446,7 @@ export default function RegionMap({
     const reduced =
       typeof window !== "undefined" &&
       window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    map.flyTo({
+    safeFly(map, {
       center: camera.center,
       zoom: camera.zoom,
       bearing: 0,
@@ -456,7 +465,7 @@ export default function RegionMap({
     const reduced =
       typeof window !== "undefined" &&
       window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    map.flyTo({
+    safeFly(map, {
       center: [-60, -6],
       zoom: 1.75,
       bearing: 0,
@@ -553,7 +562,7 @@ export default function RegionMap({
       // projection matrix when the bounds span the whole world at zoom ≥12.5,
       // which crashed easeTo. The globe itself and latitude clamping already
       // keep the camera on the planet.
-      canvasContextAttributes: { preserveDrawingBuffer: true },
+      canvasContextAttributes: { preserveDrawingBuffer: false },
     });
     mapRef.current = map;
     map.getCanvas().setAttribute(

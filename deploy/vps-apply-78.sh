@@ -29,18 +29,17 @@ FREE_KB=$(df -Pk "$APP_DIR" | awk 'NR==2 {print $4}')
 
 echo "== payload"
 ls -lh "$PAYLOAD"
-if [ -f "${PAYLOAD}.sha256" ]; then
-  # Compare hashes directly: the .sha256 file stores a bare filename, so
-  # `sha256sum -c` would resolve it against the current directory.
-  EXPECTED=$(awk 'NR==1 {print $1}' "${PAYLOAD}.sha256")
-  ACTUAL=$(sha256sum "$PAYLOAD" | awk '{print $1}')
-  if [ -z "$EXPECTED" ] || [ "$EXPECTED" != "$ACTUAL" ]; then
-    echo "expected: $EXPECTED" >&2
-    echo "actual:   $ACTUAL" >&2
-    die "checksum mismatch"
-  fi
-  ok "checksum $ACTUAL"
+[ -f "${PAYLOAD}.sha256" ] || die "missing ${PAYLOAD}.sha256 (refusing to deploy unverified)"
+# Compare hashes directly: the .sha256 file stores a bare filename, so
+# `sha256sum -c` would resolve it against the current directory.
+EXPECTED=$(awk 'NR==1 {print $1}' "${PAYLOAD}.sha256")
+ACTUAL=$(sha256sum "$PAYLOAD" | awk '{print $1}')
+if [ -z "$EXPECTED" ] || [ "$EXPECTED" != "$ACTUAL" ]; then
+  echo "expected: $EXPECTED" >&2
+  echo "actual:   $ACTUAL" >&2
+  die "checksum mismatch"
 fi
+ok "checksum $ACTUAL"
 
 echo "== backup"
 if [ -d data/v2 ]; then
@@ -71,7 +70,7 @@ rollback() {
 trap rollback ERR
 
 echo "== extract"
-tar -I zstd -xf "$PAYLOAD" -C "$APP_DIR"
+tar --no-same-owner --no-same-permissions -I zstd -xf "$PAYLOAD" -C "$APP_DIR"
 [ -f data/v2/manifest.json ] || die "manifest missing after extract"
 [ -f backend/data/ninacal.sqlite ] || die "sqlite missing after extract"
 chown -R root:root data/v2 backend/data/ninacal.sqlite

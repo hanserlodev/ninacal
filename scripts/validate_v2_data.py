@@ -68,6 +68,10 @@ def main() -> int:
                 or not isinstance(row[4], str)
             ):
                 fail(f"{country}/cells.json: invalid row {index}")
+            if not all(math.isfinite(value) for value in row[1:4]):
+                fail(f"{country}/cells.json: non-finite geometry at row {index}")
+            if not (-90 <= row[1] <= 90 and -180 <= row[2] <= 180):
+                fail(f"{country}/cells.json: out-of-range lat/lon at row {index}")
 
         files = inventory.get("files")
         if not isinstance(files, list) or not files:

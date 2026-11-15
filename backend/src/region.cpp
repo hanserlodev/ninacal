@@ -38,17 +38,29 @@ double wrap(double longitude) {
     return result < 0 ? result + 360.0 : result;
 }
 
-Ring parse_ring(const nlohmann::json &positions) {
+constexpr std::size_t max_ring_points = 10000;
+constexpr std::size_t max_polygon_points = 20000;
+
+Ring parse_ring(const nlohmann::json &positions, std::size_t &budget) {
     if (!positions.is_array() || positions.size() < 3) {
         throw BadRequest("Each polygon ring needs at least three positions");
     }
+    if (positions.size() > max_ring_points || positions.size() > budget) {
+        throw BadRequest("Polygon has too many positions (max 10000 per ring, 20000 total)");
+    }
+    budget -= positions.size();
     Ring ring;
     ring.reserve(positions.size());
     for (const auto &position : positions) {
         if (!position.is_array() || position.size() < 2 || !position[0].is_number() || !position[1].is_number()) {
             throw BadRequest("Polygon positions must be [longitude, latitude] numbers");
         }
-        ring.push_back({position[0].get<double>(), position[1].get<double>()});
+        double lon = position[0].get<double>();
+        double lat = position[1].get<double>();
+        if (!std::isfinite(lon) || !std::isfinite(lat) || lon < -180 || lon > 180 || lat < -90 || lat > 90) {
+            throw BadRequest("Polygon positions must be finite WGS84 coordinates");
+        }
+        ring.push_back({lon, lat});
     }
     return ring;
 }
@@ -84,17 +96,18 @@ std::vector<bool> polygon_mask(const Country &country, const nlohmann::json &inp
         polygons.push_back(coordinates);
     }
     std::vector<bool> result(country.cells.size(), false);
+    std::size_t budget = max_polygon_points;
     for (const auto &rings : polygons) {
         if (!rings.is_array() || rings.empty()) {
             throw BadRequest("Polygon without rings");
         }
-        Ring exterior = parse_ring(rings[0]);
+        Ring exterior = parse_ring(rings[0], budget);
         auto [low, high] = std::minmax_element(exterior.begin(), exterior.end(),
                                                [](const auto &a, const auto &b) { return a[0] < b[0]; });
         bool crossing = (*high)[0] - (*low)[0] > 180;
         std::vector<Ring> holes;
         for (std::size_t r = 1; r < rings.size(); ++r) {
-            holes.push_back(parse_ring(rings[r]));
+            holes.push_back(parse_ring(rings[r], budget));
         }
         if (crossing) {
             for (auto &position : exterior) {
@@ -106,12 +119,24 @@ std::vector<bool> polygon_mask(const Country &country, const nlohmann::json &inp
                 }
             }
         }
+        // Cheap rejection before the O(points) point-in-polygon test.
+        double min_lon = exterior[0][0], max_lon = exterior[0][0];
+        double min_lat = exterior[0][1], max_lat = exterior[0][1];
+        for (const auto &position : exterior) {
+            min_lon = std::min(min_lon, position[0]);
+            max_lon = std::max(max_lon, position[0]);
+            min_lat = std::min(min_lat, position[1]);
+            max_lat = std::max(max_lat, position[1]);
+        }
         for (std::size_t i = 0; i < country.cells.size(); ++i) {
             if (result[i]) {
                 continue;
             }
             const Cell &cell = country.cells[i];
             double lon = crossing ? wrap(cell.lon) : cell.lon;
+            if (lon < min_lon || lon > max_lon || cell.lat < min_lat || cell.lat > max_lat) {
+                continue;
+            }
             bool selected = inside(exterior, lon, cell.lat);
             for (const auto &hole : holes) {
                 selected = selected && !inside(hole, lon, cell.lat);
@@ -249,10 +274,14 @@ std::vector<bool> select_cells(const Country &country, const std::optional<Box> 
     return mask;
 }
 
-nlohmann::ordered_json region(const Store &store, const RegionRequest &request) {
-    if (!(harmonized_first_year <= request.start && request.start <= request.end && request.end <= last_year)) {
+void validate_interval(int start, int end) {
+    if (!(harmonized_first_year <= start && start <= end && end <= last_year)) {
         throw BadRequest("The harmonized interval must be within 2003-2025");
     }
+}
+
+nlohmann::ordered_json region(const Store &store, const RegionRequest &request) {
+    validate_interval(request.start, request.end);
     const Country &country = require_country(store, request.country);
     auto mask = select_cells(country, request.box, request.polygon ? &*request.polygon : nullptr);
     std::vector<std::size_t> chosen;
@@ -276,7 +305,9 @@ nlohmann::ordered_json region(const Store &store, const RegionRequest &request) 
     std::vector<double> totals(month_count, 0.0);
     for (std::size_t i : chosen) {
         for (auto k = activity.offsets[i]; k < activity.offsets[i + 1]; ++k) {
-            totals[activity.months[k]] += activity.harm[k];
+            int month = activity.months[k];
+            if (month < 0 || month >= month_count) continue;
+            totals[month] += activity.harm[k];
         }
     }
 
@@ -405,6 +436,7 @@ nlohmann::ordered_json grid(const Store &store, const Country &country, int year
 }
 
 std::string cells_csv(const Store &store, const RegionRequest &request) {
+    validate_interval(request.start, request.end);
     const Country &country = require_country(store, request.country);
     auto mask = select_cells(country, request.box, request.polygon ? &*request.polygon : nullptr);
     const Activity &activity = store.activity(country);
@@ -423,8 +455,8 @@ std::string cells_csv(const Store &store, const RegionRequest &request) {
             if (excluded(source)) continue;
             double value = activity.harm[k];
             if (!(value > 0)) continue;
-            if (++rows > 4000000) {
-                throw BadRequest("selection too large for a cell CSV; draw a smaller area or reduce the years");
+            if (++rows > 250000) {
+                throw BadRequest("selection too large for a cell CSV (max 250000 rows); draw a smaller area or reduce the years");
             }
             csv << cell.id << ',' << std::fixed << std::setprecision(2) << cell.lat << ',' << cell.lon << ','
                 << year << ',' << (t % 12 + 1) << ',' << std::setprecision(6) << value << ','

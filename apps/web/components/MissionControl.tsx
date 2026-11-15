@@ -258,11 +258,12 @@ function AnomalyReadout({
     }
   }
   if (!month) {
-    if (!grid.latest) {
-      return <p className="mc-note">No measured month in this selection.</p>;
+    if (mode === "latest" && grid.latest) {
+      month = grid.latest.m;
+      value = grid.latest.value;
+    } else {
+      return <p className="mc-note">No measured months in {year} for this selection.</p>;
     }
-    month = grid.latest.m;
-    value = grid.latest.value;
   }
   const latest =
     mode === "latest" && grid.latest
@@ -273,9 +274,9 @@ function AnomalyReadout({
   const previous = history.filter((entry) => entry.y < latest.y);
   const values = previous.map((entry) => entry.value);
   const stats = computeStats(values, latest.value);
-  const delta = stats.median > 0 ? ((latest.value - stats.median) / stats.median) * 100 : 0;
+  const hasHistory = previous.length > 0 && stats.median > 0;
+  const delta = hasHistory ? ((latest.value - stats.median) / stats.median) * 100 : null;
   const percentile = Math.round(stats.percentile * 100);
-  const hasHistory = previous.length > 0;
   const level = !hasHistory
     ? "normal"
     : percentile >= 90
@@ -324,8 +325,8 @@ function AnomalyReadout({
       <p className="mc-anom-date">
         {monthName(latest.m)} {latest.y}
         <span>{measureLabel}</span>
-        <span className={delta >= 0 ? "mc-delta is-up" : "mc-delta is-down"}>
-          {formatPercent(delta)}
+        <span className={delta === null ? "mc-delta" : delta >= 0 ? "mc-delta is-up" : "mc-delta is-down"}>
+          {delta === null ? "—" : formatPercent(delta)}
         </span>
       </p>
 
@@ -445,12 +446,16 @@ function V2ValidationPanel({
           <div className="mc-v2-country" key={item.country}>
             <div className="mc-v2-country-head">
               <strong>{item.name}</strong>
-              <span>{item.calibration.model.name.replaceAll("_", " ")}</span>
+              <span>{item.calibration?.model?.name?.replaceAll("_", " ") ?? "—"}</span>
             </div>
             <dl className="mc-v2-metrics">
               <div>
                 <dt>Ratio</dt>
-                <dd>{formatDecimal(item.calibration.model.country_ratio)}×</dd>
+                <dd>
+                  {item.calibration?.model?.country_ratio != null
+                    ? `${formatDecimal(item.calibration.model.country_ratio)}×`
+                    : "—"}
+                </dd>
               </div>
               <div>
                 <dt>CV WAPE</dt>
@@ -676,6 +681,9 @@ function MapTimeline({ state }: { state: ExplorerState }) {
         </div>
         <div className="mc-timeline-current">
           <span>{state.mapYear}</span>
+          <span className="sr-only" role="status" aria-live={playing ? "off" : "polite"}>
+            Map year {state.mapYear}
+          </span>
           <button
             type="button"
             className="mc-play"
@@ -801,9 +809,8 @@ export default function MissionControl() {
 
           {state.coverage === "outside" ? (
             <p className="mc-alert is-error" role="status">
-              <strong>Outside coverage.</strong> NinaCal currently publishes 12 countries (the
-              Americas plus Australia). Pick a country from the selector or draw inside a
-              highlighted area.
+              <strong>Outside coverage.</strong> NinaCal publishes {COUNTRIES.length} countries.
+              Pick one from the selector or draw inside a highlighted area.
             </p>
           ) : null}
 

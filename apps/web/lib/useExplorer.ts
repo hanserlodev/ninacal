@@ -75,6 +75,29 @@ function yearsBetween(start: number, end: number): number[] {
   return Array.from({ length: Math.max(0, end - start + 1) }, (_, i) => start + i);
 }
 
+/** Run async work with bounded concurrency and keep every outcome. */
+async function mapSettledLimit<T, R>(
+  items: T[],
+  limit: number,
+  work: (item: T) => Promise<R>,
+): Promise<PromiseSettledResult<R>[]> {
+  const results: PromiseSettledResult<R>[] = new Array(items.length);
+  let cursor = 0;
+  const workers = Array.from({ length: Math.max(1, Math.min(limit, items.length)) }, async () => {
+    while (cursor < items.length) {
+      const index = cursor;
+      cursor += 1;
+      try {
+        results[index] = { status: "fulfilled", value: await work(items[index]) };
+      } catch (reason) {
+        results[index] = { status: "rejected", reason };
+      }
+    }
+  });
+  await Promise.all(workers);
+  return results;
+}
+
 function toDraft(bbox: BBox): Draft {
   const one = (value: number) => value.toFixed(1);
   return {
@@ -86,12 +109,16 @@ function toDraft(bbox: BBox): Draft {
 }
 
 function parseDraft(draft: Draft): BBox | null {
-  return normalizeBBox({
+  const box = {
     minLat: Number(draft.minLat),
     minLon: Number(draft.minLon),
     maxLat: Number(draft.maxLat),
     maxLon: Number(draft.maxLon),
-  });
+  };
+  if (!Object.values(box).every(Number.isFinite)) return null;
+  if (box.minLon >= box.maxLon || box.minLat >= box.maxLat) return null;
+  if (box.maxLon - box.minLon > 180) return null;
+  return normalizeBBox(box);
 }
 
 type UrlState = {
@@ -240,8 +267,14 @@ export function useExplorer() {
           kind: "info",
           text: "Research prototype · detected hotspot-days on the Suomi-NPP scale, 2003–2025. Dates use local mean solar time. Error ranges are approximate experiments, not confidence intervals.",
         });
-        setV2Metadata(await staticV2Provider.loadMetadata(["PE"]));
-        if (alive) setBooted(true);
+        try {
+          const metadata = await staticV2Provider.loadMetadata(["PE"]);
+          if (alive) setV2Metadata(metadata);
+        } catch {
+          if (alive) setV2Metadata([]);
+        } finally {
+          if (alive) setBooted(true);
+        }
         return;
       }
 
@@ -485,55 +518,86 @@ export function useExplorer() {
     const end = range[1];
     setDataCountries(requestedCountries);
     setProgress({ done: 0, total: requestedCountries.length, failed: [] });
+    // Never leave the previous selection's aggregate on screen while the new
+    // one is loading: it would be labelled with the new selection.
+    setApiRegion(null);
+    setBands(new Map());
+    setCountryYearTotals({});
 
-    Promise.all(
-      requestedCountries.map((country) =>
-        loadApiRegion(
-          {
-            country,
-            bbox:
-              selection.allCellsFor || worldView ? undefined : selection.bbox,
-            polygon: selection.polygon,
-            start,
-            end,
-          },
-          controller.signal,
-        ),
-      ),
-    )
-      .then((results) => {
-        if (controller.signal.aborted) return;
-        setApiRegion(mergeRegions(results, years));
-        setBands(bandsFor(results));
-        setApiScale(Math.max(1, ...results.map((result) => result.cell_year_p98 ?? 1)));
-        const totals: Record<string, Record<number, number>> = {};
-        for (const result of results) {
-          const byYear: Record<number, number> = {};
-          for (const row of result.months) {
-            if (row.value === null) continue;
-            byYear[row.year] = (byYear[row.year] ?? 0) + row.value;
-          }
-          totals[result.country] = byYear;
-        }
-        setCountryYearTotals(totals);
-        setProgress({ done: requestedCountries.length, total: requestedCountries.length, failed: [] });
-        setNotice((previous) => (previous?.kind === "error" ? null : previous));
-        if (results.every((result) => result.status === "outside_published_support")) {
-          setNotice({
-            kind: "info",
-            text: "This selection is outside the published data coverage. Draw a box over the United States or Peru.",
-          });
-        }
-      })
-      .catch(() => {
-        if (controller.signal.aborted) return;
+    const fetchOne = (country: string) =>
+      loadApiRegion(
+        {
+          country,
+          bbox: selection.allCellsFor || worldView ? undefined : selection.bbox,
+          polygon: selection.polygon,
+          start,
+          end,
+        },
+        controller.signal,
+      );
+
+    void (async () => {
+      // World view means 78 national aggregates, so keep the fan-out bounded
+      // and never let one flaky country discard the whole world.
+      const first = await mapSettledLimit(requestedCountries, 8, fetchOne);
+      let settled = first;
+      const retryCountries = requestedCountries.filter((_, index) => first[index].status === "rejected");
+      if (retryCountries.length > 0 && !controller.signal.aborted) {
+        const retry = await mapSettledLimit(retryCountries, 4, fetchOne);
+        let cursor = 0;
+        settled = first.map((entry) =>
+          entry.status === "rejected" ? retry[cursor++] : entry,
+        );
+      }
+      if (controller.signal.aborted) return;
+      const results = settled
+        .filter((entry): entry is PromiseFulfilledResult<Awaited<ReturnType<typeof fetchOne>>> =>
+          entry.status === "fulfilled",
+        )
+        .map((entry) => entry.value);
+      const failedCountries = requestedCountries.filter(
+        (_, index) => settled[index].status === "rejected",
+      );
+      if (results.length === 0) {
         setNotice({ kind: "error", text: "Could not reach the NinaCal API for this selection." });
-        setProgress({
-          done: requestedCountries.length,
-          total: requestedCountries.length,
-          failed: ["api"],
-        });
+        setProgress({ done: requestedCountries.length, total: requestedCountries.length, failed: ["api"] });
+        return;
+      }
+      setApiRegion(mergeRegions(results, years));
+      setBands(bandsFor(results));
+      setApiScale(Math.max(1, ...results.map((result) => result.cell_year_p98 ?? 1)));
+      const totals: Record<string, Record<number, number>> = {};
+      for (const result of results) {
+        const byYear: Record<number, number> = {};
+        for (const row of result.months) {
+          if (row.value === null) continue;
+          byYear[row.year] = (byYear[row.year] ?? 0) + row.value;
+        }
+        totals[result.country] = byYear;
+      }
+      setCountryYearTotals(totals);
+      setProgress({
+        done: requestedCountries.length,
+        total: requestedCountries.length,
+        failed: failedCountries,
       });
+      if (failedCountries.length > 0) {
+        setNotice({
+          kind: "error",
+          text: `Loaded ${results.length} of ${requestedCountries.length} countries (${failedCountries
+            .slice(0, 4)
+            .join(", ")}${failedCountries.length > 4 ? "…" : ""} failed). Totals are partial.`,
+        });
+      } else {
+        setNotice((previous) => (previous?.kind === "error" ? null : previous));
+      }
+      if (results.every((result) => result.status === "outside_published_support")) {
+        setNotice({
+          kind: "info",
+          text: "This selection is outside the published data coverage. Pick a country or draw inside a highlighted area.",
+        });
+      }
+    })();
 
     return () => controller.abort();
   }, [hasApi, urlReady, dataVersion, requestedCountries, selection, range, years]);
@@ -571,7 +635,6 @@ export function useExplorer() {
         cursor += 1;
         try {
           await loadApiGrid(country, year, bbox);
-          setGridVersion((version) => version + 1);
         } catch {
           // A failed year should not stop the rest of the warm-up.
         }
@@ -808,6 +871,13 @@ export function useExplorer() {
     selection.allCellsFor || selection.country ? "full" : coverageStatus(selection.bbox);
 
   const handleSelection = useCallback((next: Selection) => {
+    if (next.bbox.maxLon - next.bbox.minLon > 180) {
+      setNotice({
+        kind: "info",
+        text: "That box crosses the antimeridian. Draw one box west of 180° and another east of it.",
+      });
+      return;
+    }
     setSelection(next);
   }, []);
 
