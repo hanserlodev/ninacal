@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { aggregate, csvFor, csvForV2 } from "@/lib/aggregate";
 import { countriesForBBox, coverageStatus } from "@/lib/coverage";
 import { loadCalibration, loadManifest, loadYears, type LoadProgress } from "@/lib/data";
@@ -179,6 +179,8 @@ export function useExplorer() {
   const [countryYearTotals, setCountryYearTotals] = useState<Record<string, Record<number, number>>>({});
   const [mapLoading, setMapLoading] = useState(false);
   const [gridVersion, setGridVersion] = useState(0);
+  const yearAttempts = useRef(new Map<number, number>());
+  const failedYears = useRef(new Set<number>());
   const [bands, setBands] = useState<Map<string, { low: number | null; high: number | null }>>(new Map());
   const [urlReady, setUrlReady] = useState(false);
   const [progress, setProgress] = useState<LoadProgress | null>(null);
@@ -575,13 +577,30 @@ export function useExplorer() {
       if (!hasApi || worldView || requestedCountries.length !== 1) return true;
       const bbox = selection.allCellsFor ? undefined : selection.bbox;
       if (peekApiGrid(requestedCountries[0], year, bbox)) return true;
+      if (failedYears.current.has(year)) return true;
       loadApiGrid(requestedCountries[0], year, bbox)
-        .then(() => setGridVersion((version) => version + 1))
-        .catch(() => {});
+        .then(() => {
+          yearAttempts.current.delete(year);
+          failedYears.current.delete(year);
+          setGridVersion((version) => version + 1);
+        })
+        .catch(() => {
+          // A transient API failure must not freeze playback forever: retry a
+          // few times, then let the timeline move on instead of hanging.
+          const attempts = (yearAttempts.current.get(year) ?? 0) + 1;
+          yearAttempts.current.set(year, attempts);
+          if (attempts >= 4) failedYears.current.add(year);
+          window.setTimeout(() => setGridVersion((version) => version + 1), 2500);
+        });
       return false;
     },
     [hasApi, worldView, requestedCountries, selection],
   );
+
+  useEffect(() => {
+    yearAttempts.current.clear();
+    failedYears.current.clear();
+  }, [requestedCountries, selection, range]);
 
   useEffect(() => {
     if (!hasApi || !urlReady || dataVersion !== "v2" || requestedCountries.length === 0) return;

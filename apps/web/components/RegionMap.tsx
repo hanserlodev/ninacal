@@ -343,12 +343,13 @@ export default function RegionMap({
   const cellSize = cellStep ?? inferCellSize(cells);
   // Level of detail ladder for the drawn squares. A whole country fits at zoom
   // ~4, where 0.05° cells are sub-pixel; aggregate there, then reveal finer
-  // cells as the user zooms. Very large countries (Brazil, USA, China) get an
+  // cells as the user zooms. Very large selections (Brazil, USA, China) get an
   // extra 0.2° step so playback stays smooth; smaller ones keep 0.1°.
   // Display-only: totals never change.
+  const selectionCells = cellCount ?? cells.length;
   const lodStep =
     cellSize < 0.075 && zoomLevel < 7
-      ? cells.length > 60_000 && zoomLevel < 5
+      ? selectionCells > 120_000 && zoomLevel < 5
         ? 0.2
         : 0.1
       : null;
