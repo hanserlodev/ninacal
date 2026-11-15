@@ -48,6 +48,8 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Comparison: Absolute/Indexed scale toggle and a hint when the two series differ by >8×.
 - `deploy/gcp/`: temporary high-CPU VM scripts to run the pipeline from a GCS tarball.
 - `deploy/DOMAIN.md`: custom domain, Cloudflare cache, rate limit and real-IP guide.
+- `deploy/NGINX-APPLY.md`: split http/server Nginx cache and rate-limit instructions.
+- `docs/CREDITS.md`: data/tool credits and submission eligibility notes.
 - Data issue template with cell/year/month fields, to trace numbers back to the pipeline.
 - `scripts/validate_data.py`: contract checks for processed files, calibration and the mock.
 - Interactive explorer: MapLibre map with rectangle/polygon drawing, region presets, bounding
