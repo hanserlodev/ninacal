@@ -83,22 +83,46 @@ for _ in $(seq 1 30); do
   if curl -fsS http://127.0.0.1:8080/health >/dev/null 2>&1; then break; fi
   sleep 2
 done
-curl -fsS http://127.0.0.1:8080/health >/dev/null || die "API is not healthy"
+curl -fsS http://127.0.0.1:8080/health >/dev/null || {
+  echo "API is not healthy" >&2
+  rollback
+}
 ok "health"
 
 echo "== verify"
 COUNTRIES=$(curl -fsS http://127.0.0.1:8080/api/countries | python3 -c 'import json,sys; print(len(json.load(sys.stdin)))')
-[ "$COUNTRIES" = "78" ] || die "expected 78 countries, got $COUNTRIES"
+[ "$COUNTRIES" = "78" ] || {
+  echo "expected 78 countries, got $COUNTRIES" >&2
+  rollback
+}
 ok "countries: $COUNTRIES"
-curl -fsS 'http://127.0.0.1:8080/api/grid/DE?year=2024' | head -c 120; echo
-curl -fsS 'http://127.0.0.1:8080/api/grid/BR?year=2024' | head -c 120; echo
-curl -fsS 'http://127.0.0.1:8080/api/series/DE' | head -c 120; echo
+
+# Never pipe curl into head under `set -o pipefail`: head closes the pipe and
+# curl exits 23 (SIGPIPE), which looks like a failure even when the API is fine.
+check() {
+  local label="$1" url="$2" out code
+  out="$(mktemp)"
+  code=$(curl -sS -o "$out" -w '%{http_code}' "$url" || echo 000)
+  if [ "$code" != "200" ]; then
+    echo "$label -> HTTP $code" >&2
+    rm -f "$out"
+    rollback
+  fi
+  printf '%s -> HTTP 200: ' "$label"
+  head -c 120 "$out"
+  echo
+  rm -f "$out"
+}
+
+check "grid DE  " 'http://127.0.0.1:8080/api/grid/DE?year=2024'
+check "grid BR  " 'http://127.0.0.1:8080/api/grid/BR?year=2024'
+check "series DE" 'http://127.0.0.1:8080/api/series/DE'
 
 trap - ERR
 echo
 ok "deployed"
 du -sh data/v2 backend/data/ninacal.sqlite
-docker compose ps
+docker compose ps || true
 echo
 echo "Backups kept at:"
 echo "  $APP_DIR/data/v2.bak-$STAMP"
