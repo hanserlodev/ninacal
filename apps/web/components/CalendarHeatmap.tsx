@@ -29,7 +29,7 @@ export default function CalendarHeatmap({ grid }: { grid: Aggregated }) {
     return rampColor(t);
   };
 
-  const valueFor = (yi: number, m: number) => grid.totals[yi][m - 1];
+  const valueFor = (yi: number, m: number) => grid.totals[yi]?.[m - 1] ?? null;
 
   if (grid.cellCount === 0) {
     return (

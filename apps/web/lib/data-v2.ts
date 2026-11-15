@@ -60,8 +60,11 @@ export async function loadV2Manifest(): Promise<V2Manifest | null> {
 }
 
 export function v2Years(manifest: V2Manifest): number[] {
-  const peruYears = new Set(manifest.countries.PE.files.map((file) => file.year));
-  return manifest.countries.US.files
+  const peru = manifest.countries.PE ?? manifest.countries.US;
+  const usa = manifest.countries.US ?? manifest.countries.PE;
+  if (!peru?.files || !usa?.files) return [];
+  const peruYears = new Set(peru.files.map((file) => file.year));
+  return usa.files
     .map((file) => file.year)
     .filter((year) => year >= 2003 && peruYears.has(year))
     .sort((a, b) => a - b);
@@ -198,7 +201,9 @@ export async function loadV2Selection(
   );
   const availability = new Map<string, string[]>();
   for (const country of activeCountries) {
-    for (const item of manifest.countries[country].availability) {
+    const countryManifest = manifest.countries[country];
+    if (!countryManifest) continue;
+    for (const item of countryManifest.availability) {
       if (item.year < 2003) continue;
       const key = `${item.year}-${item.month}`;
       const list = availability.get(key) ?? [];

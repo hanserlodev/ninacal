@@ -678,11 +678,13 @@ export function useExplorer() {
     return result;
   }, [countryYearTotals, mapYear]);
 
-  const mapYearIndex = years.indexOf(mapYear);
-  const mapYearSources =
-    mapYearIndex >= 0
-      ? [...new Set(grid.sources[mapYearIndex].filter((source): source is string => source !== null))]
-      : [];
+  // Use the grid's own year axis: while a new range is loading, `years` can be
+  // ahead of the grid and indexing it with `years` would be out of bounds.
+  const mapYearIndex = grid.years.indexOf(mapYear);
+  const mapYearRow = mapYearIndex >= 0 ? grid.sources?.[mapYearIndex] : undefined;
+  const mapYearSources = mapYearRow
+    ? [...new Set(mapYearRow.filter((source): source is string => source !== null))]
+    : [];
   const hasUnavailable = mapYearSources.includes("unavailable");
   const mapYearSource = hasUnavailable
     ? mapYearSources.length > 1

@@ -245,7 +245,7 @@ function AnomalyReadout({
 }) {
   const [mode, setMode] = useState<"peak" | "latest">("peak");
   const yearIndex = grid.years.indexOf(year);
-  const yearRow = yearIndex >= 0 ? grid.totals[yearIndex] : null;
+  const yearRow = yearIndex >= 0 ? grid.totals[yearIndex] ?? null : null;
   let month = 0;
   let value = 0;
   if (yearRow) {

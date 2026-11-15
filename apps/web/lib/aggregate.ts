@@ -123,7 +123,7 @@ export function monthHistory(
 ): { y: number; value: number }[] {
   const out: { y: number; value: number }[] = [];
   grid.years.forEach((year, yi) => {
-    const value = grid.totals[yi][month - 1];
+    const value = grid.totals[yi]?.[month - 1] ?? null;
     if (value !== null) out.push({ y: year, value });
   });
   return out;

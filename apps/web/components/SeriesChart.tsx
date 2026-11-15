@@ -33,7 +33,7 @@ export default function SeriesChart({
   const points = useMemo<Point[]>(() => {
     const out: Point[] = [];
     grid.years.forEach((year, yi) => {
-      grid.totals[yi].forEach((value, mi) => {
+      (grid.totals[yi] ?? []).forEach((value, mi) => {
         out.push({ index: out.length, y: year, m: mi + 1, value });
       });
     });

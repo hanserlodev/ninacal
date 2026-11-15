@@ -176,7 +176,9 @@ export async function loadApiSeries(
 }
 
 export function mergeRegions(regions: ApiRegion[], years: number[]): Aggregated | null {
-  const valid = regions.filter((region) => region.months.length > 0);
+  const valid = regions.filter(
+    (region) => Array.isArray(region.months) && region.months.length > 0,
+  );
   if (valid.length === 0) return null;
 
   const index = new Map<number, number>();
@@ -253,7 +255,7 @@ export function mergeRegions(regions: ApiRegion[], years: number[]): Aggregated 
 export function bandsFor(regions: ApiRegion[]): Map<string, { low: number | null; high: number | null }> {
   const result = new Map<string, { low: number | null; high: number | null }>();
   for (const region of regions) {
-    for (const row of region.months) {
+    for (const row of region.months ?? []) {
       if (row.low === null || row.high === null) continue;
       const key = `${row.year}-${row.month}`;
       const previous = result.get(key);
