@@ -57,6 +57,13 @@ export default function WorldPicker({ state }: { state: ExplorerState }) {
     return () => controller.abort();
   }, [country]);
 
+  // Keep the region <select> in sync when a region is clicked on the map.
+  useEffect(() => {
+    if (!state.selection.label || regions.length === 0) return;
+    const match = regions.find((entry) => entry.name === state.selection.label);
+    if (match) setRegion(match.id);
+  }, [state.selection.label, regions]);
+
   const info = COUNTRY_BY_CODE.get(country);
   const options = useMemo(
     () => [...regions].sort((a, b) => a.name.localeCompare(b.name)),
