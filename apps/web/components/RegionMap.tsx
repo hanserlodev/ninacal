@@ -355,6 +355,7 @@ export default function RegionMap({
   const [basemap, setBasemap] = useState<"dark" | "satellite">("dark");
   const [zoomLevel, setZoomLevel] = useState(1.8);
   const [vertices, setVertices] = useState(0);
+  const [picked, setPicked] = useState<string | null>(null);
   const [tooltip, setTooltip] = useState<{
     x: number;
     y: number;
@@ -778,6 +779,9 @@ export default function RegionMap({
           cell,
           value,
         });
+        setPicked(
+          `${coordinateLabel(cell)}: ${formatCompact(value)} ${measureLabel}, ${periodLabel}`,
+        );
         if (modeRef.current === "pan") map.getCanvas().style.cursor = "pointer";
       });
 
@@ -1324,6 +1328,9 @@ export default function RegionMap({
           </aside>
         ) : null}
 
+        <span className="sr-only" role="status" aria-live="polite">
+          {picked ?? ""}
+        </span>
         {tooltip ? (
           <div
             className="map-tooltip"

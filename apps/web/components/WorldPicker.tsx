@@ -37,6 +37,7 @@ export default function WorldPicker({ state }: { state: ExplorerState }) {
   useEffect(() => {
     if (!country) {
       setRegions([]);
+      setLoading(false);
       return;
     }
     const controller = new AbortController();

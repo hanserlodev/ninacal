@@ -429,7 +429,8 @@ export function useExplorer() {
     },
     [selection.allCellsFor, selection.country, selection.countries, selection.bbox],
   );
-  const worldView = requestedCountries.length > 1;
+  const worldView =
+    (selection.countries?.length ?? 0) > 1 || requestedCountries.length > 1;
 
   useEffect(() => {
     if (hasApi || !urlReady) return;

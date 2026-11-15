@@ -26,8 +26,12 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - API accepts 2- and 3-letter country codes; input caps for polygons, CSV exports and request
   bodies; generic 500 responses; real `/health` probe.
 - Console: bounded world fan-out, validated persistent cache, cleared stale aggregates,
-  safe fly-to, antimeridian rejection, real country names in the validation panel and
-  accessible timeline announcements.
+  safe fly-to, antimeridian rejection, real country names in the validation panel,
+  accessible timeline and clicked-cell announcements, and a bounded in-memory grid cache.
+- Static mode: world selection is recognised without an API and the region picker no longer
+  leaves its spinner running.
+- Security headers for the static site (`X-Content-Type-Options`, `Referrer-Policy`,
+  `X-Frame-Options`, `Permissions-Policy`).
 
 ### Added
 

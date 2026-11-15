@@ -157,6 +157,19 @@ export async function loadApiRegion(query: RegionQuery, signal?: AbortSignal): P
 
 const gridCache = new Map<string, ApiGrid>();
 const gridInflight = new Map<string, Promise<ApiGrid>>();
+// A 23-year range is 23 entries; keep a little headroom for a second bbox
+// without letting a long session retain every country the user explored.
+const GRID_CACHE_LIMIT = 40;
+
+function rememberGrid(key: string, value: ApiGrid): void {
+  gridCache.delete(key);
+  gridCache.set(key, value);
+  while (gridCache.size > GRID_CACHE_LIMIT) {
+    const oldest = gridCache.keys().next().value;
+    if (oldest === undefined) break;
+    gridCache.delete(oldest);
+  }
+}
 
 function gridKey(country: DataCountry, year: number, bbox: BBox | undefined): string {
   return `${country}:${year}:${bbox ? bboxParam(bbox) : "all"}`;
@@ -200,7 +213,7 @@ export async function loadApiGrid(
     },
   )
     .then((value) => {
-      gridCache.set(key, value);
+      rememberGrid(key, value);
       return value;
     })
     .finally(() => gridInflight.delete(key));
