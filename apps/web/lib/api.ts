@@ -137,24 +137,36 @@ export async function loadApiRegion(query: RegionQuery, signal?: AbortSignal): P
 }
 
 const gridCache = new Map<string, ApiGrid>();
+const gridInflight = new Map<string, Promise<ApiGrid>>();
 
 export async function loadApiGrid(
   country: DataCountry,
   year: number,
   bbox: BBox | undefined,
-  signal?: AbortSignal,
+  _signal?: AbortSignal,
 ): Promise<ApiGrid> {
   const key = `${country}:${year}:${bbox ? bboxParam(bbox) : "all"}`;
   const cached = gridCache.get(key);
   if (cached) return cached;
+  const pending = gridInflight.get(key);
+  if (pending) return pending;
+
   const params = new URLSearchParams({ year: String(year) });
   if (bbox) params.set("bbox", bboxParam(bbox));
-  const value = await cachedJson<ApiGrid>(`${API_BASE}/api/grid/${country}?${params.toString()}`, {
-    signal,
-    ttl: 24 * 60 * 60 * 1000,
-  });
-  gridCache.set(key, value);
-  return value;
+  // Playback advances year every ~850 ms. Do not abort the underlying request
+  // when the component moves on: let it finish and warm both the in-memory and
+  // IndexedDB caches, so the next loop through the timeline is instantaneous.
+  const request = cachedJson<ApiGrid>(
+    `${API_BASE}/api/grid/${country}?${params.toString()}`,
+    { ttl: 24 * 60 * 60 * 1000 },
+  )
+    .then((value) => {
+      gridCache.set(key, value);
+      return value;
+    })
+    .finally(() => gridInflight.delete(key));
+  gridInflight.set(key, request);
+  return request;
 }
 
 export async function loadApiSeriesIndex(

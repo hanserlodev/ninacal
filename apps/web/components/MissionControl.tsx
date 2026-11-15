@@ -620,15 +620,15 @@ function MapTimeline({ state }: { state: ExplorerState }) {
 
   useEffect(() => {
     if (!playing) return;
-    if (state.mapYear >= end) {
-      setPlaying(false);
-      return;
-    }
-    const timer = window.setTimeout(() => {
-      state.setMapYear(Math.min(end, state.mapYear + 1));
-    }, window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 1500 : 850);
+    const timer = window.setTimeout(
+      () => {
+        // Loop through the selected range: the second pass is local/cached.
+        state.setMapYear(state.mapYear >= end ? start : state.mapYear + 1);
+      },
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 1500 : 850,
+    );
     return () => window.clearTimeout(timer);
-  }, [playing, state.mapYear, state.setMapYear, end]);
+  }, [playing, state.mapYear, state.setMapYear, start, end]);
 
   useEffect(() => setPlaying(false), [start, end]);
 
@@ -637,6 +637,8 @@ function MapTimeline({ state }: { state: ExplorerState }) {
       setPlaying(false);
       return;
     }
+    // Fire-and-forget: the first loop warms every annual grid for the next one.
+    state.warmTimeline?.();
     if (state.mapYear >= end && end > start) state.setMapYear(start);
     setPlaying(true);
   };

@@ -504,7 +504,7 @@ export function useExplorer() {
   useEffect(() => {
     if (!hasApi || worldView || requestedCountries.length !== 1) return;
     const country = requestedCountries[0];
-    const bbox = selection.allCellsFor || selection.country ? undefined : selection.bbox;
+    const bbox = selection.allCellsFor ? undefined : selection.bbox;
     const timer = window.setTimeout(() => {
       for (const year of [mapYear + 1, mapYear - 1]) {
         if (year >= range[0] && year <= range[1]) {
@@ -514,6 +514,30 @@ export function useExplorer() {
     }, 1400);
     return () => window.clearTimeout(timer);
   }, [hasApi, worldView, requestedCountries, mapYear, selection, range]);
+
+  // Warm every annual grid in the current range when the user starts the
+  // timeline. The first pass may still be network-bound; the next loop is
+  // served from the in-memory + IndexedDB caches. Three workers keep the VPS
+  // from being hit with 23 simultaneous requests.
+  const warmTimeline = useCallback(() => {
+    if (!hasApi || worldView || requestedCountries.length !== 1) return;
+    const country = requestedCountries[0];
+    const bbox = selection.allCellsFor ? undefined : selection.bbox;
+    const targetYears = years.filter((year) => year !== mapYear);
+    let cursor = 0;
+    const worker = async () => {
+      while (cursor < targetYears.length) {
+        const year = targetYears[cursor];
+        cursor += 1;
+        try {
+          await loadApiGrid(country, year, bbox);
+        } catch {
+          // A failed year should not stop the rest of the warm-up.
+        }
+      }
+    };
+    void Promise.all([worker(), worker(), worker()]);
+  }, [hasApi, worldView, requestedCountries, selection, years, mapYear]);
 
   useEffect(() => {
     if (!hasApi || !urlReady || dataVersion !== "v2" || requestedCountries.length === 0) return;
@@ -853,6 +877,7 @@ export function useExplorer() {
     applyDraft,
     reset,
     showWorld,
+    warmTimeline,
     showAmazon2024,
     exportCsv,
   };
