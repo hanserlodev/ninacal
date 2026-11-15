@@ -18,6 +18,14 @@ DATA = ROOT / "data" / "v2"
 REGISTRY = ROOT.parent / "pipeline-work" / "ninacal-pipeline-v2.2" / "harmonize" / "countries.json"
 OUTPUT = ROOT / "apps" / "web" / "lib" / "countries.generated.json"
 
+# Mainland framing for countries whose published cells include remote islands.
+VIEW_OVERRIDES = {
+    "US": {"minLon": -125.0, "minLat": 24.0, "maxLon": -66.5, "maxLat": 49.5},
+    "CL": {"minLon": -75.7, "minLat": -56.0, "maxLon": -66.4, "maxLat": -17.5},
+    "EC": {"minLon": -81.1, "minLat": -5.1, "maxLon": -75.2, "maxLat": 1.7},
+    "AU": {"minLon": 112.9, "minLat": -43.8, "maxLon": 153.7, "maxLat": -10.6},
+}
+
 
 def robust_bbox(points: list[tuple[float, float]]) -> dict[str, float]:
     if not points:
@@ -61,7 +69,7 @@ def main() -> int:
             (float(row[index["lon"]]), float(row[index["lat"]]))
             for row in cells["rows"]
         ]
-        view = robust_bbox(points)
+        view = VIEW_OVERRIDES.get(code, robust_bbox(points))
         name = entry.get("name") or meta.get("firms", code).replace("_", " ")
         iso3 = entry.get("iso3") or meta.get("iso3") or code
         boundary = entry.get("boundary") or meta.get("boundary") or ""

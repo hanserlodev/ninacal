@@ -17,10 +17,10 @@
     "iso3": "AUS",
     "boundary": "aus_adm1_simplified.geojson",
     "viewBbox": {
-      "minLon": 113.12,
-      "minLat": -43.57,
-      "maxLon": 153.62,
-      "maxLat": -9.22
+      "minLon": 112.9,
+      "minLat": -43.8,
+      "maxLon": 153.7,
+      "maxLat": -10.6
     }
   },
   {
@@ -53,10 +53,10 @@
     "iso3": "CHL",
     "boundary": "chl_adm1_simplified.geojson",
     "viewBbox": {
-      "minLon": -109.42,
-      "minLat": -53.77,
-      "maxLon": -67.07,
-      "maxLat": -17.62
+      "minLon": -75.7,
+      "minLat": -56.0,
+      "maxLon": -66.4,
+      "maxLat": -17.5
     }
   },
   {
@@ -77,10 +77,10 @@
     "iso3": "ECU",
     "boundary": "ecu_adm1_simplified.geojson",
     "viewBbox": {
-      "minLon": -91.62,
-      "minLat": -5.02,
-      "maxLon": -75.27,
-      "maxLat": 1.43
+      "minLon": -81.1,
+      "minLat": -5.1,
+      "maxLon": -75.2,
+      "maxLat": 1.7
     }
   },
   {
@@ -125,10 +125,10 @@
     "iso3": "USA",
     "boundary": "us_adm1_simplified.geojson",
     "viewBbox": {
-      "minLon": -176.62,
-      "minLat": 18.93,
-      "maxLon": -66.97,
-      "maxLat": 71.33
+      "minLon": -125.0,
+      "minLat": 24.0,
+      "maxLon": -66.5,
+      "maxLat": 49.5
     }
   },
   {

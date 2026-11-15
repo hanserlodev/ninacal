@@ -28,8 +28,11 @@ export default function WorldPicker({ state }: { state: ExplorerState }) {
     const code =
       state.selection.allCellsFor ??
       (state.dataCountries.length === 1 ? state.dataCountries[0] : undefined);
-    if (code) setCountry(code);
-  }, [state.worldView, state.selection.allCellsFor, state.dataCountries]);
+    if (code && code !== country) {
+      setCountry(code);
+      setRegion(WHOLE_COUNTRY);
+    }
+  }, [state.worldView, state.selection.allCellsFor, state.dataCountries, country]);
 
   useEffect(() => {
     if (!country) {
