@@ -22,7 +22,19 @@ const targetProcessed = path.join(target, "processed");
 const maplibreDist = path.join(webRoot, "node_modules", "maplibre-gl", "dist");
 const maplibreTarget = path.join(webRoot, "public", "maplibre");
 const preserveGenerated = process.argv.includes("--preserve");
-const apiMode = Boolean(process.env.NEXT_PUBLIC_API_BASE);
+async function envFileApiBase() {
+  for (const name of [".env.local", ".env"]) {
+    try {
+      const text = await readFile(path.join(webRoot, name), "utf8");
+      const match = text.match(/^NEXT_PUBLIC_API_BASE=(.*)$/m);
+      if (match && match[1].trim()) return match[1].trim();
+    } catch {
+      // file missing: keep looking
+    }
+  }
+  return "";
+}
+const apiMode = Boolean(process.env.NEXT_PUBLIC_API_BASE || (await envFileApiBase()));
 
 if (apiMode) {
   // The deployed frontend reads /data and /api from the VPS. Keep the local
