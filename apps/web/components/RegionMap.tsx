@@ -12,7 +12,6 @@ import {
   type MapLayerMouseEvent,
   type StyleSpecification,
 } from "maplibre-gl";
-import { MAP_MAX_BOUNDS } from "@/lib/coverage";
 import { COUNTRY_BY_CODE, countryForFeature } from "@/lib/countries";
 import { DATA_BASE } from "@/lib/api";
 import worldBoundaries from "@/lib/boundaries/world.json";
@@ -215,7 +214,10 @@ function rectangleRing(start: [number, number], end: [number, number]): Ring {
 }
 
 function squareRing(lat: number, lon: number, size: number): Ring {
-  const half = size / 2;
+  // Inset each square slightly so neighbouring cells do not share an edge.
+  // Without the gap every outline is drawn twice, which reads as thick,
+  // overlapping borders at high zoom.
+  const half = (size * 0.88) / 2;
   return [
     [lon - half, lat - half],
     [lon + half, lat - half],
@@ -223,6 +225,16 @@ function squareRing(lat: number, lon: number, size: number): Ring {
     [lon - half, lat + half],
     [lon - half, lat - half],
   ];
+}
+
+/** MapLibre throws from inside easeTo when its camera state is not usable. */
+function safeEase(map: MapLibreMap | null, options: Parameters<MapLibreMap["easeTo"]>[0]) {
+  if (!map) return;
+  try {
+    map.easeTo(options);
+  } catch {
+    // A destroyed or not-yet-initialised map must never crash the console.
+  }
 }
 
 /** The grid step of the current selection: 0.05° for published files, coarser for demo rows. */
@@ -497,7 +509,7 @@ export default function RegionMap({
         fitSelection();
       } else if (key === "r") {
         event.preventDefault();
-        mapRef.current?.easeTo({ bearing: 0, pitch: 0, duration: 450, essential: true });
+        safeEase(mapRef.current, { bearing: 0, pitch: 0, duration: 450, essential: true });
       } else if (key === "?" || (event.shiftKey && key === "/")) {
         event.preventDefault();
         setShortcutsOpen((open) => !open);
@@ -537,7 +549,10 @@ export default function RegionMap({
       pitchWithRotate: true,
       attributionControl: false,
       renderWorldCopies: false,
-      maxBounds: MAP_MAX_BOUNDS,
+      // No maxBounds: MapLibre 6 with globe projection cannot invert its
+      // projection matrix when the bounds span the whole world at zoom ≥12.5,
+      // which crashed easeTo. The globe itself and latitude clamping already
+      // keep the camera on the planet.
       canvasContextAttributes: { preserveDrawingBuffer: true },
     });
     mapRef.current = map;
@@ -661,7 +676,12 @@ export default function RegionMap({
         id: "cells-fill",
         type: "fill",
         source: "cells",
+        // Adjacent axis-aligned squares must not be antialiased: their shared
+        // edges otherwise show up as dark seams, and MapLibre's GeoJSON tiling
+        // adds thicker seams at tile borders. Crisp edges plus the inset in
+        // squareRing give a clean, non-overlapping grid at every zoom.
         paint: {
+          "fill-antialias": false,
           "fill-color": [
             "interpolate",
             ["linear"],
@@ -692,16 +712,9 @@ export default function RegionMap({
           ],
         },
       });
-      map.addLayer({
-        id: "cells-line",
-        type: "line",
-        source: "cells",
-        paint: {
-          "line-color": "#0a0a08",
-          "line-width": ["interpolate", ["linear"], ["zoom"], 6, 0.4, 11, 1.2],
-          "line-opacity": ["interpolate", ["linear"], ["zoom"], 4.5, 0, 6, 0.22, 9, 0.62],
-        },
-      });
+      // Cell separation comes from the inset in squareRing, not from a line
+      // layer: per-polygon outlines are drawn from both neighbours and again at
+      // every GeoJSON tile seam, which produced thick dark bands across the map.
       // Clip cell squares to the selected country so 0.1°/0.05° squares do not
       // spill over the coastline or into neighbouring countries (Alaska).
       map.addLayer({
@@ -1217,7 +1230,7 @@ export default function RegionMap({
               const reduced =
                 typeof window !== "undefined" &&
                 window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-              mapRef.current?.easeTo({
+              safeEase(mapRef.current, {
                 zoom: nextZoom,
                 duration: reduced ? 0 : 180,
                 essential: true,

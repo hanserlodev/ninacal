@@ -1,5 +1,49 @@
-// TODO: replace with the real repository URL before deployment.
+import { COUNTRIES } from "@/lib/countries";
+
 const REPO_URL = "https://github.com/hanserlodev/ninacal";
+
+const LIVE_COUNTRIES = COUNTRIES.length;
+
+const METRICS = [
+  { value: "23", unit: "years", label: "2003 → 2025 on one scale" },
+  { value: "0.05°", unit: "grid", label: "≈ 5.5 km cells, country-masked" },
+  { value: String(LIVE_COUNTRIES), unit: "live", label: "countries served by the API" },
+  { value: "78", unit: "ready", label: "countries validated in the pipeline" },
+];
+
+function IconGlobe() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
+      <circle cx="12" cy="12" r="9" />
+      <path d="M3 12h18M12 3c2.6 2.5 4 5.6 4 9s-1.4 6.5-4 9c-2.6-2.5-4-5.6-4-9s1.4-6.5 4-9Z" />
+    </svg>
+  );
+}
+
+function IconCalendar() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
+      <rect x="3" y="5" width="18" height="16" rx="2.5" />
+      <path d="M3 10h18M8 3v4M16 3v4M8 14h3M8 17.5h6" />
+    </svg>
+  );
+}
+
+function IconPulse() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
+      <path d="M2.5 12.5h4l2.2-6 3.6 12 2.4-7 1.8 4h5" />
+    </svg>
+  );
+}
+
+function IconDownload() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
+      <path d="M12 3v12m0 0 4.2-4.2M12 15l-4.2-4.2M4 17.5v1.5A2 2 0 0 0 6 21h12a2 2 0 0 0 2-2v-1.5" />
+    </svg>
+  );
+}
 
 export default function Home() {
   return (
@@ -14,10 +58,10 @@ export default function Home() {
         </a>
         <nav aria-label="Primary">
           <a href="/console/">Console</a>
-          <a href="#how">How it works</a>
+          <a href="#how">Method</a>
           <a href="#data">Data</a>
-          <a className="nav-cta" href={REPO_URL}>
-            GitHub&nbsp;↗
+          <a className="nav-cta" href={REPO_URL} target="_blank" rel="noreferrer">
+            GitHub <span aria-hidden="true">↗</span>
           </a>
         </nav>
       </header>
@@ -25,83 +69,106 @@ export default function Home() {
       <main id="main">
         <section className="hero" id="top" aria-labelledby="hero-title">
           <div className="hero-copy">
-            <p className="eyebrow">
-              NASA Space Apps 2026 · Harmonizing satellite fire records
+            <p className="hero-badge">
+              <span className="hero-badge-dot" aria-hidden="true" />
+              NASA Space Apps 2026 · Fire records, harmonized
             </p>
             <h1 id="hero-title">
               Twenty-three years of fire,
-              <br />
-              <em>one calendar.</em>
+              <span className="hero-em"> one calendar.</span>
             </h1>
             <p className="lede">
-              Aqua/MODIS and Suomi-NPP/VIIRS do not agree. NinaCal brings them onto one
-              detected-hotspot-day scale from 2003 to 2025, with a NOAA-20 fallback for selected
-              outages — across 12 countries in the Americas and Australia, with a globe and
-              country/region drill-down.
+              Aqua/MODIS and Suomi-NPP/VIIRS do not agree. NinaCal brings both onto one
+              detected-hotspot-day scale from 2003 to 2025 — with a NOAA-20 bridge for selected
+              outages — on a 0.05° grid you can explore country by country.
             </p>
             <div className="actions">
               <a className="btn btn--primary" href="/console/">
                 Open mission control <span aria-hidden="true">→</span>
               </a>
               <a className="btn" href={`${REPO_URL}blob/main/docs/data-v2/DATA_CONTRACT.md`}>
-                Read the v2 data contract
+                Data contract
               </a>
             </div>
-            <p className="note">
-              Open source · MIT · static frontend + optional read-only API · NASA FIRMS
-            </p>
+            <ul className="hero-meta" aria-label="Project facts">
+              <li>Open source · MIT</li>
+              <li>Static frontend</li>
+              <li>Read-only API</li>
+              <li>NASA FIRMS</li>
+            </ul>
           </div>
 
           <aside className="hero-panel" aria-label="Dataset at a glance">
+            <div className="hero-globe" aria-hidden="true">
+              <span className="hero-globe-grid" />
+              <span className="hero-globe-glow" />
+              <span className="hero-globe-point is-a" />
+              <span className="hero-globe-point is-b" />
+              <span className="hero-globe-point is-c" />
+            </div>
             <div className="hero-panel-head">
-              <span className="hero-panel-kicker">Shipping coverage</span>
+              <span className="hero-panel-kicker">Live coverage</span>
               <span className="hero-panel-live">
                 <span aria-hidden="true" />
-                Global · 12 countries
+                API online
               </span>
             </div>
             <p className="hero-panel-title">
-              Twelve countries,
+              {LIVE_COUNTRIES} countries,
+              <br />
+              78 validated,
               <br />
               <em>one grid.</em>
             </p>
-            <div className="hero-panel-grid">
+            <dl className="hero-panel-grid">
               <div>
-                <span className="hero-panel-value">23</span>
-                <span className="hero-panel-key">years</span>
+                <dt>Grid</dt>
+                <dd>0.05°</dd>
               </div>
               <div>
-                <span className="hero-panel-value">12</span>
-                <span className="hero-panel-key">countries</span>
+                <dt>Span</dt>
+                <dd>2003–25</dd>
               </div>
               <div>
-                <span className="hero-panel-value">0.05°</span>
-                <span className="hero-panel-key">grid</span>
+                <dt>Cell</dt>
+                <dd>≈5.5 km</dd>
               </div>
               <div>
-                <span className="hero-panel-value">1</span>
-                <span className="hero-panel-key">series</span>
+                <dt>Layers</dt>
+                <dd>MODIS · VIIRS · NOAA-20</dd>
               </div>
-            </div>
+            </dl>
             <p className="hero-panel-foot">
-              Aqua/MODIS estimated through Jan 2012 · Suomi-NPP observed from Feb 2012 ·
-              NOAA-20 bridges selected outages. Harmonized values: 2003–2025.
+              Every year is stored once and cached in the browser, so playback loops are instant
+              after the first pass.
             </p>
           </aside>
         </section>
 
+        <section className="metrics" aria-label="Key numbers">
+          {METRICS.map((metric) => (
+            <div className="metric" key={metric.unit}>
+              <p className="metric-value">
+                {metric.value}
+                <span className="metric-unit">{metric.unit}</span>
+              </p>
+              <p className="metric-label">{metric.label}</p>
+            </div>
+          ))}
+        </section>
+
         <section className="section" id="how" aria-labelledby="how-title">
           <div className="section-head">
-            <p className="eyebrow">01 — from raw detections to a readable calendar</p>
-            <h2 id="how-title">How it works</h2>
+            <p className="eyebrow">01 — pipeline</p>
+            <h2 id="how-title">From raw detections to a readable calendar</h2>
           </div>
           <ol className="steps">
             <li>
               <span className="step-num">01</span>
               <h3>Aggregate</h3>
               <p>
-                Screened satellite observations are grouped by 0.05° cell and month. The
-                value counts detected hotspot-days, not raw pixels or individual fires.
+                Screened satellite observations are grouped by 0.05° cell and month. The value
+                counts detected hotspot-days — not raw pixels or individual fires.
               </p>
             </li>
             <li>
@@ -109,16 +176,15 @@ export default function Home() {
               <h3>Harmonize</h3>
               <p>
                 Aqua/MODIS hotspot-days are converted to the Suomi-NPP scale. NOAA-20 fills
-                selected Suomi-NPP outages; the model and its test errors are shown in the
-                console.
+                selected outages; the model and its error are shown in the console.
               </p>
             </li>
             <li>
               <span className="step-num">03</span>
               <h3>Read</h3>
               <p>
-                Draw a region. The browser filters published cell centres, respects source
-                availability, then builds the calendar and CSV from one aggregate.
+                Draw a country, box or polygon. The API filters published cell centres, respects
+                source availability, and returns one aggregate for every chart and export.
               </p>
             </li>
           </ol>
@@ -131,31 +197,43 @@ export default function Home() {
           </div>
           <ul className="cards">
             <li className="card">
+              <span className="card-icon">
+                <IconCalendar />
+              </span>
               <h3>Which months burn most?</h3>
               <p>
-                A year × month heatmap over the whole record, with an accessible viridis ramp
-                and the exact numbers one click away.
+                A year × month heatmap over the whole record, with an accessible ramp and the
+                exact numbers one click away.
               </p>
             </li>
             <li className="card">
+              <span className="card-icon">
+                <IconPulse />
+              </span>
               <h3>Is this month unusual?</h3>
               <p>
-                The latest month next to the median of the same month in previous years, with
-                a robust standardized anomaly.
+                The latest month against the median of the same month in previous years, with a
+                robust standardized anomaly.
               </p>
             </li>
             <li className="card">
+              <span className="card-icon">
+                <IconGlobe />
+              </span>
               <h3>Can I trust the 2012 seam?</h3>
               <p>
-                Cross-validation WAPE, RMSE and the chosen calibration model are in the
+                Cross-validation WAPE, RMSE and the chosen calibration are published in the
                 mission-control validation panel.
               </p>
             </li>
             <li className="card">
+              <span className="card-icon">
+                <IconDownload />
+              </span>
               <h3>Can I take the numbers?</h3>
               <p>
-                Export harmonized detected hotspot-days per 0.05° cell and month as CSV — generated in the
-                browser, no account, no backend.
+                Export harmonized hotspot-days per 0.05° cell and month as CSV, generated in the
+                browser with no account and no backend.
               </p>
             </li>
           </ul>
@@ -170,16 +248,16 @@ export default function Home() {
             <div>
               <p className="lede">
                 The v2 bundle stores monthly hotspot-day data in a compact columnar format. The
-                formal contract and caveats are checked into the repository beside the data.
+                formal contract and caveats live in the repository beside the data.
               </p>
               <ul className="checklist">
                 <li>
-                  Sparse absence means zero only inside published cell support and an
-                  available month; unavailable sources remain unknown.
+                  Sparse absence means zero only inside published cell support and an available
+                  month; unavailable sources stay unknown.
                 </li>
                 <li>
-                  <code>harm</code> is detected hotspot-days on the Suomi-NPP scale; it is not a
-                  fire count or burned area.
+                  <code>harm</code> is detected hotspot-days on the Suomi-NPP scale — not a fire
+                  count and not burned area.
                 </li>
                 <li>
                   Early years are Aqua/MODIS estimates; later years use Suomi-NPP or selected
@@ -190,8 +268,13 @@ export default function Home() {
                 Read the v2 data contract <span aria-hidden="true">→</span>
               </a>
             </div>
-            <pre className="code" tabIndex={0}>
-              <code>{`[
+            <div className="record">
+              <div className="record-head">
+                <span>cells/2019/01.json</span>
+                <span className="record-dot" aria-hidden="true" />
+              </div>
+              <pre className="code" tabIndex={0}>
+                <code>{`[
   {
     "cell": "-18.25_-70.45",
     "y": 2019,
@@ -203,17 +286,18 @@ export default function Home() {
     "harm": 0.0
   }
 ]`}</code>
-            </pre>
+              </pre>
+            </div>
           </div>
         </section>
 
         <section className="console-cta" aria-labelledby="console-cta-title">
           <div>
-            <p className="eyebrow">Mission control · separate route</p>
+            <p className="eyebrow">Mission control · live</p>
             <h2 id="console-cta-title">The map, the calendar and the evidence in one room.</h2>
             <p>
-              The console is the working instrument: a square-cell coverage map, satellite
-              toggle, live cursor telemetry, the 2003–2025 archive and the model evaluation.
+              A dark globe with 0.05° cells, an orbitable camera, a looping 2003–2025 timeline,
+              any-country comparison and the model evaluation — all in one instrument.
             </p>
           </div>
           <a className="btn btn--primary" href="/console/">
@@ -225,10 +309,9 @@ export default function Home() {
           <p className="eyebrow">Read this before citing us</p>
           <h2 id="limit-title">A hotspot is not a confirmed fire.</h2>
           <p>
-            NinaCal reports satellite thermal detections, aggregated to ~5.5 km cells and
-            months. It cannot tell a wildfire from agricultural burning, and it misses small,
-            cool or cloud-covered fires. Use it to see patterns and anomalies, not to count
-            incidents.
+            NinaCal reports satellite thermal detections aggregated to ~5.5 km cells and months.
+            It cannot tell a wildfire from agricultural burning, and it misses small, cool or
+            cloud-covered fires. Use it to see patterns and anomalies, not to count incidents.
           </p>
           <a className="text-link" href={`${REPO_URL}blob/main/docs/limitations.md`}>
             Full list of limitations <span aria-hidden="true">→</span>
@@ -242,8 +325,8 @@ export default function Home() {
             ninacal<span aria-hidden="true">.</span>
           </span>
           <p>
-            Open source under MIT. Data from NASA FIRMS / EOSDIS. 12 published countries,
-            world-ready pipeline. Built for the NASA Space Apps Challenge 2026.
+            Open source under MIT. Data from NASA FIRMS / EOSDIS. A world-ready pipeline served
+            through a read-only API. Built for the NASA Space Apps Challenge 2026.
           </p>
         </div>
         <ul className="footer-links">
