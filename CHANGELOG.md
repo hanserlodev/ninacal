@@ -50,6 +50,8 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - `deploy/DOMAIN.md`: custom domain, Cloudflare cache, rate limit and real-IP guide.
 - `deploy/NGINX-APPLY.md`: split http/server Nginx cache and rate-limit instructions.
 - `docs/CREDITS.md`: data/tool credits and submission eligibility notes.
+- `scripts/smoke.sh`: one-command production check (health, countries, grids, sources,
+  boundaries, CSV cap, frontend and context index).
 - Data issue template with cell/year/month fields, to trace numbers back to the pipeline.
 - `scripts/validate_data.py`: contract checks for processed files, calibration and the mock.
 - Interactive explorer: MapLibre map with rectangle/polygon drawing, region presets, bounding
