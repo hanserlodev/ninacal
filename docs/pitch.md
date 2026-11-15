@@ -6,7 +6,7 @@ do not invent coverage.
 ## One-liner
 
 > NinaCal harmonizes 23 years of Aqua/MODIS and Suomi-NPP/VIIRS detected hotspot-days into one
-> seasonal activity calendar for 12 countries across the Americas and Australia, on a globe.
+> seasonal activity calendar for 78 countries worldwide, on a globe.
 
 ## 30-second video script
 

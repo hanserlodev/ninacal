@@ -32,7 +32,7 @@ zero detections never establishes that the satellite observed clear land with no
 | File | Contents |
 |---|---|
 | `manifest.json` | schema, units, source links, country/file inventory, monthly source availability |
-| `{CC}` | one folder per shipped country code (12 countries: PE, US, EC, CL, CO, PY, MX, BO, VE, AR, AU, BR) |
+| `{CC}` | one folder per shipped country code (78 countries; see `manifest.json`) |
 | `{CC}/cells.json` | cell IDs, centers, areas and administrative source IDs |
 | `{CC}/years/YYYY.json` | sparse cell-month data, columnar wrapper |
 | `{CC}/years/YYYY.csv.gz` | same records, CSV header, empty fields for null |

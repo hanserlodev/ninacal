@@ -1,8 +1,7 @@
 # NinaCal API (v2.2)
 
-Small C++20 HTTP server over the NinaCal v2.2 data for **12 countries** (South America,
-the United States and Australia): harmonized MODIS + VIIRS detected activity, 2003–2025,
-0.05° grid. It answers region queries from SQLite and serves the exported JSON bundle; the
+Small C++20 HTTP server over the NinaCal v2.2 data for **78 countries** worldwide:
+harmonized MODIS + VIIRS detected activity, 2003–2025, 0.05° grid. It answers region queries from SQLite and serves the exported JSON bundle; the
 pipeline can register up to the whole world.
 
 ```
@@ -92,9 +91,8 @@ tighten it in `src/main.cpp` if you publish under a fixed domain.
 
 ## Full world
 
-The included bundle has 12 countries. After running the analyst pipeline's `make add-world`
-(141 more countries, ~33 GB, several hours) and copying its `web/data/v2/` into this repo,
-rerun `scripts/build_db.py`. The server loads every country in the manifest; no code change
+The included bundle has 78 countries. After running the analyst pipeline for more countries
+and copying its `web/data/v2/` into this repo, rerun `scripts/build_db.py`. The server loads every country in the manifest; no code change
 is needed. Country names, ISO3, boundary file and view bbox come from the manifest when
 present.
 

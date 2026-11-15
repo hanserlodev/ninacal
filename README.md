@@ -1,6 +1,6 @@
 # NinaCal
 
-**A 23-year fire activity calendar for 12 countries, on a globe you can explore.**
+**A 23-year fire activity calendar for 78 countries, on a globe you can explore.**
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-c8f04a?style=flat-square)](LICENSE)
 [![NASA Space Apps 2026](https://img.shields.io/badge/NASA%20Space%20Apps-2026-0b3d91?style=flat-square)](https://www.spaceappschallenge.org/)
@@ -26,9 +26,8 @@ challenge *Harmonization of MODIS and VIIRS Hot Spots*. See the
 
 ## Coverage and data version
 
-Shipping data currently covers **12 countries**: Peru, the United States, Ecuador, Chile,
-Colombia, Paraguay, Mexico, Bolivia, Venezuela, Argentina, Australia and Brazil. The pipeline
-is global: `make add-world` registers the 158 FIRMS countries with all 48 source-years and
+Shipping data currently covers **78 countries** across the Americas, Europe, Africa, Asia and
+Oceania (the full list is in `data/v2/manifest.json`). The pipeline is global: `make add-world` registers the 158 FIRMS countries with all 48 source-years and
 processes them (~43 GB of raw CSV, ~4–5 h). The globe always shows the whole world; countries
 without a published bundle are dimmed, and a selection outside the published support returns an
 explicit "outside coverage" message instead of a fake zero. First-level boundaries come from
@@ -155,7 +154,7 @@ shows a country-level annual fill and the cell layer loads only for the selected
 
 ## Full world
 
-The shipped bundle covers the 12 countries above. The analyst pipeline can register the rest:
+The shipped bundle covers the 78 countries in the manifest. The analyst pipeline can register the rest:
 
 ```bash
 cd ninacal-pipeline-v2.2

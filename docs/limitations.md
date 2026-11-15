@@ -19,8 +19,9 @@ judges and users.
   Suomi-NPP scale, not raw pixel detections or fire counts. Raw 2000–2002 rows are present
   only for audit and are not plotted because they are not harmonized.
 - Aqua/MODIS is converted to the Suomi-NPP scale through January 2012; Suomi-NPP is observed
-  from February 2012. **NOAA-20** provides an estimated fallback for selected Suomi-NPP
-  outage months. The calendar marks estimated and mixed-source months.
+  from February 2012. **NOAA-20** provides an estimated fallback only for months where the
+  daily caches show a real Suomi-NPP gap (<80% of days); the availability is derived from the
+  data, not from a static outage list. The calendar marks estimated and mixed-source months.
 - Aqua/MODIS (1 km), Suomi-NPP/VIIRS (375 m) and NOAA-20 have different sensitivity and
   overpass times. Harmonization reduces the seam; it does not remove sensor or cloud bias.
 - Detections depend on **cloud cover, overpass time and algorithm version**. Two products
@@ -29,8 +30,8 @@ judges and users.
 
 ## Coverage and aggregation
 
-- Data is processed for **12 countries** (South America, the United States and Australia); the
-  pipeline can add more, up to the whole world. Within those countries, only
+- Data is processed for **78 countries** worldwide; the pipeline can add more, up to the
+  whole world. Within those countries, only
   cells represented in the published support are known. Selecting an area with no published
   cells is not evidence of zero activity.
 - The exported CSV contains **harmonized detected hotspot-days per 0.05° cell and month**, not individual

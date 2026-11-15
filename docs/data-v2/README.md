@@ -4,9 +4,8 @@ This directory documents the editable bundle stored at `data/v2/`. The original 
 folder in `~/Descargas/ninacal-data-v2` was left untouched; update the repository copy when
 the data team publishes a new version.
 
-Harmonized MODIS + VIIRS burning activity for **12 countries** (Peru, United States, Ecuador,
-Chile, Colombia, Paraguay, Mexico, Bolivia, Venezuela, Argentina, Australia and Brazil),
-2003–2025, on a **0.05° grid**, by month, quarter and year. Version 2.2, generated on
+Harmonized MODIS + VIIRS burning activity for **78 countries**, 2003–2025, on a **0.05°
+grid**, by month, quarter and year. Coverage is derived from `manifest.json`. Version 2.2, generated on
 14 November 2026 by `make all` in the analyst's pipeline.
 
 > **Status: research prototype.** The values are usable for the demo. The error bands (`low`/`high`) are

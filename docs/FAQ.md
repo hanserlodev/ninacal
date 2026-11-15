@@ -26,9 +26,8 @@ live alerts, no incident confirmation and no risk score. See [limitations](limit
 
 ## Which regions are covered?
 
-The committed dataset covers **12 countries** at 0.05° resolution: Peru, the United States,
-Ecuador, Chile, Colombia, Paraguay, Mexico, Bolivia, Venezuela, Argentina, Australia and
-Brazil. The globe always shows the world; countries without a published bundle are dimmed.
+The committed dataset covers **78 countries** at 0.05° resolution. The globe always shows the
+world; countries without a published bundle are dimmed.
 The pipeline can register up to 158 FIRMS countries with `make add-world`.
 
 ## Why 0.05° cells and monthly counts?

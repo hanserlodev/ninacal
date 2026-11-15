@@ -4,7 +4,7 @@ const DB_VERSION = 1;
 const DEFAULT_TTL = 12 * 60 * 60 * 1000;
 // Bump on every data release. Keys are namespaced, so a new value retires
 // every cached response from the previous bundle without touching the API.
-const KEY_VERSION = "bundle-78";
+const KEY_VERSION = "bundle-78-r2";
 
 type Entry<T> = { value: T; expires: number };
 

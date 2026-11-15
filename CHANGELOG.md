@@ -7,6 +7,28 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed
+
+- Data release 2026-11-15: sensor-month availability is now derived from the daily caches
+  instead of a static outage list. Only real gaps (`2022-08`, `2024-07` for Suomi-NPP and
+  `2022-04` for Aqua) fall back to NOAA-20; months such as `2024-05`, `2024-09`, `2024-10`
+  and `2024-11` publish observed values again.
+- National outlines are stored consistently as `{CC}-ADMIN` in cells, SQLite and series
+  (previously only in `series.json`), and duplicate series names are disambiguated.
+- `harmonize/verify.py` now asserts administrative keys, national/regional sums, observed
+  versus harmonized values, derived availability, SQLite integrity, country coverage and
+  orphaned activity rows.
+- `backend/scripts/build_db.py` builds atomically (`*.tmp` + `os.replace`), reconciles row
+  counts with the manifest and fails on a missing year file.
+
+### Fixed
+
+- API accepts 2- and 3-letter country codes; input caps for polygons, CSV exports and request
+  bodies; generic 500 responses; real `/health` probe.
+- Console: bounded world fan-out, validated persistent cache, cleared stale aggregates,
+  safe fly-to, antimeridian rejection, real country names in the validation panel and
+  accessible timeline announcements.
+
 ### Added
 
 - Data issue template with cell/year/month fields, to trace numbers back to the pipeline.
