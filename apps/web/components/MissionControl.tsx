@@ -620,15 +620,29 @@ function MapTimeline({ state }: { state: ExplorerState }) {
 
   useEffect(() => {
     if (!playing) return;
+    const next = state.mapYear >= end ? start : state.mapYear + 1;
+    // Never advance into a year whose grid still needs a network round-trip.
+    // `ensureYear` warms it and bumps `gridVersion`, which re-runs this effect.
+    // The first pass therefore stalls on missing years (allowed); every later
+    // loop finds all years in memory and runs on the plain interval.
+    if (state.ensureYear && !state.ensureYear(next)) return;
     const timer = window.setTimeout(
       () => {
         // Loop through the selected range: the second pass is local/cached.
-        state.setMapYear(state.mapYear >= end ? start : state.mapYear + 1);
+        state.setMapYear(next);
       },
       window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 1500 : 850,
     );
     return () => window.clearTimeout(timer);
-  }, [playing, state.mapYear, state.setMapYear, start, end]);
+  }, [
+    playing,
+    state.mapYear,
+    state.setMapYear,
+    state.ensureYear,
+    state.gridVersion,
+    start,
+    end,
+  ]);
 
   useEffect(() => setPlaying(false), [start, end]);
 

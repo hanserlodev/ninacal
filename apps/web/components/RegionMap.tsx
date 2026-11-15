@@ -27,6 +27,34 @@ export type CellPoint = { cell: string; lat: number; lon: number; value: number 
 
 const EMPTY: FeatureCollection = { type: "FeatureCollection", features: [] };
 
+// Building ~200k cell polygons per year costs seconds on big countries, and the
+// timeline revisits the same years over and over. The cell arrays are stable per
+// annual grid (see useExplorer's gridCells cache), so keep the built
+// FeatureCollection attached to the array identity. A small LRU bounds memory.
+const layerCache = new WeakMap<CellPoint[], Map<string, FeatureCollection>>();
+const LAYER_CACHE_LIMIT = 8;
+
+function cachedLayer(
+  cells: CellPoint[],
+  key: string,
+  build: () => FeatureCollection,
+): FeatureCollection {
+  let entries = layerCache.get(cells);
+  if (!entries) {
+    entries = new Map();
+    layerCache.set(cells, entries);
+  }
+  const hit = entries.get(key);
+  if (hit) return hit;
+  const built = build();
+  entries.set(key, built);
+  if (entries.size > LAYER_CACHE_LIMIT) {
+    const oldest = entries.keys().next().value;
+    if (oldest !== undefined) entries.delete(oldest);
+  }
+  return built;
+}
+
 const WORLD = worldBoundaries as unknown as FeatureCollection;
 
 function coveredCollection(totals: Record<string, number>): FeatureCollection {
@@ -313,7 +341,17 @@ export default function RegionMap({
     value: number;
   } | null>(null);
   const cellSize = cellStep ?? inferCellSize(cells);
-  const coarse = zoomLevel < 7 && cellSize < 0.075;
+  // Level of detail ladder for the drawn squares. A whole country fits at zoom
+  // ~4, where 0.05° cells are sub-pixel; aggregate there, then reveal finer
+  // cells as the user zooms. Very large countries (Brazil, USA, China) get an
+  // extra 0.2° step so playback stays smooth; smaller ones keep 0.1°.
+  // Display-only: totals never change.
+  const lodStep =
+    cellSize < 0.075 && zoomLevel < 7
+      ? cells.length > 60_000 && zoomLevel < 5
+        ? 0.2
+        : 0.1
+      : null;
 
   const modeRef = useRef(mode);
   const draggingRef = useRef<{ start: [number, number]; current: [number, number] } | null>(null);
@@ -901,46 +939,50 @@ export default function RegionMap({
       ? values[Math.min(values.length - 1, Math.floor(values.length * 0.98))]
       : 1;
     const max = Math.max(1, valueScaleMax || p98);
-    const size = coarse ? 0.1 : cellStep ?? inferCellSize(cells);
+    const size = lodStep ?? cellStep ?? inferCellSize(cells);
 
     // Precision follows zoom: 0.05° cells at country zoom would be tens of
-    // thousands of sub-pixel polygons. Aggregate to 0.1° until the user zooms
-    // in, then reveal the full 0.05° support.
-    let features: Feature<Polygon>[];
-    if (coarse) {
-      const grouped = new Map<string, { lat: number; lon: number; value: number }>();
-      for (const point of cells) {
-        if (point.value <= 0) continue;
-        const lat = Math.round(point.lat * 10) / 10;
-        const lon = Math.round(point.lon * 10) / 10;
-        const key = `${lat}_${lon}`;
-        const entry = grouped.get(key);
-        if (entry) entry.value += point.value;
-        else grouped.set(key, { lat, lon, value: point.value });
+    // thousands of sub-pixel polygons. Aggregate to 0.2°/0.1° until the user
+    // zooms in, then reveal the full 0.05° support.
+    const key = `${size}:${max}`;
+    const collection = cachedLayer(cells, key, () => {
+      let features: Feature<Polygon>[];
+      if (lodStep) {
+        const grouped = new Map<string, { lat: number; lon: number; value: number }>();
+        for (const point of cells) {
+          if (point.value <= 0) continue;
+          const lat = Math.round(point.lat / lodStep) * lodStep;
+          const lon = Math.round(point.lon / lodStep) * lodStep;
+          const cellKey = `${lat.toFixed(2)}_${lon.toFixed(2)}`;
+          const entry = grouped.get(cellKey);
+          if (entry) entry.value += point.value;
+          else grouped.set(cellKey, { lat, lon, value: point.value });
+        }
+        features = [...grouped.entries()].map(([cell, point]) => ({
+          type: "Feature",
+          properties: {
+            cell,
+            value: point.value,
+            t: Math.sqrt(Math.max(0, point.value) / max),
+          },
+          geometry: { type: "Polygon", coordinates: [squareRing(point.lat, point.lon, size)] },
+        }));
+      } else {
+        features = cells.filter((point) => point.value > 0).map((point) => ({
+          type: "Feature",
+          properties: {
+            cell: point.cell,
+            value: point.value,
+            t: Math.sqrt(Math.max(0, point.value) / max),
+          },
+          geometry: { type: "Polygon", coordinates: [squareRing(point.lat, point.lon, size)] },
+        }));
       }
-      features = [...grouped.entries()].map(([cell, point]) => ({
-        type: "Feature",
-        properties: {
-          cell,
-          value: point.value,
-          t: Math.sqrt(Math.max(0, point.value) / max),
-        },
-        geometry: { type: "Polygon", coordinates: [squareRing(point.lat, point.lon, size)] },
-      }));
-    } else {
-      features = cells.filter((point) => point.value > 0).map((point) => ({
-        type: "Feature",
-        properties: {
-          cell: point.cell,
-          value: point.value,
-          t: Math.sqrt(Math.max(0, point.value) / max),
-        },
-        geometry: { type: "Polygon", coordinates: [squareRing(point.lat, point.lon, size)] },
-      }));
-    }
+      return { type: "FeatureCollection", features };
+    });
 
-    source.setData({ type: "FeatureCollection", features });
-  }, [ready, cells, cellStep, valueScaleMax, coarse]);
+    source.setData(collection);
+  }, [ready, cells, cellStep, valueScaleMax, lodStep]);
 
   // Choropleth: annual totals for the published countries.
   useEffect(() => {

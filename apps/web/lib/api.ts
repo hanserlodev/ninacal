@@ -139,13 +139,30 @@ export async function loadApiRegion(query: RegionQuery, signal?: AbortSignal): P
 const gridCache = new Map<string, ApiGrid>();
 const gridInflight = new Map<string, Promise<ApiGrid>>();
 
+function gridKey(country: DataCountry, year: number, bbox: BBox | undefined): string {
+  return `${country}:${year}:${bbox ? bboxParam(bbox) : "all"}`;
+}
+
+/**
+ * Synchronous cache lookup. Playback uses this to swap years without a single
+ * loading frame once the warm-up has finished: if every grid for the new year
+ * is already in memory, the map updates in the same render.
+ */
+export function peekApiGrid(
+  country: DataCountry,
+  year: number,
+  bbox: BBox | undefined,
+): ApiGrid | undefined {
+  return gridCache.get(gridKey(country, year, bbox));
+}
+
 export async function loadApiGrid(
   country: DataCountry,
   year: number,
   bbox: BBox | undefined,
   _signal?: AbortSignal,
 ): Promise<ApiGrid> {
-  const key = `${country}:${year}:${bbox ? bboxParam(bbox) : "all"}`;
+  const key = gridKey(country, year, bbox);
   const cached = gridCache.get(key);
   if (cached) return cached;
   const pending = gridInflight.get(key);

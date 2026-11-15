@@ -14,6 +14,8 @@ import {
   loadApiMetadata,
   loadApiRegion,
   mergeRegions,
+  peekApiGrid,
+  type ApiGrid,
   type ApiGridRow,
 } from "@/lib/api";
 import { demoCalibration, demoEndYear, generateDemoRows } from "@/lib/demo";
@@ -46,6 +48,28 @@ const INITIAL_REGION = hasApi
   : REGIONS.find((region) => region.id === "pe") ?? DEFAULT_REGION;
 const FIRST_HARMONIZED_YEAR = 2003;
 type DataVersion = "v2" | "legacy" | "demo";
+
+// Rebuilding the flat cell array on every timeline tick is the other half of
+// the second-loop cost. Keep it attached to the grid object, which the cache
+// reuses across renders, so a warm pass only concatenates arrays.
+const gridCellsCache = new WeakMap<ApiGrid, ApiGridRow[]>();
+
+function gridCells(grid: ApiGrid): ApiGridRow[] {
+  const cached = gridCellsCache.get(grid);
+  if (cached) return cached;
+  const cells: ApiGridRow[] = [];
+  for (const [cell, lat, lon, harm] of grid.rows) {
+    if (typeof harm !== "number") continue;
+    cells.push({ cell, lat, lon, harm });
+  }
+  gridCellsCache.set(grid, cells);
+  return cells;
+}
+
+function combineGridCells(grids: ApiGrid[]): ApiGridRow[] {
+  if (grids.length === 1) return gridCells(grids[0]);
+  return grids.flatMap(gridCells);
+}
 
 function yearsBetween(start: number, end: number): number[] {
   return Array.from({ length: Math.max(0, end - start + 1) }, (_, i) => start + i);
@@ -154,6 +178,7 @@ export function useExplorer() {
   const [apiScale, setApiScale] = useState(1);
   const [countryYearTotals, setCountryYearTotals] = useState<Record<string, Record<number, number>>>({});
   const [mapLoading, setMapLoading] = useState(false);
+  const [gridVersion, setGridVersion] = useState(0);
   const [bands, setBands] = useState<Map<string, { low: number | null; high: number | null }>>(new Map());
   const [urlReady, setUrlReady] = useState(false);
   const [progress, setProgress] = useState<LoadProgress | null>(null);
@@ -517,7 +542,7 @@ export function useExplorer() {
 
   // Warm every annual grid in the current range when the user starts the
   // timeline. The first pass may still be network-bound; the next loop is
-  // served from the in-memory + IndexedDB caches. Three workers keep the VPS
+  // served from the in-memory + IndexedDB caches. Five workers keep the VPS
   // from being hit with 23 simultaneous requests.
   const warmTimeline = useCallback(() => {
     if (!hasApi || worldView || requestedCountries.length !== 1) return;
@@ -531,13 +556,32 @@ export function useExplorer() {
         cursor += 1;
         try {
           await loadApiGrid(country, year, bbox);
+          setGridVersion((version) => version + 1);
         } catch {
           // A failed year should not stop the rest of the warm-up.
         }
       }
     };
-    void Promise.all([worker(), worker(), worker()]);
+    void Promise.all([worker(), worker(), worker(), worker(), worker()]);
   }, [hasApi, worldView, requestedCountries, selection, years, mapYear]);
+
+  // Playback gate: `ensureYear` returns true when the annual grid for that year
+  // is already in memory. If it is not, it starts the request and reports the
+  // cache fill through `gridVersion`, so the timeline never advances into a
+  // year that would need a network round-trip. That is what makes the first
+  // pass slow (it waits for data) and every later loop instant.
+  const ensureYear = useCallback(
+    (year: number): boolean => {
+      if (!hasApi || worldView || requestedCountries.length !== 1) return true;
+      const bbox = selection.allCellsFor ? undefined : selection.bbox;
+      if (peekApiGrid(requestedCountries[0], year, bbox)) return true;
+      loadApiGrid(requestedCountries[0], year, bbox)
+        .then(() => setGridVersion((version) => version + 1))
+        .catch(() => {});
+      return false;
+    },
+    [hasApi, worldView, requestedCountries, selection],
+  );
 
   useEffect(() => {
     if (!hasApi || !urlReady || dataVersion !== "v2" || requestedCountries.length === 0) return;
@@ -546,8 +590,18 @@ export function useExplorer() {
       setMapLoading(false);
       return;
     }
-    const controller = new AbortController();
     const bbox = selection.allCellsFor ? undefined : selection.bbox;
+    const cached = requestedCountries.map((country) => peekApiGrid(country, mapYear, bbox));
+    if (cached.every((grid): grid is ApiGrid => Boolean(grid))) {
+      // Warm loop: swap the year in the same render. No request, no loading
+      // overlay, no flash. This is what makes the second playback pass feel
+      // instantaneous.
+      setApiCells(combineGridCells(cached));
+      setMapLoading(false);
+      return;
+    }
+
+    const controller = new AbortController();
     setMapLoading(true);
 
     Promise.all(
@@ -555,14 +609,7 @@ export function useExplorer() {
     )
       .then((grids) => {
         if (controller.signal.aborted) return;
-        const cells: ApiGridRow[] = [];
-        for (const grid of grids) {
-          for (const [cell, lat, lon, harm] of grid.rows) {
-            if (typeof harm !== "number") continue;
-            cells.push({ cell, lat, lon, harm });
-          }
-        }
-        setApiCells(cells);
+        setApiCells(combineGridCells(grids));
       })
       .catch(() => {
         if (!controller.signal.aborted) {
@@ -878,6 +925,8 @@ export function useExplorer() {
     reset,
     showWorld,
     warmTimeline,
+    ensureYear,
+    gridVersion,
     showAmazon2024,
     exportCsv,
   };
