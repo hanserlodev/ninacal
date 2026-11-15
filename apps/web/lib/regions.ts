@@ -1,28 +1,13 @@
 import type { Region } from "./types";
-import { COUNTRIES, COUNTRY_CODES, WORLD_VIEW } from "./countries";
+import { COUNTRIES, COUNTRY_CODES, WORLD_VIEW, onCountriesChanged } from "./countries";
 import { OVERVIEW_BBOX } from "./coverage";
 
 /**
  * Selection shortcuts. URL compatibility keeps the old `peru`, `usa` and
- * `peru-amazon` ids; the country entries are generated from the data catalogue.
+ * `peru-amazon` ids; the country entries are rebuilt whenever the API reports a
+ * different catalogue.
  */
-export const REGIONS: Region[] = [
-  {
-    id: "world",
-    name: "World",
-    detail: `${COUNTRIES.length} countries with published data`,
-    bbox: OVERVIEW_BBOX,
-    countries: COUNTRY_CODES,
-    label: "World",
-  },
-  ...COUNTRIES.map((country) => ({
-    id: country.code === "PE" ? "peru" : country.code === "US" ? "usa" : country.code.toLowerCase(),
-    name: country.name,
-    detail: country.iso3,
-    bbox: country.viewBbox,
-    allCellsFor: country.code,
-    label: country.name,
-  })),
+const PRESETS: Region[] = [
   {
     id: "peru-amazon",
     name: "Peruvian Amazon",
@@ -53,6 +38,35 @@ export const REGIONS: Region[] = [
   },
 ];
 
-export const DEFAULT_REGION = REGIONS[0];
-export const WORLD_REGION = REGIONS[0];
+function buildRegions(): Region[] {
+  return [
+    {
+      id: "world",
+      name: "World",
+      detail: `${COUNTRIES.length} countries with published data`,
+      bbox: OVERVIEW_BBOX,
+      countries: COUNTRY_CODES,
+      label: "World",
+    },
+    ...COUNTRIES.map((country) => ({
+      id: country.code === "PE" ? "peru" : country.code === "US" ? "usa" : country.code.toLowerCase(),
+      name: country.name,
+      detail: country.iso3,
+      bbox: country.viewBbox,
+      allCellsFor: country.code,
+      label: country.name,
+    })),
+    ...PRESETS,
+  ];
+}
+
+export const REGIONS: Region[] = buildRegions();
+export let DEFAULT_REGION: Region = REGIONS[0];
+export let WORLD_REGION: Region = REGIONS[0];
 export { WORLD_VIEW };
+
+onCountriesChanged(() => {
+  REGIONS.splice(0, REGIONS.length, ...buildRegions());
+  DEFAULT_REGION = REGIONS[0];
+  WORLD_REGION = REGIONS[0];
+});

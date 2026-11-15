@@ -1,5 +1,5 @@
 import type { Feature, MultiLineString, MultiPolygon, Polygon } from "geojson";
-import { COUNTRIES, WORLD_VIEW } from "./countries";
+import { COUNTRIES, WORLD_VIEW, onCountriesChanged } from "./countries";
 import type { BBox } from "./types";
 
 /**
@@ -15,14 +15,25 @@ export type CoverageArea = {
   bbox: BBox;
 };
 
-export const COVERAGE_AREAS: CoverageArea[] = COUNTRIES.map((country) => ({
-  id: country.code.toLowerCase(),
-  country: country.code,
-  name: country.name,
-  bbox: country.viewBbox,
-}));
+export const COVERAGE_AREAS: CoverageArea[] = [];
 
-export const COVERAGE_LABEL = `Global · ${COUNTRIES.length} countries`;
+function rebuildCoverage(): void {
+  COVERAGE_AREAS.splice(
+    0,
+    COVERAGE_AREAS.length,
+    ...COUNTRIES.map((country) => ({
+      id: country.code.toLowerCase(),
+      country: country.code,
+      name: country.name,
+      bbox: country.viewBbox,
+    })),
+  );
+  COVERAGE_LABEL = `Global · ${COUNTRIES.length} countries`;
+}
+
+export let COVERAGE_LABEL = `Global · ${COUNTRIES.length} countries`;
+rebuildCoverage();
+onCountriesChanged(rebuildCoverage);
 
 /** Pan/zoom guard for the map: the whole planet. */
 export const MAP_MAX_BOUNDS: [[number, number], [number, number]] = [

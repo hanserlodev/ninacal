@@ -11,24 +11,24 @@
     "collection": "io-lulc-annual-v02",
     "year": 2023,
     "tiles": 94,
-    "valid_pixels": 2749031,
+    "valid_pixels": 1497400,
     "classes": {
-      "water": 0.02745,
-      "trees": 0.497991,
-      "flooded_vegetation": 0.005799,
-      "crops": 0.127374,
-      "built_area": 0.007419,
-      "bare_ground": 0.020653,
-      "snow_ice": 0.000195,
-      "clouds": 0.000496,
-      "rangeland": 0.312622
+      "water": 0.022992,
+      "trees": 0.557942,
+      "flooded_vegetation": 0.007217,
+      "crops": 0.107811,
+      "built_area": 0.007358,
+      "bare_ground": 0.000424,
+      "snow_ice": 1e-05,
+      "clouds": 0.000192,
+      "rangeland": 0.296054
     }
   },
   "burned_area": {
     "collection": "modis-64A1-061",
     "year": 2023,
     "tiles": 200,
-    "burned_pixels": 381101,
-    "area_km2": 444909.611
+    "burned_pixels": 208496,
+    "area_km2": 245864.195
   }
 }

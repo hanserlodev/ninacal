@@ -5,6 +5,7 @@ import { COUNTRIES, COUNTRY_BY_CODE, COUNTRY_CODES, WORLD_VIEW } from "@/lib/cou
 import { loadSeriesIndex } from "@/lib/series";
 import type { ApiSeriesSummary } from "@/lib/api";
 import type { ExplorerState } from "@/lib/useExplorer";
+import CountryPicker from "./CountryPicker";
 
 const WHOLE_COUNTRY = "__country__";
 
@@ -141,17 +142,14 @@ export default function WorldPicker({ state }: { state: ExplorerState }) {
         <em>{COUNTRIES.length} countries</em>
       </button>
 
-      <label>
+      <div className="world-picker-field">
         <span>Country</span>
-        <select value={country} onChange={(event) => selectCountry(event.target.value)}>
-          <option value="">— World overview —</option>
-          {COUNTRIES.map((entry) => (
-            <option key={entry.code} value={entry.code}>
-              {entry.name}
-            </option>
-          ))}
-        </select>
-      </label>
+        <CountryPicker
+          value={country}
+          onChange={selectCountry}
+          version={state.catalogVersion}
+        />
+      </div>
 
       <label>
         <span>Region / state</span>

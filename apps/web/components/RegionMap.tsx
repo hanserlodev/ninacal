@@ -903,6 +903,32 @@ export default function RegionMap({
     };
   }, []);
 
+  // A short, one-shot globe drift makes the first paint feel alive without
+  // fighting the selection fly-to. Skipped for reduced motion and later visits.
+  useEffect(() => {
+    if (!ready || !worldView) return;
+    const map = mapRef.current;
+    if (!map) return;
+    const key = "ninacal-globe-intro";
+    try {
+      if (window.sessionStorage.getItem(key)) return;
+      window.sessionStorage.setItem(key, "1");
+    } catch {
+      return;
+    }
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    try {
+      map.jumpTo({ center: [32, 6], zoom: 1.62 });
+    } catch {
+      return;
+    }
+    const timer = window.setTimeout(
+      () => safeEase(map, { center: [-72, 4], zoom: 1.92, duration: 3400, essential: true }),
+      260,
+    );
+    return () => window.clearTimeout(timer);
+  }, [ready, worldView]);
+
   // Basemap swap keeps both sources warm; only visibility changes.
   useEffect(() => {
     const map = mapRef.current;

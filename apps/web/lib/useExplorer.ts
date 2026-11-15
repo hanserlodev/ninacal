@@ -27,6 +27,7 @@ import {
   selectionMatcher,
 } from "@/lib/geo";
 import { slugify } from "@/lib/format";
+import { countriesFromManifest, setCountries } from "@/lib/countries";
 import { DEFAULT_REGION, REGIONS } from "@/lib/regions";
 import type {
   Aggregated,
@@ -214,6 +215,7 @@ export function useExplorer() {
   const [countryYearTotals, setCountryYearTotals] = useState<Record<string, Record<number, number>>>({});
   const [mapLoading, setMapLoading] = useState(false);
   const [gridVersion, setGridVersion] = useState(0);
+  const [catalogVersion, setCatalogVersion] = useState(0);
   const yearAttempts = useRef(new Map<number, number>());
   const failedYears = useRef(new Set<number>());
   const [bands, setBands] = useState<Map<string, { low: number | null; high: number | null }>>(new Map());
@@ -234,6 +236,11 @@ export function useExplorer() {
         const apiManifest = await loadApiManifest();
         if (!alive) return;
         if (apiManifest) {
+          const fromApi = countriesFromManifest(apiManifest);
+          if (fromApi.length > 0) {
+            setCountries(fromApi);
+            setCatalogVersion((version) => version + 1);
+          }
           const years = staticV2Provider.getYears(apiManifest);
           setDataVersion("v2");
           setV2Manifest(apiManifest);
@@ -1030,6 +1037,7 @@ export function useExplorer() {
     warmTimeline,
     ensureYear,
     gridVersion,
+    catalogVersion,
     showAmazon2024,
     exportCsv,
   };

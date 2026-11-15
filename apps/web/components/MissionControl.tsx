@@ -351,6 +351,9 @@ function AnomalyReadout({
         </button>
       </div>
 
+      <p className="mc-anom-caption">
+        {monthName(latest.m)} · one bar per year · {history.length} years
+      </p>
       <div className="mc-anom-bars" aria-hidden="true">
         {history.map((entry) => (
           <span
