@@ -22,6 +22,9 @@ import planetary_computer
 import rasterio
 from pystac_client import Client
 from rasterio.enums import Resampling
+from rasterio.features import rasterize
+from rasterio.transform import Affine
+from rasterio.warp import transform_geom
 from rasterio.windows import Window, from_bounds
 
 STAC = "https://planetarycomputer.microsoft.com/api/stac/v1"
@@ -83,6 +86,32 @@ def clip_window(dataset, bbox: list[float]) -> Window | None:
     return window
 
 
+def boundary_mask(dataset, window: Window, width: int, height: int, boundary: Path | None):
+    """Rasterize the country polygon onto the sampled window (True inside)."""
+    if boundary is None:
+        return None
+    document = json.loads(boundary.read_text(encoding="utf-8"))
+    shapes = []
+    for feature in document.get("features", []):
+        geometry = feature.get("geometry")
+        if not geometry:
+            continue
+        transformed = transform_geom("EPSG:4326", dataset.crs, geometry)
+        shapes.append((transformed, 1))
+    if not shapes:
+        return None
+    transform = dataset.window_transform(window) * Affine.scale(
+        window.width / width, window.height / height
+    )
+    return rasterize(
+        shapes,
+        out_shape=(height, width),
+        transform=transform,
+        fill=0,
+        dtype="uint8",
+    ).astype(bool)
+
+
 def window_pixel_area_km2(dataset, window: Window, width: int, height: int) -> float:
     transform = dataset.window_transform(window)
     dx = abs(transform.a) * window.width / width
@@ -94,7 +123,7 @@ def window_pixel_area_km2(dataset, window: Window, width: int, height: int) -> f
     return (dx * 111_320.0) * (dy * 111_320.0 * max(0.05, math.cos(lat))) / 1_000_000
 
 
-def landcover(bbox: list[float], year: int, max_pixels: int) -> dict:
+def landcover(bbox: list[float], year: int, max_pixels: int, boundary: Path | None = None) -> dict:
     # io-lulc-annual-v02 is annual from 2017; esa-worldcover is 2020/2021 only.
     if year >= 2017:
         collection, classes = "io-lulc-annual-v02", IO_LULC_CLASSES
@@ -106,7 +135,7 @@ def landcover(bbox: list[float], year: int, max_pixels: int) -> dict:
     if not items:
         return {"collection": collection, "status": "no_items", "classes": {}}
     counts: dict[int, int] = {}
-    valid = 0
+    total_valid = 0
     for item in items:
         asset = item.assets.get("data") or item.assets.get("map")
         if asset is None:
@@ -125,28 +154,32 @@ def landcover(bbox: list[float], year: int, max_pixels: int) -> dict:
                 resampling=Resampling.nearest,
                 masked=True,
             )
-            values = data.compressed().astype("int64")
+            inside = boundary_mask(dataset, window, width, height, boundary)
+            valid = ~np.ma.getmaskarray(data)
+            if inside is not None:
+                valid &= inside
+            values = data.filled(0).astype("int64")[valid]
             if values.size == 0:
                 continue
             labels, frequency = np.unique(values, return_counts=True)
             for label, count in zip(labels.tolist(), frequency.tolist()):
                 if label in classes:
                     counts[label] = counts.get(label, 0) + count
-                    valid += count
+                    total_valid += count
     shares = {
-        classes[label]: round(count / valid, 6)
+        classes[label]: round(count / total_valid, 6)
         for label, count in sorted(counts.items())
-    } if valid else {}
+    } if total_valid else {}
     return {
         "collection": collection,
         "year": year if collection == "io-lulc-annual-v02" else 2021,
         "tiles": len(items),
-        "valid_pixels": valid,
+        "valid_pixels": total_valid,
         "classes": shares,
     }
 
 
-def burned_area(bbox: list[float], year: int, max_pixels: int) -> dict:
+def burned_area(bbox: list[float], year: int, max_pixels: int, boundary: Path | None = None) -> dict:
     items = search("modis-64A1-061", bbox, f"{year}-01-01", f"{year}-12-31")
     if not items:
         return {"collection": "modis-64A1-061", "status": "no_items", "area_km2": None}
@@ -171,8 +204,12 @@ def burned_area(bbox: list[float], year: int, max_pixels: int) -> dict:
                 resampling=Resampling.nearest,
                 masked=True,
             )
-            burned = data.filled(0) > 0
+            values = data.filled(0)
+            burned = (values > 0) & (values <= 366)
             burned &= ~np.ma.getmaskarray(data)
+            inside = boundary_mask(dataset, window, width, height, boundary)
+            if inside is not None:
+                burned &= inside
             count = int(burned.sum())
             if count:
                 area += count * window_pixel_area_km2(dataset, window, width, height)
@@ -193,6 +230,7 @@ def main() -> int:
     parser.add_argument("--year", type=int, default=2023)
     parser.add_argument("--max-pixels", type=int, default=512, help="sampling cap per tile")
     parser.add_argument("--output", type=Path)
+    parser.add_argument("--boundary", type=Path, help="ADM1 GeoJSON used to mask the box")
     parser.add_argument("--skip-burned", action="store_true")
     args = parser.parse_args()
     try:
@@ -206,10 +244,10 @@ def main() -> int:
         "bbox": bbox,
         "year": args.year,
         "source": "Microsoft Planetary Computer STAC",
-        "landcover": landcover(bbox, args.year, args.max_pixels),
+        "landcover": landcover(bbox, args.year, args.max_pixels, args.boundary),
     }
     if not args.skip_burned:
-        result["burned_area"] = burned_area(bbox, args.year, max(args.max_pixels, 1024))
+        result["burned_area"] = burned_area(bbox, args.year, max(args.max_pixels, 1024), args.boundary)
     text = json.dumps(result, indent=2, ensure_ascii=False)
     if args.output:
         args.output.write_text(text + "\n", encoding="utf-8")

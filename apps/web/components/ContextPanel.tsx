@@ -34,16 +34,37 @@ const LABELS: Record<string, string> = {
 
 export default function ContextPanel({ code, year }: { code?: string; year: number }) {
   const [data, setData] = useState<Context | null>(null);
+  const [available, setAvailable] = useState<Record<string, number> | null>(null);
 
   useEffect(() => {
-    if (!code) {
+    let alive = true;
+    fetch("/context/index.json", { cache: "force-cache" })
+      .then((response) => (response.ok ? (response.json() as Promise<Record<string, number>>) : {}))
+      .then((value) => {
+        if (alive) setAvailable(value);
+      })
+      .catch(() => {
+        if (alive) setAvailable({});
+      });
+    return () => {
+      alive = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!code || !available) {
+      setData(null);
+      return;
+    }
+    const preferred = available[code];
+    if (!preferred) {
       setData(null);
       return;
     }
     let alive = true;
     setData(null);
     const load = async () => {
-      for (const candidate of [...new Set([year, 2023])]) {
+      for (const candidate of [...new Set([preferred, year])]) {
         const response = await fetch(`/context/${code}-${candidate}.json`, {
           cache: "force-cache",
         });
@@ -61,7 +82,7 @@ export default function ContextPanel({ code, year }: { code?: string; year: numb
     return () => {
       alive = false;
     };
-  }, [code, year]);
+  }, [code, year, available]);
 
   if (!data?.landcover?.classes) return null;
   const classes = Object.entries(data.landcover.classes)
