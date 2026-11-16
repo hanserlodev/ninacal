@@ -13,6 +13,7 @@ fi
 
 PAYLOAD="${1:-/tmp/ninacal-78-payload.tar.zst}"
 APP_DIR="${APP_DIR:-/opt/ninacal}"
+EXPECTED_COUNTRIES="${EXPECTED_COUNTRIES:-78}"
 STAMP="$(date +%Y%m%d-%H%M%S)"
 
 ok() { printf '\033[32m✓\033[0m %s\n' "$*"; }
@@ -25,7 +26,7 @@ command -v docker >/dev/null || die "docker is not installed"
 
 cd "$APP_DIR"
 FREE_KB=$(df -Pk "$APP_DIR" | awk 'NR==2 {print $4}')
-[ "$FREE_KB" -gt 8388608 ] || die "need at least 8 GB free in $APP_DIR (have $((FREE_KB/1024)) MB)"
+[ "$FREE_KB" -gt 12582912 ] || die "need at least 12 GB free in $APP_DIR (have $((FREE_KB/1024)) MB); delete old *.bak-* after confirming the current release"
 
 echo "== payload"
 ls -lh "$PAYLOAD"
