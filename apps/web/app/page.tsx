@@ -331,12 +331,11 @@ export default function Home() {
         <div className="closing-thanks">
           <p>
             Built on open NASA FIRMS data. Thanks to the NASA FIRMS and EOSDIS teams, to the MODIS
-            and VIIRS science teams, and to our families and to the people we love.
+            and VIIRS science teams, and to our families and to the person each of us goes home to.
           </p>
           <p lang="es">
             Construido sobre datos abiertos de NASA FIRMS. Gracias a los equipos de NASA FIRMS y
-            EOSDIS, a los equipos de ciencia de MODIS y VIIRS, y a nuestras familias y a quienes
-            amamos.
+            EOSDIS, a los equipos de ciencia de MODIS y VIIRS, y a nuestras familias y a la persona con la que cada uno vuelve a casa.
           </p>
         </div>
       </section>

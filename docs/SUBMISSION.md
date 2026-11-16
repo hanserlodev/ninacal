@@ -119,12 +119,13 @@ JS, SQLite, Nginx, Docker, NumPy y Pandas, cuyo trabajo sostiene proyectos como 
 también a quienes abrieron la consola, la rompieron y nos lo dijeron. Cualquier error que quede es
 nuestro.
 
-**On a personal note · En lo personal.** To our families and to the people we love: thank you for
-the hours we borrowed, for the dinners that went cold, and for the patience you gave without being
-asked. You kept the world running while we stared at pixels; this belongs to you as much as to us.
-A nuestras familias y a quienes amamos: gracias por las horas que les quitamos, por las cenas que se
-enfriaron y por la paciencia que nos dieron sin que la pidieran. Ustedes sostuvieron el mundo
-mientras nosotros mirábamos píxeles; esto también es de ustedes.
+**On a personal note · En lo personal.** To our families, and to the person each of us goes home
+to: thank you for the hours we borrowed, for the dinners that went cold, and for the patience you
+gave without being asked. You kept the world running while we stared at pixels; this belongs to you
+as much as to us. A nuestras familias y a la persona con la que cada uno vuelve a casa: gracias por
+las horas que les quitamos, por las cenas que se enfriaron y por la paciencia que nos dieron sin que
+la pidieran. Ustedes sostuvieron el mundo mientras nosotros mirábamos píxeles; esto también es de
+ustedes.
 
 ## Images for Project Details
 
