@@ -95,6 +95,30 @@ why the API caps grid and export sizes and the frontend caches instead of re-dow
 [IMAGE 6 — 06-mobile.png — "The same console on a phone: 0.05° cells, 27 regions, timeline and CSV
 export, with no account."]
 
+**A closing note · Una nota final.** "We are a way for the cosmos to know itself." — Carl Sagan,
+*Cosmos* (1980). "Somos una forma que tiene el cosmos de conocerse a sí mismo." — Carl Sagan,
+*Cosmos* (1980). Twenty-three years of satellite detections are, in the end, the record of a planet
+learning to watch its own fires; NinaCal exists so that record stays comparable, readable and
+honest about what it cannot see. Veintitrés años de detecciones satelitales son, al final, el
+registro de un planeta que aprende a mirar sus propios incendios; NinaCal existe para que ese
+registro siga siendo comparable, legible y honesto sobre lo que no puede ver.
+
+**Acknowledgments · Agradecimientos.** We thank the NASA FIRMS and EOSDIS teams, and the MODIS and
+VIIRS instrument and science teams, for open data and for publishing the outage notices that make an
+honest record possible. Thanks to the NASA Space Apps organizers, local leads and mentors; to
+Microsoft Planetary Computer, Meteomatics, geoBoundaries and Natural Earth, OpenStreetMap
+contributors and Esri for the context layers; and to the maintainers of Next.js, React, MapLibre GL
+JS, SQLite, Nginx, Docker, NumPy and Pandas, whose work carries projects like this one. Thanks also
+to the people who opened the console, broke it, and told us. Any remaining error is ours.
+Agradecemos a los equipos de NASA FIRMS y EOSDIS, y a los equipos de instrumento y ciencia de MODIS y
+VIIRS, por los datos abiertos y por publicar los avisos de interrupción que hacen posible un registro
+honesto. Gracias a los organizadores, leads locales y mentores de NASA Space Apps; a Microsoft
+Planetary Computer, Meteomatics, geoBoundaries y Natural Earth, a los colaboradores de
+OpenStreetMap y a Esri por las capas de contexto; y a quienes mantienen Next.js, React, MapLibre GL
+JS, SQLite, Nginx, Docker, NumPy y Pandas, cuyo trabajo sostiene proyectos como este. Gracias
+también a quienes abrieron la consola, la rompieron y nos lo dijeron. Cualquier error que quede es
+nuestro.
+
 ## Images for Project Details
 
 Six screenshots of the live app, with captions, are in `docs/submission/` (see

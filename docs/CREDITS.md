@@ -38,3 +38,13 @@ and the data provenance visible so judges can reproduce the result.
 A thermal hotspot is not a confirmed fire. NinaCal reports detected hotspot-days
 on a harmonized Suomi-NPP-equivalent scale; it does not measure burned area,
 fire size or fire intensity.
+
+## Closing note and acknowledgments
+
+"We are a way for the cosmos to know itself." — Carl Sagan, *Cosmos* (1980).
+"Somos una forma que tiene el cosmos de conocerse a sí mismo." — Carl Sagan, *Cosmos* (1980).
+
+Thanks to NASA FIRMS and EOSDIS, the MODIS and VIIRS instrument and science teams, the NASA Space
+Apps organizers and local leads, Microsoft Planetary Computer, Meteomatics, geoBoundaries, Natural
+Earth, OpenStreetMap contributors, Esri, and the maintainers of Next.js, React, MapLibre GL JS,
+SQLite, Nginx, Docker, NumPy and Pandas. Any remaining error is ours.
