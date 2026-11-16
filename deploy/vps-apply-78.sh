@@ -91,8 +91,8 @@ ok "health"
 
 echo "== verify"
 COUNTRIES=$(curl -fsS http://127.0.0.1:8080/api/countries | python3 -c 'import json,sys; print(len(json.load(sys.stdin)))')
-[ "$COUNTRIES" = "78" ] || {
-  echo "expected 78 countries, got $COUNTRIES" >&2
+[ "$COUNTRIES" = "$EXPECTED_COUNTRIES" ] || {
+  echo "expected $EXPECTED_COUNTRIES countries, got $COUNTRIES" >&2
   rollback
 }
 ok "countries: $COUNTRIES"
