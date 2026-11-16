@@ -1,7 +1,7 @@
 # Pruebas de estrés de la API
 
 Entorno: imagen R2 en Docker, 8 hilos, límite de 2 GB, 24 núcleos en el host de
-pruebas, datos de 78 países (SQLite 3,3 GB). **No ejecutes estas cargas contra
+pruebas, datos de 153 países (SQLite 5,1 GB). **No ejecutes estas cargas contra
 producción sin rate limit/caché delante.**
 
 ## Línea base (una petición, curl)
@@ -57,7 +57,7 @@ sube; el proceso **no se cae ni devuelve 500**.
    `limit_req`/`limit_conn`, timeouts. Sin caché, cada visita pesada golpea el backend.
 2. Cloudflare delante de `api.ninacal.earth` para cache de borde y rate limit.
 3. Reducir payload (redondear lat/lon a 3 decimales) o añadir `/api/world` para que
-   la vista mundo no haga 78 agregados.
+   la vista mundo no haga 153 agregados.
 
 ## Reproducir
 

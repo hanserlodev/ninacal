@@ -57,7 +57,7 @@ uid 65532; api healthy.
 ## 4. Frontend
 
 El catálogo está generado con 153 en el repo, pero **no se ha pusheado** para no mostrar 153
-mientras la API aún sirve 78. Cuando la verificación pase:
+mientras la API servía 78 (ya aplicado: la API sirve 153). Para futuras releases:
 
 ```bash
 cd /home/hans/Proyectos/nasa2026/ninacal

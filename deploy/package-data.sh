@@ -10,7 +10,7 @@
 #
 # Defaults:
 #   PIPELINE_DIR=../pipeline-work/ninacal-pipeline-v2.2
-#   OUT_DIR=/tmp/opencode/ninacal-78-payload
+#   OUT_DIR=/tmp/ninacal-78-payload
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"

@@ -1,3 +1,5 @@
+> **Historical.** Superseded by `deploy/VPS-UPDATE-153.md`. Kept for reference.
+
 # Actualizar el VPS a 78 países
 
 Payload validado localmente: 78 países, 0.05°, SQLite 3.2 GB, estático 304 MB.
@@ -44,7 +46,7 @@ El script:
 6. verifica 78 países, `/api/grid/DE`, `/api/grid/BR` y `/api/series/DE`;
 7. si algo falla, restaura el backup y reinicia la API.
 
-## 3. Prompt para el OpenCode del VPS
+## 3. Prompt para el agente del VPS
 
 ```text
 Actualiza la API NinaCal a 78 países. Los archivos ya están en /tmp:

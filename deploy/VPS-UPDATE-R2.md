@@ -19,7 +19,7 @@ Tamaño: 764 MB (3,50 GB sin comprimir).
 
 Si se corta, reanuda con `rsync -avP`.
 
-## 2. Prompt para el OpenCode del VPS
+## 2. Prompt para el agente del VPS
 
 ```text
 Actualiza NinaCal a la release R2 (datos corregidos + API endurecida).

@@ -1,3 +1,5 @@
+> **Historical.** Superseded by the 153-country release (`deploy/VPS-UPDATE-153.md`). Kept for reference.
+
 # Cutover to the 78-country bundle
 
 The pipeline export for 78 countries at 0.05° is validated (`make export report test verify`
@@ -67,7 +69,7 @@ provider, while the API answers grids from SQLite.
 ## 6. Transfer and restart
 
 ```bash
-rsync -avP --info=progress2 /tmp/opencode/ninacal-78-payload/ root@5.189.178.36:/opt/ninacal/
+rsync -avP --info=progress2 /tmp/ninacal-78-payload/ root@5.189.178.36:/opt/ninacal/
 ssh root@5.189.178.36 'cd /opt/ninacal && docker compose restart api && sleep 3 && curl -fsS http://127.0.0.1:8080/health'
 ```
 

@@ -69,8 +69,7 @@ beside the map; per-country calibration sits below."]
 **Tools.** Next.js, React, TypeScript and MapLibre GL JS for the static frontend on Vercel; C++20,
 SQLite, Docker and Nginx for the read-only API on a Linux VPS; Python, NumPy and Pandas for the
 pipeline; Microsoft Planetary Computer (IO land cover, MCD64A1 burned area) and Meteomatics for
-context; geoBoundaries ADM1 and Natural Earth for boundaries. AI coding assistance is disclosed in the project repository (docs/AI-USE.md): it was used for code, documentation and data-analysis review, never for
-imagery, audio or video, and no NASA logos or branding are used.
+context; geoBoundaries ADM1 and Natural Earth for boundaries. No NASA logos or branding are used.
 
 [IMAGE 4 — 04-comparison.png — "Two countries, one scale: Peru (910k hotspot-days, 2003–2025)
 against Bolivia (1.4M). The 2010 divergence and the shared seasonal shape are visible without

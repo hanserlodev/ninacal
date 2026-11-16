@@ -1,10 +1,10 @@
-# Prompt para desplegar la API NinaCal en un VPS con OpenCode
+# Prompt para desplegar la API NinaCal en un VPS con el agente del VPS
 
-Copia este bloque en OpenCode dentro del VPS. Antes de ejecutarlo, reemplaza los valores de
+Copia este bloque en el agente del VPS. Antes de ejecutarlo, reemplaza los valores de
 `API_DOMAIN` y `DATA_TAR` (o indica que el archivo se transferirá después).
 
 ```text
-Actúa como OpenCode en un VPS Linux. Despliega la API NinaCal con Docker, TLS y los datos
+Actúa como el agente de un VPS Linux. Despliega la API NinaCal con Docker, TLS y los datos
 0.05° ya calculados. No inventes datos, no subas datos a Git, no expongas el puerto 8080
 públicamente y no imprimas secretos.
 

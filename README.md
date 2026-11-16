@@ -1,6 +1,6 @@
 # NinaCal
 
-**A 23-year fire activity calendar for 78 countries, on a globe you can explore.**
+**A 23-year fire activity calendar for 153 countries, on a globe you can explore.**
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-c8f04a?style=flat-square)](LICENSE)
 [![NASA Space Apps 2026](https://img.shields.io/badge/NASA%20Space%20Apps-2026-0b3d91?style=flat-square)](https://www.spaceappschallenge.org/)
@@ -10,8 +10,7 @@
 NinaCal harmonizes **Aqua/MODIS** and **Suomi-NPP/VIIRS** onto one detected-hotspot-day scale.
 The current v2 bundle covers **2003–2025**; it uses NOAA-20 as a fallback in selected
 Suomi-NPP outage months. NinaCal shows that series as a **year × month activity calendar**
-for any country, region or drawn area inside the **12 published countries** (South America,
-the United States and Australia), compares the map year’s peak month with its earlier-year
+for any country, region or drawn area inside the **153 published countries**, compares the map year’s peak month with its earlier-year
 median, labels the month **Normal / Elevated / Critical**, draws the approximate conversion
 band and lets you **share the exact view** or download the numbers.
 
@@ -26,9 +25,10 @@ challenge *Harmonization of MODIS and VIIRS Hot Spots*. See the
 
 ## Coverage and data version
 
-Shipping data currently covers **78 countries** across the Americas, Europe, Africa, Asia and
-Oceania (the full list is in `data/v2/manifest.json`). The pipeline is global: `make add-world` registers the 158 FIRMS countries with all 48 source-years and
-processes them (~43 GB of raw CSV, ~4–5 h). The globe always shows the whole world; countries
+Shipping data currently covers **153 countries** across the Americas, Europe, Africa, Asia and
+Oceania (the full list is in `data/v2/manifest.json`). The bundle is 3.2 GB on disk, its SQLite
+build is 5.1 GB with 57,298,469 monthly cell rows, and the minimal static export is 547 MB. The
+pipeline can register up to 158 FIRMS countries with all 48 source-years. The globe always shows the whole world; countries
 without a published bundle are dimmed, and a selection outside the published support returns an
 explicit "outside coverage" message instead of a fake zero. First-level boundaries come from
 geoBoundaries ADM1 (licences per country) and the country outlines from Natural Earth.
@@ -152,20 +152,13 @@ gzip/brotli; the frontend already caches grids by country/year/bbox.
 A 158-country cell layer at 0.05° would be tens of millions of polygons; that is why world view
 shows a country-level annual fill and the cell layer loads only for the selected country/region.
 
-## Full world
+## Coverage
 
-The shipped bundle covers the 78 countries in the manifest. The analyst pipeline can register the rest:
+The shipped bundle covers the **153 countries** in the manifest. Five FIRMS countries are not
+published because they lack a complete 48-year archive or a usable ADM1 boundary. The catalogue
+is read from the API at runtime, so adding a country does not require a frontend release.
 
-```bash
-cd ninacal-pipeline-v2.2
-make add-world          # 141 more countries, ~33 GB of FIRMS CSV
-make all WORKERS=4      # ~4–5 h on a laptop
-```
-
-Then copy `web/data/v2/` into `data/v2/`, run `backend/scripts/build_db.py`, and add the new
-codes/metadata to `apps/web/lib/countries.ts` (the API already returns the manifest's `name`,
-`iso3`, `boundary` and `view_bbox`). The globe, selector and API are country-agnostic; only the
-catalogue needs the new entries.
+The full inventory (counts, sizes, checksums and file layout) is in [`docs/DATA.md`](docs/DATA.md).
 
 ## Deploy
 
@@ -218,7 +211,7 @@ ninacal/
 ├── backend/               # C++20 API + SQLite built from data/v2 (local/VPS)
 ├── pipelines/             # Python aggregation + calibration (offline)
 ├── data/
-│   ├── v2/                # 12-country v2 bundle, manifest and year files
+│   ├── v2/                # 153-country v2 bundle (distributed separately, see docs/DATA.md)
 │   ├── samples/mock.json  # legacy fixture with the old row shape
 │   ├── processed/         # legacy pipeline output; kept separate, not overwritten
 │   └── schemas/           # legacy JSON Schemas

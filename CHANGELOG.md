@@ -7,6 +7,23 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- **153-country release (2026-11-15).** The bundle now covers 153 countries (2,794,550 cells,
+  57,298,469 monthly rows), the SQLite build is 5.1 GB, and the verification pass reports
+  153/153. The catalogue is regenerated from the manifest.
+- Method paper (`docs/paper/ninacal-method-paper.pdf`) with the block-by-quarter ratio, the
+  selection design and the uncertainty-band correction, linked from the home page.
+- `docs/DATA.md`: one inventory with counts, sizes, checksum, provenance and rebuild steps.
+
+### Changed
+
+- API rate limit raised to 60 r/s with a 240 burst after the world view (153 national
+  aggregates) returned 503 to real visitors.
+- `docs/methodology.md` now states the real split (fit 2013–2017, select 2018–2020,
+  evaluate 2021–2022, drift 2023–2025) and the correct conversion direction.
+- Home metrics are computed from the catalogue; the stale hardcoded "78" is gone.
+
 ### Changed
 
 - Data release 2026-11-15: sensor-month availability is now derived from the daily caches
