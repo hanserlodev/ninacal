@@ -30,7 +30,7 @@ judges and users.
 
 ## Coverage and aggregation
 
-- Data is processed for **78 countries** worldwide; the pipeline can add more, up to the
+- Data is processed for **153 countries** worldwide; the pipeline can add more, up to the
   whole world. Within those countries, only
   cells represented in the published support are known. Selecting an area with no published
   cells is not evidence of zero activity.

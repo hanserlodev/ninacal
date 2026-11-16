@@ -88,7 +88,7 @@ the upload, so the deployed frontend carries no data.
 
 ## Coverage
 
-Shipping coverage is **78 countries** worldwide (ADR 0002, amended by 0004 and the 2026-11
+Shipping coverage is **153 countries** worldwide (ADR 0002, amended by 0004 and the 2026-11
 world release). The pipeline can register up to 158 FIRMS countries. `apps/web/lib/countries.ts` is
 the catalogue; `apps/web/lib/coverage.ts` provides bbox selection/status; the globe uses
 Natural Earth 110m outlines (`lib/boundaries/world.json`) and geoBoundaries ADM1 for regions.

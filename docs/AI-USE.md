@@ -11,6 +11,6 @@ narrated and edited by the team; the page that embeds it is hand-authored HTML/C
 AI assistance). No NASA logos, flags or mission identifiers are used anywhere in the project.
 
 Every AI-assisted change was reviewed, type-checked, built, and exercised against the live API
-and the 78-country dataset. The scientific choices, data sources and limitations remain the
+and the 153-country dataset. The scientific choices, data sources and limitations remain the
 team's responsibility. If the team used additional AI tools (for example ChatGPT, Copilot or
 Gemini), list them here before submitting.

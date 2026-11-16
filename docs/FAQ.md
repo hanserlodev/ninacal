@@ -26,7 +26,7 @@ live alerts, no incident confirmation and no risk score. See [limitations](limit
 
 ## Which regions are covered?
 
-The committed dataset covers **78 countries** at 0.05° resolution. The globe always shows the
+The committed dataset covers **153 countries** at 0.05° resolution. The globe always shows the
 world; countries without a published bundle are dimmed.
 The pipeline can register up to 158 FIRMS countries with `make add-world`.
 

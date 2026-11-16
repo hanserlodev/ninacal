@@ -15,13 +15,13 @@ NinaCal — one calendar for 23 years of satellite fire detections
 
 NinaCal (MODIS Operandi) harmonizes NASA FIRMS Aqua/MODIS and Suomi-NPP/VIIRS active-fire
 detections into one detected-hotspot-day scale from 2003 to 2025 on a 0.05° grid. A public globe
-console lets anyone search 78 live countries and their regions, scrub or loop the timeline,
+console lets anyone search 153 live countries and their regions, scrub or loop the timeline,
 inspect a year × month calendar and anomalies, compare any two places on one scale, and export
 CSV. A read-only C++/SQLite API serves the data; a Python pipeline derives satellite availability
 from daily observations, calibrates MODIS to the VIIRS scale and validates out of sample. Context
 layers from Microsoft Planetary Computer and Meteomatics add land cover, burned area and daily
 weather. The project is open source and runs on a static frontend. It states its limits clearly: a
-thermal hotspot is not a confirmed fire. The same pipeline is validated to scale to 153 countries.
+thermal hotspot is not a confirmed fire. Coverage is 153 countries, each validated out of sample.
 
 ## Project details
 
@@ -31,8 +31,8 @@ month from 2003 to 2025. They can loop the map through the years, read a year ×
 whether the latest month is anomalous against the same month in previous years, compare two
 countries or regions on one scale (absolute or indexed), and download the current selection as CSV.
 
-**How it works.** A Python pipeline downloads NASA FIRMS country files, aggregates daily detections
-to monthly cell counts, assigns cells to ADM1 units, and fits a per-cell/per-block calibration from
+**How it works.** A Python pipeline downloads NASA FIRMS country files for 153 countries, aggregates daily
+detections to monthly cell counts, assigns cells to ADM1 units, and fits a per-cell/per-block calibration from
 Aqua/MODIS to the Suomi-NPP scale. Availability is derived from the daily caches: a month is only
 replaced by a NOAA-20 estimate when the satellite really lacks most of its days, not from a static
 outage list. Validation is out of sample: 2013–2017 training, 2018–2020 development, 2021–2022
