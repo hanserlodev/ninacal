@@ -25,38 +25,76 @@ the uncertainty visible.
 
 ## Project details
 
-**What it does.** NinaCal turns six disagreeing satellite fire files into one comparable calendar.
-Users open a globe, pick a country or region, and see detected hotspot-days per 0.05° cell and
-month from 2003 to 2025. They can loop the map through the years, read a year × month heatmap, see
-whether the latest month is anomalous against the same month in previous years, compare two
-countries or regions on one scale (absolute or indexed), and download the current selection as CSV.
+**What it does.** NinaCal turns six disagreeing satellite fire files into one comparable
+calendar. Open it and you land on a globe of 153 countries; pick a country, an ADM1 region or draw
+a box, and the console shows detected hotspot-days per 0.05° cell and month from 2003 to 2025. You
+can scrub or play the timeline, read a year × month heatmap that keeps estimated months and
+unavailable source coverage visible, see whether the latest month is unusual against the same
+month in previous years (median, robust z, and how many previous years it exceeded), compare two
+countries or regions on one absolute or indexed scale, add land cover, burned area and weather
+context, and export the current selection as CSV. There is no account and no onboarding.
 
-**How it works.** A Python pipeline downloads NASA FIRMS country files for 153 countries, aggregates daily
-detections to monthly cell counts, assigns cells to ADM1 units, and fits a per-cell/per-block calibration from
-Aqua/MODIS to the Suomi-NPP scale. Availability is derived from the daily caches: a month is only
-replaced by a NOAA-20 estimate when the satellite really lacks most of its days, not from a static
-outage list. Validation is out of sample: 2013–2017 training, 2018–2020 development, 2021–2022
-hold-out. A C++20 API reads a SQLite database and serves grids, region aggregates, series and CSV;
-the static Next.js frontend caches API JSON in IndexedDB so a second timeline loop makes no network
-requests.
+[IMAGE 1 — 01-home.png — "NinaCal: 23 years of Aqua/MODIS and Suomi-NPP/VIIRS fire detections on
+one hotspot-day scale, for 153 countries, served by a read-only API."]
+
+**How it works.** A Python pipeline downloads NASA FIRMS country files, aggregates daily
+detections into monthly cell counts, assigns cells to ADM1 units, and fits a per-cell/per-block
+calibration from Aqua/MODIS to the Suomi-NPP scale. A NOAA-20 bridge covers months where a sensor
+really lacks most of its days; availability comes from the daily observation caches, not from a
+static outage list, and model selection is bias-aware for low-activity countries. Validation is
+out of sample: fit 2013–2017, development 2018–2020, held-out 2021–2022, drift check 2023–2025.
+The chosen model and its error are stored per country and shown inside the app: Brazil 6.3%
+cross-validated WAPE, Australia 4.7%, Peru 13%, while a low-activity country such as Germany
+reaches 59% — and the console shows that number next to its bias and sample size instead of hiding
+it. The bundle holds 57.3 million monthly cell rows over 2.79 million 0.05° cells. A C++20 API
+reads a SQLite database and serves grids, region aggregates, series and CSV behind an Nginx cache;
+the static Next.js frontend caches every response in IndexedDB, so a second timeline loop makes no
+network requests. The country catalogue is read from the API at runtime, so adding a country does
+not require a frontend release.
+
+[IMAGE 2 — 02-world-153.png — "World view: 2.79 million 0.05° cells across 153 countries, each
+national aggregate loaded from the API and coloured on the same scale."]
 
 **Benefits and impact.** Researchers, journalists, agencies and students can compare places and
-years without rebuilding a harmonization stack. The app works with no account, is fast after the
-first load, and keeps the source and the uncertainty visible. It is designed to scale: the country
-catalogue is read from the API at runtime, so adding a country to the bundle does not require a
-frontend release.
+years without rebuilding a harmonization stack, and the same question works at any scale: Peru's
+2024 was 25% above its 2003–2024 typical year, Bolivia's +32%, Australia's October 2025 +43% over
+a typical October, Brazil's October 2025 −34%. Because every country is on one scale, a national agency can put
+its own season beside a neighbour's without exporting anything. The app is a static frontend, works
+with no account, is fast after the first load, and keeps the source and the uncertainty visible.
 
-**Tools.** Next.js, React, TypeScript, MapLibre GL JS, CSS; C++20, SQLite, Docker, Nginx; Python,
-NumPy, Pandas; Vercel, a Linux VPS; Microsoft Planetary Computer, Meteomatics; geoBoundaries and
-Natural Earth. AI coding assistance is disclosed in `docs/AI-USE.md`.
+[IMAGE 3 — 03-peru.png — "Peru, September 2025: 7,203 hotspot-days, 41% below the 2003–2025
+September median, lower than all 22 previous Septembers. Land cover, burned area and weather sit
+beside the map; per-country calibration sits below."]
 
-**Creativity.** The globe, the 0.05° country-masked cells, the loop from cache, the any-country
-comparison with an indexed scale, the land-cover/burned-area context and the weather panel are
-combined in one instrument rather than a dashboard of disconnected charts.
+**Tools.** Next.js, React, TypeScript and MapLibre GL JS for the static frontend on Vercel; C++20,
+SQLite, Docker and Nginx for the read-only API on a Linux VPS; Python, NumPy and Pandas for the
+pipeline; Microsoft Planetary Computer (IO land cover, MCD64A1 burned area) and Meteomatics for
+context; geoBoundaries ADM1 and Natural Earth for boundaries. AI coding assistance is disclosed in
+`docs/AI-USE.md`: it was used for code, documentation and data-analysis review, never for
+imagery, audio or video, and no NASA logos or branding are used.
 
-**Factors considered.** Sensor disagreement and the 2012 seam; sparse data versus true zero; real
-outage months; low-activity countries where WAPE is unstable; the difference between a thermal
-hotspot, a fire and burned area; accessibility; attribution; and the cost of large payloads.
+[IMAGE 4 — 04-comparison.png — "Two countries, one scale: Peru (910k hotspot-days, 2003–2025)
+against Bolivia (1.4M). The 2010 divergence and the shared seasonal shape are visible without
+rebuilding either series."]
+
+**Creativity.** The globe, the 0.05° country-masked cells, playback served from the browser cache,
+any-country comparison with an indexed scale, and the land-cover/burned-area/weather context are
+combined in one instrument rather than a dashboard of disconnected charts. The unusual part is
+scope: a harmonization that usually stops at one country runs here for 153, with the same method,
+the same validation and the same caveats in every one of them.
+
+[IMAGE 5 — 05-calendar.png — "Year × month calendar for Peru: dotted cells mark months that use an
+estimated satellite conversion, hatching marks unavailable source coverage, and the right column
+sums only measured months."]
+
+**Factors considered.** Sensor disagreement and the 2012 seam; sparse data versus true zero;
+real outage months; low-activity countries where WAPE is unstable and a bias-corrected model is
+preferable to a lower point error; the difference between a thermal hotspot, a fire and burned
+area; accessibility and low-bandwidth use; attribution; and the cost of large payloads, which is
+why the API caps grid and export sizes and the frontend caches instead of re-downloading.
+
+[IMAGE 6 — 06-mobile.png — "The same console on a phone: 0.05° cells, 27 regions, timeline and CSV
+export, with no account."]
 
 ## Images for Project Details
 
