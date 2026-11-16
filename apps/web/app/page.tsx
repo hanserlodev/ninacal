@@ -320,6 +320,27 @@ export default function Home() {
         </aside>
       </main>
 
+      <section className="closing" aria-label="Closing note and acknowledgments">
+        <blockquote className="closing-quote">
+          <p>“We are a way for the cosmos to know itself.”</p>
+          <footer>
+            Carl Sagan, <cite>Cosmos</cite> (1980)
+          </footer>
+          <p lang="es">“Somos una forma que tiene el cosmos de conocerse a sí mismo.”</p>
+        </blockquote>
+        <div className="closing-thanks">
+          <p>
+            Built on open NASA FIRMS data. Thanks to the NASA FIRMS and EOSDIS teams, to the MODIS
+            and VIIRS science teams, and to our families and to the people we love.
+          </p>
+          <p lang="es">
+            Construido sobre datos abiertos de NASA FIRMS. Gracias a los equipos de NASA FIRMS y
+            EOSDIS, a los equipos de ciencia de MODIS y VIIRS, y a nuestras familias y a quienes
+            amamos.
+          </p>
+        </div>
+      </section>
+
       <footer className="site-footer">
         <div>
           <span className="wordmark">
