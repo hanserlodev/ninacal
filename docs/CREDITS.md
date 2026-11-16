@@ -48,3 +48,6 @@ Thanks to NASA FIRMS and EOSDIS, the MODIS and VIIRS instrument and science team
 Apps organizers and local leads, Microsoft Planetary Computer, Meteomatics, geoBoundaries, Natural
 Earth, OpenStreetMap contributors, Esri, and the maintainers of Next.js, React, MapLibre GL JS,
 SQLite, Nginx, Docker, NumPy and Pandas. Any remaining error is ours.
+To our families and to the people we love: thank you for the hours we borrowed, for the dinners
+that went cold, and for the patience you gave without being asked. You kept the world running while
+we stared at pixels; this belongs to you as much as to us.
