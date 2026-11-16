@@ -552,7 +552,7 @@ export function useExplorer() {
       );
 
     void (async () => {
-      // World view means 78 national aggregates, so keep the fan-out bounded
+      // World view means one national aggregate per country, so keep the fan-out bounded
       // and never let one flaky country discard the whole world.
       const first = await mapSettledLimit(requestedCountries, 8, fetchOne);
       let settled = first;

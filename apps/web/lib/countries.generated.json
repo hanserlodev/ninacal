@@ -876,6 +876,162 @@
     }
   },
   {
+    "code": "KG",
+    "name": "Kyrgyzstan",
+    "iso3": "KGZ",
+    "boundary": "kgz_adm1_simplified.geojson",
+    "viewBbox": {
+      "minLon": 69.38,
+      "minLat": 39.33,
+      "maxLon": 79.48,
+      "maxLat": 43.28
+    }
+  },
+  {
+    "code": "LA",
+    "name": "Lao PDR",
+    "iso3": "LAO",
+    "boundary": "lao_adm1_simplified.geojson",
+    "viewBbox": {
+      "minLon": 100.07,
+      "minLat": 13.93,
+      "maxLon": 107.68,
+      "maxLat": 22.48
+    }
+  },
+  {
+    "code": "LB",
+    "name": "Lebanon",
+    "iso3": "LBN",
+    "boundary": "lbn_adm1_simplified.geojson",
+    "viewBbox": {
+      "minLon": 35.12,
+      "minLat": 33.08,
+      "maxLon": 36.58,
+      "maxLat": 34.68
+    }
+  },
+  {
+    "code": "LR",
+    "name": "Liberia",
+    "iso3": "LBR",
+    "boundary": "lbr_adm1_simplified.geojson",
+    "viewBbox": {
+      "minLon": -11.47,
+      "minLat": 4.38,
+      "maxLon": -7.38,
+      "maxLat": 8.58
+    }
+  },
+  {
+    "code": "LY",
+    "name": "Libya",
+    "iso3": "LBY",
+    "boundary": "lby_adm1_simplified.geojson",
+    "viewBbox": {
+      "minLon": 9.43,
+      "minLat": 21.68,
+      "maxLon": 25.08,
+      "maxLat": 33.12
+    }
+  },
+  {
+    "code": "LU",
+    "name": "Luxembourg",
+    "iso3": "LUX",
+    "boundary": "lux_adm1_simplified.geojson",
+    "viewBbox": {
+      "minLon": 5.78,
+      "minLat": 49.47,
+      "maxLon": 6.33,
+      "maxLat": 50.12
+    }
+  },
+  {
+    "code": "MKD",
+    "name": "Macedonia Former Yugoslav Republic of",
+    "iso3": "MKD",
+    "boundary": "mkd_adm1_simplified.geojson",
+    "viewBbox": {
+      "minLon": 20.43,
+      "minLat": 40.88,
+      "maxLon": 22.98,
+      "maxLat": 42.38
+    }
+  },
+  {
+    "code": "MDG",
+    "name": "Madagascar",
+    "iso3": "MDG",
+    "boundary": "mdg_adm1_simplified.geojson",
+    "viewBbox": {
+      "minLon": 43.23,
+      "minLat": -25.58,
+      "maxLon": 50.48,
+      "maxLat": -11.97
+    }
+  },
+  {
+    "code": "MW",
+    "name": "Malawi",
+    "iso3": "MWI",
+    "boundary": "mwi_adm1_simplified.geojson",
+    "viewBbox": {
+      "minLon": 32.68,
+      "minLat": -17.12,
+      "maxLon": 35.93,
+      "maxLat": -9.38
+    }
+  },
+  {
+    "code": "MY",
+    "name": "Malaysia",
+    "iso3": "MYS",
+    "boundary": "mys_adm1_simplified.geojson",
+    "viewBbox": {
+      "minLon": 99.68,
+      "minLat": 0.88,
+      "maxLon": 119.28,
+      "maxLat": 7.38
+    }
+  },
+  {
+    "code": "ML",
+    "name": "Mali",
+    "iso3": "MLI",
+    "boundary": "mli_adm1_simplified.geojson",
+    "viewBbox": {
+      "minLon": -12.22,
+      "minLat": 10.12,
+      "maxLon": 4.23,
+      "maxLat": 24.93
+    }
+  },
+  {
+    "code": "MR",
+    "name": "Mauritania",
+    "iso3": "MRT",
+    "boundary": "mrt_adm1_simplified.geojson",
+    "viewBbox": {
+      "minLon": -17.07,
+      "minLat": 14.78,
+      "maxLon": -5.38,
+      "maxLat": 24.88
+    }
+  },
+  {
+    "code": "MU",
+    "name": "Mauritius",
+    "iso3": "MUS",
+    "boundary": "mus_adm1_simplified.geojson",
+    "viewBbox": {
+      "minLon": 57.33,
+      "minLat": -20.52,
+      "maxLon": 63.48,
+      "maxLat": -19.67
+    }
+  },
+  {
     "code": "MX",
     "name": "Mexico",
     "iso3": "MEX",
@@ -885,6 +1041,210 @@
       "minLat": 14.53,
       "maxLon": -86.82,
       "maxLat": 32.73
+    }
+  },
+  {
+    "code": "MD",
+    "name": "Moldova",
+    "iso3": "MDA",
+    "boundary": "mda_adm1_simplified.geojson",
+    "viewBbox": {
+      "minLon": 26.62,
+      "minLat": 45.47,
+      "maxLon": 30.12,
+      "maxLat": 48.47
+    }
+  },
+  {
+    "code": "ME",
+    "name": "Montenegro",
+    "iso3": "MNE",
+    "boundary": "mne_adm1_simplified.geojson",
+    "viewBbox": {
+      "minLon": 18.43,
+      "minLat": 41.88,
+      "maxLon": 20.33,
+      "maxLat": 43.53
+    }
+  },
+  {
+    "code": "MA",
+    "name": "Morocco",
+    "iso3": "MAR",
+    "boundary": "mar_adm1_simplified.geojson",
+    "viewBbox": {
+      "minLon": -16.82,
+      "minLat": 21.68,
+      "maxLon": -1.82,
+      "maxLat": 35.93
+    }
+  },
+  {
+    "code": "MZ",
+    "name": "Mozambique",
+    "iso3": "MOZ",
+    "boundary": "moz_adm1_simplified.geojson",
+    "viewBbox": {
+      "minLon": 30.23,
+      "minLat": -26.88,
+      "maxLon": 40.83,
+      "maxLat": -10.47
+    }
+  },
+  {
+    "code": "MM",
+    "name": "Myanmar",
+    "iso3": "MMR",
+    "boundary": "mmr_adm1_simplified.geojson",
+    "viewBbox": {
+      "minLon": 92.18,
+      "minLat": 9.98,
+      "maxLon": 101.18,
+      "maxLat": 28.33
+    }
+  },
+  {
+    "code": "NA",
+    "name": "Namibia",
+    "iso3": "NAM",
+    "boundary": "nam_adm1_simplified.geojson",
+    "viewBbox": {
+      "minLon": 11.78,
+      "minLat": -28.92,
+      "maxLon": 25.23,
+      "maxLat": -16.97
+    }
+  },
+  {
+    "code": "NP",
+    "name": "Nepal",
+    "iso3": "NPL",
+    "boundary": "npl_adm1_simplified.geojson",
+    "viewBbox": {
+      "minLon": 80.03,
+      "minLat": 26.38,
+      "maxLon": 88.18,
+      "maxLat": 30.28
+    }
+  },
+  {
+    "code": "NL",
+    "name": "Netherlands",
+    "iso3": "NLD",
+    "boundary": "nld_adm1_simplified.geojson",
+    "viewBbox": {
+      "minLon": -68.38,
+      "minLat": 12.12,
+      "maxLon": 7.12,
+      "maxLat": 53.43
+    }
+  },
+  {
+    "code": "NZ",
+    "name": "New Zealand",
+    "iso3": "NZL",
+    "boundary": "nzl_adm1_simplified.geojson",
+    "viewBbox": {
+      "minLon": 167.43,
+      "minLat": -46.77,
+      "maxLon": 178.48,
+      "maxLat": -34.42
+    }
+  },
+  {
+    "code": "NI",
+    "name": "Nicaragua",
+    "iso3": "NIC",
+    "boundary": "nic_adm1_simplified.geojson",
+    "viewBbox": {
+      "minLon": -87.67,
+      "minLat": 10.73,
+      "maxLon": -83.02,
+      "maxLat": 15.03
+    }
+  },
+  {
+    "code": "NE",
+    "name": "Niger",
+    "iso3": "NER",
+    "boundary": "ner_adm1_simplified.geojson",
+    "viewBbox": {
+      "minLon": 0.18,
+      "minLat": 11.73,
+      "maxLon": 15.53,
+      "maxLat": 22.12
+    }
+  },
+  {
+    "code": "NG",
+    "name": "Nigeria",
+    "iso3": "NGA",
+    "boundary": "nga_adm1_simplified.geojson",
+    "viewBbox": {
+      "minLon": 2.68,
+      "minLat": 4.28,
+      "maxLon": 14.68,
+      "maxLat": 13.83
+    }
+  },
+  {
+    "code": "OMN",
+    "name": "Oman",
+    "iso3": "OMN",
+    "boundary": "omn_adm1_simplified.geojson",
+    "viewBbox": {
+      "minLon": 52.23,
+      "minLat": 16.73,
+      "maxLon": 59.83,
+      "maxLat": 26.33
+    }
+  },
+  {
+    "code": "PK",
+    "name": "Pakistan",
+    "iso3": "PAK",
+    "boundary": "pak_adm1_simplified.geojson",
+    "viewBbox": {
+      "minLon": 61.03,
+      "minLat": 23.83,
+      "maxLon": 76.48,
+      "maxLat": 36.78
+    }
+  },
+  {
+    "code": "PS",
+    "name": "Palestine",
+    "iso3": "PSE",
+    "boundary": "pse_adm1_simplified.geojson",
+    "viewBbox": {
+      "minLon": 34.23,
+      "minLat": 31.23,
+      "maxLon": 35.58,
+      "maxLat": 32.53
+    }
+  },
+  {
+    "code": "PA",
+    "name": "Panama",
+    "iso3": "PAN",
+    "boundary": "pan_adm1_simplified.geojson",
+    "viewBbox": {
+      "minLon": -83.07,
+      "minLat": 7.23,
+      "maxLon": -77.32,
+      "maxLat": 9.62
+    }
+  },
+  {
+    "code": "PG",
+    "name": "Papua New Guinea",
+    "iso3": "PNG",
+    "boundary": "png_adm1_simplified.geojson",
+    "viewBbox": {
+      "minLon": 140.88,
+      "minLat": -11.67,
+      "maxLon": 155.98,
+      "maxLat": -1.32
     }
   },
   {
@@ -912,6 +1272,462 @@
     }
   },
   {
+    "code": "PH",
+    "name": "Philippines",
+    "iso3": "PHL",
+    "boundary": "phl_adm1_simplified.geojson",
+    "viewBbox": {
+      "minLon": 116.93,
+      "minLat": 4.68,
+      "maxLon": 126.57,
+      "maxLat": 20.83
+    }
+  },
+  {
+    "code": "PL",
+    "name": "Poland",
+    "iso3": "POL",
+    "boundary": "pol_adm1_simplified.geojson",
+    "viewBbox": {
+      "minLon": 14.18,
+      "minLat": 49.03,
+      "maxLon": 24.12,
+      "maxLat": 54.83
+    }
+  },
+  {
+    "code": "PT",
+    "name": "Portugal",
+    "iso3": "PRT",
+    "boundary": "prt_adm1_simplified.geojson",
+    "viewBbox": {
+      "minLon": -28.82,
+      "minLat": 30.12,
+      "maxLon": -6.22,
+      "maxLat": 42.12
+    }
+  },
+  {
+    "code": "QA",
+    "name": "Qatar",
+    "iso3": "QAT",
+    "boundary": "qat_adm1_simplified.geojson",
+    "viewBbox": {
+      "minLon": 50.78,
+      "minLat": 24.62,
+      "maxLon": 51.62,
+      "maxLat": 26.12
+    }
+  },
+  {
+    "code": "CG",
+    "name": "Republic of Congo",
+    "iso3": "COG",
+    "boundary": "cog_adm1_simplified.geojson",
+    "viewBbox": {
+      "minLon": 11.12,
+      "minLat": -5.02,
+      "maxLon": 18.62,
+      "maxLat": 3.73
+    }
+  },
+  {
+    "code": "KR",
+    "name": "Republic of Korea",
+    "iso3": "KOR",
+    "boundary": "kor_adm1_simplified.geojson",
+    "viewBbox": {
+      "minLon": 124.62,
+      "minLat": 33.23,
+      "maxLon": 130.93,
+      "maxLat": 38.62
+    }
+  },
+  {
+    "code": "RO",
+    "name": "Romania",
+    "iso3": "ROU",
+    "boundary": "rou_adm1_simplified.geojson",
+    "viewBbox": {
+      "minLon": 20.28,
+      "minLat": 43.68,
+      "maxLon": 29.68,
+      "maxLat": 48.28
+    }
+  },
+  {
+    "code": "RU",
+    "name": "Russian Federation",
+    "iso3": "RUS",
+    "boundary": "rus_adm1_simplified.geojson",
+    "viewBbox": {
+      "minLon": 19.83,
+      "minLat": 41.22,
+      "maxLon": 179.28,
+      "maxLat": 79.78
+    }
+  },
+  {
+    "code": "RW",
+    "name": "Rwanda",
+    "iso3": "RWA",
+    "boundary": "rwa_adm1_simplified.geojson",
+    "viewBbox": {
+      "minLon": 28.88,
+      "minLat": -2.82,
+      "maxLon": 30.88,
+      "maxLat": -1.07
+    }
+  },
+  {
+    "code": "SA",
+    "name": "Saudi Arabia",
+    "iso3": "SAU",
+    "boundary": "sau_adm1_simplified.geojson",
+    "viewBbox": {
+      "minLon": 34.68,
+      "minLat": 16.38,
+      "maxLon": 55.48,
+      "maxLat": 31.93
+    }
+  },
+  {
+    "code": "SN",
+    "name": "Senegal",
+    "iso3": "SEN",
+    "boundary": "sen_adm1_simplified.geojson",
+    "viewBbox": {
+      "minLon": -17.47,
+      "minLat": 12.33,
+      "maxLon": -11.38,
+      "maxLat": 16.68
+    }
+  },
+  {
+    "code": "RS",
+    "name": "Serbia",
+    "iso3": "SRB",
+    "boundary": "srb_adm1_simplified.geojson",
+    "viewBbox": {
+      "minLon": 18.88,
+      "minLat": 42.22,
+      "maxLon": 22.93,
+      "maxLat": 46.18
+    }
+  },
+  {
+    "code": "SL",
+    "name": "Sierra Leone",
+    "iso3": "SLE",
+    "boundary": "sle_adm1_simplified.geojson",
+    "viewBbox": {
+      "minLon": -13.27,
+      "minLat": 6.93,
+      "maxLon": -10.27,
+      "maxLat": 9.98
+    }
+  },
+  {
+    "code": "SK",
+    "name": "Slovakia",
+    "iso3": "SVK",
+    "boundary": "svk_adm1_simplified.geojson",
+    "viewBbox": {
+      "minLon": 16.88,
+      "minLat": 47.78,
+      "maxLon": 22.38,
+      "maxLat": 49.53
+    }
+  },
+  {
+    "code": "SB",
+    "name": "Solomon Islands",
+    "iso3": "SLB",
+    "boundary": "slb_adm1_simplified.geojson",
+    "viewBbox": {
+      "minLon": 156.62,
+      "minLat": -11.72,
+      "maxLon": 166.83,
+      "maxLat": -7.22
+    }
+  },
+  {
+    "code": "SO",
+    "name": "Somalia",
+    "iso3": "SOM",
+    "boundary": "som_adm1_simplified.geojson",
+    "viewBbox": {
+      "minLon": 40.98,
+      "minLat": -1.67,
+      "maxLon": 51.18,
+      "maxLat": 11.88
+    }
+  },
+  {
+    "code": "FS",
+    "name": "South Africa",
+    "iso3": "ZAF",
+    "boundary": "zaf_adm1_simplified.geojson",
+    "viewBbox": {
+      "minLon": 16.48,
+      "minLat": -34.82,
+      "maxLon": 32.88,
+      "maxLat": -22.12
+    }
+  },
+  {
+    "code": "SS",
+    "name": "South Sudan",
+    "iso3": "SSD",
+    "boundary": "ssd_adm1_simplified.geojson",
+    "viewBbox": {
+      "minLon": 24.12,
+      "minLat": 3.48,
+      "maxLon": 35.88,
+      "maxLat": 12.23
+    }
+  },
+  {
+    "code": "ESP",
+    "name": "Spain",
+    "iso3": "ESP",
+    "boundary": "esp_adm1_simplified.geojson",
+    "viewBbox": {
+      "minLon": -18.12,
+      "minLat": 27.62,
+      "maxLon": 4.28,
+      "maxLat": 43.72
+    }
+  },
+  {
+    "code": "LK",
+    "name": "Sri Lanka",
+    "iso3": "LKA",
+    "boundary": "lka_adm1_simplified.geojson",
+    "viewBbox": {
+      "minLon": 79.68,
+      "minLat": 5.93,
+      "maxLon": 81.88,
+      "maxLat": 9.83
+    }
+  },
+  {
+    "code": "SD",
+    "name": "Sudan",
+    "iso3": "SDN",
+    "boundary": "sdn_adm1_simplified.geojson",
+    "viewBbox": {
+      "minLon": 21.83,
+      "minLat": 8.68,
+      "maxLon": 38.43,
+      "maxLat": 22.12
+    }
+  },
+  {
+    "code": "SR",
+    "name": "Suriname",
+    "iso3": "SUR",
+    "boundary": "sur_adm1_simplified.geojson",
+    "viewBbox": {
+      "minLon": -57.97,
+      "minLat": 1.83,
+      "maxLon": -53.97,
+      "maxLat": 5.98
+    }
+  },
+  {
+    "code": "SZ",
+    "name": "Swaziland",
+    "iso3": "SWZ",
+    "boundary": "swz_adm1_simplified.geojson",
+    "viewBbox": {
+      "minLon": 30.78,
+      "minLat": -27.32,
+      "maxLon": 32.12,
+      "maxLat": -25.72
+    }
+  },
+  {
+    "code": "SYR",
+    "name": "Syria",
+    "iso3": "SYR",
+    "boundary": "syr_adm1_simplified.geojson",
+    "viewBbox": {
+      "minLon": 35.73,
+      "minLat": 32.33,
+      "maxLon": 42.38,
+      "maxLat": 37.33
+    }
+  },
+  {
+    "code": "TW",
+    "name": "Taiwan",
+    "iso3": "TWN",
+    "boundary": "twn_adm1_simplified.geojson",
+    "viewBbox": {
+      "minLon": 118.28,
+      "minLat": 21.93,
+      "maxLon": 121.93,
+      "maxLat": 25.28
+    }
+  },
+  {
+    "code": "TJ",
+    "name": "Tajikistan",
+    "iso3": "TJK",
+    "boundary": "tjk_adm1_simplified.geojson",
+    "viewBbox": {
+      "minLon": 67.38,
+      "minLat": 36.73,
+      "maxLon": 74.18,
+      "maxLat": 40.97
+    }
+  },
+  {
+    "code": "TZ",
+    "name": "Tanzania",
+    "iso3": "TZA",
+    "boundary": "tza_adm1_simplified.geojson",
+    "viewBbox": {
+      "minLon": 29.58,
+      "minLat": -11.72,
+      "maxLon": 40.43,
+      "maxLat": -0.97
+    }
+  },
+  {
+    "code": "TH",
+    "name": "Thailand",
+    "iso3": "THA",
+    "boundary": "tha_adm1_simplified.geojson",
+    "viewBbox": {
+      "minLon": 97.38,
+      "minLat": 5.62,
+      "maxLon": 105.62,
+      "maxLat": 20.43
+    }
+  },
+  {
+    "code": "GM",
+    "name": "The Gambia",
+    "iso3": "GMB",
+    "boundary": "gmb_adm1_simplified.geojson",
+    "viewBbox": {
+      "minLon": -16.82,
+      "minLat": 13.08,
+      "maxLon": -13.82,
+      "maxLat": 13.83
+    }
+  },
+  {
+    "code": "TL",
+    "name": "Timor-Leste",
+    "iso3": "TLS",
+    "boundary": "tls_adm1_simplified.geojson",
+    "viewBbox": {
+      "minLon": 124.03,
+      "minLat": -9.47,
+      "maxLon": 127.28,
+      "maxLat": -8.12
+    }
+  },
+  {
+    "code": "TG",
+    "name": "Togo",
+    "iso3": "TGO",
+    "boundary": "tgo_adm1_simplified.geojson",
+    "viewBbox": {
+      "minLon": -0.07,
+      "minLat": 6.12,
+      "maxLon": 1.78,
+      "maxLat": 11.12
+    }
+  },
+  {
+    "code": "TT",
+    "name": "Trinidad and Tobago",
+    "iso3": "TTO",
+    "boundary": "tto_adm1_simplified.geojson",
+    "viewBbox": {
+      "minLon": -61.92,
+      "minLat": 10.03,
+      "maxLon": -60.52,
+      "maxLat": 11.28
+    }
+  },
+  {
+    "code": "TR",
+    "name": "Turkey",
+    "iso3": "TUR",
+    "boundary": "tur_adm1_simplified.geojson",
+    "viewBbox": {
+      "minLon": 25.73,
+      "minLat": 35.83,
+      "maxLon": 44.78,
+      "maxLat": 42.08
+    }
+  },
+  {
+    "code": "TM",
+    "name": "Turkmenistan",
+    "iso3": "TKM",
+    "boundary": "tkm_adm1_simplified.geojson",
+    "viewBbox": {
+      "minLon": 52.58,
+      "minLat": 35.18,
+      "maxLon": 66.58,
+      "maxLat": 42.78
+    }
+  },
+  {
+    "code": "UG",
+    "name": "Uganda",
+    "iso3": "UGA",
+    "boundary": "uga_adm1_simplified.geojson",
+    "viewBbox": {
+      "minLon": 29.53,
+      "minLat": -1.42,
+      "maxLon": 34.98,
+      "maxLat": 4.23
+    }
+  },
+  {
+    "code": "UA",
+    "name": "Ukraine",
+    "iso3": "UKR",
+    "boundary": "ukr_adm1_simplified.geojson",
+    "viewBbox": {
+      "minLon": 22.12,
+      "minLat": 44.38,
+      "maxLon": 40.18,
+      "maxLat": 52.38
+    }
+  },
+  {
+    "code": "AE",
+    "name": "United Arab Emirates",
+    "iso3": "ARE",
+    "boundary": "are_adm1_simplified.geojson",
+    "viewBbox": {
+      "minLon": 51.73,
+      "minLat": 22.73,
+      "maxLon": 56.38,
+      "maxLat": 26.08
+    }
+  },
+  {
+    "code": "GB",
+    "name": "United Kingdom",
+    "iso3": "GBR",
+    "boundary": "gbr_adm1_simplified.geojson",
+    "viewBbox": {
+      "minLon": -8.12,
+      "minLat": 49.97,
+      "maxLon": 1.78,
+      "maxLat": 60.47
+    }
+  },
+  {
     "code": "US",
     "name": "United States",
     "iso3": "USA",
@@ -924,6 +1740,42 @@
     }
   },
   {
+    "code": "UY",
+    "name": "Uruguay",
+    "iso3": "URY",
+    "boundary": "ury_adm1_simplified.geojson",
+    "viewBbox": {
+      "minLon": -58.42,
+      "minLat": -34.92,
+      "maxLon": -53.27,
+      "maxLat": -30.12
+    }
+  },
+  {
+    "code": "UZ",
+    "name": "Uzbekistan",
+    "iso3": "UZB",
+    "boundary": "uzb_adm1_simplified.geojson",
+    "viewBbox": {
+      "minLon": 56.23,
+      "minLat": 37.18,
+      "maxLon": 73.12,
+      "maxLat": 45.47
+    }
+  },
+  {
+    "code": "VU",
+    "name": "Vanuatu",
+    "iso3": "VUT",
+    "boundary": "vut_adm1_simplified.geojson",
+    "viewBbox": {
+      "minLon": 166.53,
+      "minLat": -20.22,
+      "maxLon": 169.88,
+      "maxLat": -13.52
+    }
+  },
+  {
     "code": "VE",
     "name": "Venezuela",
     "iso3": "VEN",
@@ -933,6 +1785,54 @@
       "minLat": 0.78,
       "maxLon": -59.82,
       "maxLat": 12.18
+    }
+  },
+  {
+    "code": "VN",
+    "name": "Vietnam",
+    "iso3": "VNM",
+    "boundary": "vnm_adm1_simplified.geojson",
+    "viewBbox": {
+      "minLon": 102.12,
+      "minLat": 8.62,
+      "maxLon": 109.48,
+      "maxLat": 23.38
+    }
+  },
+  {
+    "code": "YE",
+    "name": "Yemen",
+    "iso3": "YEM",
+    "boundary": "yem_adm1_simplified.geojson",
+    "viewBbox": {
+      "minLon": 42.62,
+      "minLat": 12.12,
+      "maxLon": 54.53,
+      "maxLat": 18.88
+    }
+  },
+  {
+    "code": "ZM",
+    "name": "Zambia",
+    "iso3": "ZMB",
+    "boundary": "zmb_adm1_simplified.geojson",
+    "viewBbox": {
+      "minLon": 21.98,
+      "minLat": -18.08,
+      "maxLon": 33.68,
+      "maxLat": -8.22
+    }
+  },
+  {
+    "code": "ZWE",
+    "name": "Zimbabwe",
+    "iso3": "ZWE",
+    "boundary": "zwe_adm1_simplified.geojson",
+    "viewBbox": {
+      "minLon": 25.23,
+      "minLat": -22.38,
+      "maxLon": 33.03,
+      "maxLat": -15.62
     }
   }
 ]

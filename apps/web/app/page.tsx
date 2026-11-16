@@ -8,7 +8,7 @@ const METRICS = [
   { value: "23", unit: "years", label: "2003 → 2025 on one scale" },
   { value: "0.05°", unit: "grid", label: "≈ 5.5 km cells, country-masked" },
   { value: String(LIVE_COUNTRIES), unit: "live", label: "countries served by the API" },
-  { value: "78", unit: "ready", label: "countries validated in the pipeline" },
+  { value: "57.3 M", unit: "rows", label: "monthly cell rows in the bundle" },
 ];
 
 function IconGlobe() {
@@ -117,7 +117,7 @@ export default function Home() {
             <p className="hero-panel-title">
               {LIVE_COUNTRIES} countries,
               <br />
-              78 validated,
+              23 years,
               <br />
               <em>one grid.</em>
             </p>
