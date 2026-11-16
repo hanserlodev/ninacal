@@ -62,28 +62,47 @@ aggregates.
 
 ## 4. Validation (mandatory)
 
-We **train on 2012–2020 and test on 2021 → today**. No test year is allowed into the fit.
+The design is fixed before the evaluation and reported in `models.json` for every country:
 
-Reported in `calibration.json` and shown in the app:
+| Purpose | Years |
+|---|---|
+| Fit model coefficients | 2013–2017 |
+| Select the candidate model | 2018–2020 |
+| Calibrate uncertainty bands | 2013–2017, out of fold |
+| Retrospective evaluation | 2021–2022 |
+| Drift stress test (not used for calibration) | 2023–2025 |
 
-- **R²** and **RMSE** between observed MODIS and predicted MODIS-equivalent on the test set;
-- a scatter/line chart of observed vs predicted for the test years;
-- sample size `n` (cell-months) so the reader can judge the estimate.
+Nine candidates compete per country: country, block, block-by-quarter and cell ratios, a
+two-part ratio, and three Poisson regressions. The selection score is the mean WAPE over five
+spatial levels (0.5°, 1°, 2°, administrative units, country) on 2018–2020; the chosen model is
+frozen before 2021–2022 is evaluated. Error is reported at those five levels, plus drawn
+rectangles, a spatial cross-validation that holds out whole 2° blocks, and leave-one-year-out
+within 2013–2017.
+
+Uncertainty bands use a scaled residual with both a Poisson and a multiplicative term; the
+multiplicative scale is estimated on out-of-fold residuals and the band quantiles are empirical.
+Naive Poisson bands failed at country scale (coverage 3/8 and 0/8 months); the overdispersed
+scale restores 80–82% nested coverage. Forward coverage in 2021–2022 is lower (65–70% at country
+scale), and the app says so.
 
 If held-out performance is poor, we say so in [limitations](limitations.md) and in the
 interface. A calibration that cannot be validated is not presented as truth.
 
+The full method, equations and the 78-country evaluation are in
+[`docs/paper/ninacal-method-paper.pdf`](paper/ninacal-method-paper.pdf).
+
 ## 5. Final series
 
 ```text
-harm(y, m, cell) = modis(y, m, cell)                      if y < 2012
-                 = k_m · viirs(y, m, cell)                if y ≥ 2012
+harm(y, m, cell) = r_{b(cell), quarter(m)} · aqua(y, m, cell)   if y, m <= 2012-01
+                 = viirs(y, m, cell)                            if y, m >= 2012-02
+                 = rho_country · noaa20(y, m, cell)             for a missing Suomi-NPP month
 ```
 
-`harm` is the only field the calendar aggregates. Raw `modis` and `viirs` stay in the file
-for transparency and for the validation chart. Because VIIRS starts in 2012, the pre-2012
-part of the series is pure MODIS, and the harmonized series inherits MODIS's blind spots for
-those years — this is stated in the UI.
+`r` is a hierarchically shrunk block-by-quarter ratio (kappa = 200) and is linear in the Aqua
+count, so any drawn region is the sum of its cells. `rho` is fitted on 2019–2020 and compared
+with 2021–2025. `harm` is the only field the calendar aggregates; raw Aqua and VIIRS stay in the
+data for transparency.
 
 ## 6. Known open questions
 

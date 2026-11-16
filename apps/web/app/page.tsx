@@ -358,6 +358,11 @@ export default function Home() {
             <a href={`${REPO_URL}/blob/main/docs/methodology.md`}>Methodology</a>
           </li>
           <li>
+            <a href={`${REPO_URL}/blob/main/docs/paper/ninacal-method-paper.pdf`}>
+              Method paper (PDF)
+            </a>
+          </li>
+          <li>
             <a href={`${REPO_URL}/blob/main/CONTRIBUTING.md`}>Contributing</a>
           </li>
           <li>

@@ -76,6 +76,20 @@ imagery, audio or video, and no NASA logos or branding are used.
 against Bolivia (1.4M). The 2010 divergence and the shared seasonal shape are visible without
 rebuilding either series."]
 
+**Mathematical foundation.** The conversion is a hierarchically shrunk block-by-quarter ratio,
+r_b = (Σ_b V + κ r0) / (Σ_b A + κ) and r_b,q = (Σ V + κ r_b) / (Σ A + κ) with κ = 200, applied as
+min(days in month, r · Aqua cell-days). It is linear in the Aqua count, so any drawn region is the
+sum of its cells — which is what makes a polygon query possible. Nine candidates compete per
+country and the winner is chosen on 2018–2020 across five spatial scales, then frozen before the
+2021–2022 evaluation. Uncertainty bands are not Poisson: the residual is scaled by
+sqrt(p + 1 + φp²), with φ estimated on out-of-fold residuals, because naive Poisson bands covered 3
+of 8 national months in Peru and 0 of 8 in the United States; the overdispersed scale restores
+80–82% nested coverage. Country-level monthly error is 13.3% for Peru and 8.9% for the United
+States, 23.7% and 21.4% for administrative units, and 47.6% and 58.3% for 0.5° tiles, so the app
+warns that small regions are noisier than departments or countries. The method, equations and the
+78-country evaluation are in the accompanying paper; the live bundle applies the same frozen design
+to 153 countries, where the app reports each country's own held-out error.
+
 **Creativity.** The globe, the 0.05° country-masked cells, playback served from the browser cache,
 any-country comparison with an indexed scale, and the land-cover/burned-area/weather context are
 combined in one instrument rather than a dashboard of disconnected charts. The unusual part is
@@ -170,6 +184,7 @@ https://www.youtube.com/watch?v=u7yML7gKgFg. Alternative: https://ninacal.earth.
 | Pandas | https://pandas.pydata.org/ |
 | OpenStreetMap contributors | https://www.openstreetmap.org/copyright |
 | Esri World Imagery | https://www.esri.com/en-us/arcgis/products/arcgis-online/overview |
+| NinaCal method paper (PDF) | https://github.com/hanserlodev/ninacal/blob/main/docs/paper/ninacal-method-paper.pdf |
 | NinaCal source code | https://github.com/hanserlodev/ninacal |
 
 ## Super Intelligence use
