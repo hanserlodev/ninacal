@@ -58,6 +58,11 @@ combined in one instrument rather than a dashboard of disconnected charts.
 outage months; low-activity countries where WAPE is unstable; the difference between a thermal
 hotspot, a fire and burned area; accessibility; attribution; and the cost of large payloads.
 
+## Images for Project Details
+
+Six screenshots of the live app, with captions, are in `docs/submission/` (see
+`docs/submission/README.md` for the order). They are real API responses, not mockups.
+
 ## Demo
 
 Recommended: https://ninacal.earth/demo/ — a public page that embeds the 30-second video, no
