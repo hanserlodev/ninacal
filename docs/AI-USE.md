@@ -3,12 +3,12 @@
 The team used an AI coding assistant — **OpenCode with the DeepSeek V4.1 Flash model** — for:
 
 - code generation, refactoring, debugging and test design;
-- documentation, submission text and the HTML demo deck;
+- documentation, submission text and the HTML demo page;
 - data-analysis scripts and review of validation results.
 
-No AI-generated images, audio or video were used. The demo deck is hand-authored HTML/CSS
-(written with AI assistance), not a generated image or video. No NASA logos, flags or mission
-identifiers are used anywhere in the project.
+No AI-generated images, audio or video were used. The 30-second demo video was recorded,
+narrated and edited by the team; the page that embeds it is hand-authored HTML/CSS (written with
+AI assistance). No NASA logos, flags or mission identifiers are used anywhere in the project.
 
 Every AI-assisted change was reviewed, type-checked, built, and exercised against the live API
 and the 78-country dataset. The scientific choices, data sources and limitations remain the

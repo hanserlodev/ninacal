@@ -2,7 +2,8 @@
 
 Project: **NinaCal** (team **MODIS Operandi**)
 Live app: https://ninacal.earth
-Demo (7 slides): https://ninacal.earth/demo/
+Demo (30 s video): https://www.youtube.com/watch?v=u7yML7gKgFg
+Demo page (embedded video): https://ninacal.earth/demo/
 Code: https://github.com/hanserlodev/ninacal
 Deadline: Sunday, November 15, 11:59 PM local time.
 
@@ -59,8 +60,9 @@ hotspot, a fire and burned area; accessibility; attribution; and the cost of lar
 
 ## Demo
 
-Use https://ninacal.earth/demo/ — a public, 7-slide presentation. It opens without login or
-password. Alternative: https://ninacal.earth (live application).
+Use https://www.youtube.com/watch?v=u7yML7gKgFg — a 30-second public video, no login, no
+password. The same video is embedded at https://ninacal.earth/demo/ if a page is preferred.
+Alternative: https://ninacal.earth (live application).
 
 ## NASA data and resources
 
@@ -103,7 +105,8 @@ the team generated them. Details: `docs/AI-USE.md`. No NASA branding was used.
 
 ## Before clicking Submit
 
-- [ ] Demo link opens without login: https://ninacal.earth/demo/
+- [ ] Demo link opens without login: https://www.youtube.com/watch?v=u7yML7gKgFg
+      (or the page embedding it, https://ninacal.earth/demo/)
 - [ ] Project link opens: https://ninacal.earth
 - [ ] All external resources are listed above.
 - [ ] AI use is disclosed in the form and in the project.
