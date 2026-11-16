@@ -329,7 +329,8 @@ export default function Home() {
             Open source under MIT. Data from NASA FIRMS / EOSDIS. A world-ready pipeline served
             through a read-only API. Built for the NASA Space Apps Challenge 2026. AI coding
             assistance was used for code, documentation and analysis; all outputs were reviewed and
-            tested. No AI-generated imagery, audio or video.
+            tested. No AI-generated imagery, audio or video. Not affiliated with or endorsed by
+            NASA.
           </p>
         </div>
         <ul className="footer-links">

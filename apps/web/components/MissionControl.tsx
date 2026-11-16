@@ -987,6 +987,7 @@ export default function MissionControl() {
           Coverage {COVERAGE_LABEL} · {state.years.length} years
         </span>
         <span>A thermal hotspot is not a confirmed fire.</span>
+        <span>Not affiliated with or endorsed by NASA.</span>
       </footer>
     </div>
   );

@@ -13,15 +13,15 @@ NinaCal — one calendar for 23 years of satellite fire detections
 
 ## Summary (about 150 words)
 
-NinaCal (MODIS Operandi) harmonizes NASA FIRMS Aqua/MODIS and Suomi-NPP/VIIRS active-fire
-detections into one detected-hotspot-day scale from 2003 to 2025 on a 0.05° grid. A public globe
-console lets anyone search 153 live countries and their regions, scrub or loop the timeline,
-inspect a year × month calendar and anomalies, compare any two places on one scale, and export
-CSV. A read-only C++/SQLite API serves the data; a Python pipeline derives satellite availability
-from daily observations, calibrates MODIS to the VIIRS scale and validates out of sample. Context
-layers from Microsoft Planetary Computer and Meteomatics add land cover, burned area and daily
-weather. The project is open source and runs on a static frontend. It states its limits clearly: a
-thermal hotspot is not a confirmed fire. Coverage is 153 countries, each validated out of sample.
+NinaCal harmonizes 23 years of NASA FIRMS Aqua/MODIS and Suomi-NPP/VIIRS fire detections into
+one comparable hotspot-day calendar for 153 countries, so a question like "was this October
+normal?" has an answer in seconds: Peru's 2024 was 25% above its typical year, Bolivia's +32%,
+Australia's October 2025 +43%. Users pick any country, region or drawn area, scrub 2003–2025,
+compare two places on one scale, and export CSV. Every country is validated out of sample and the
+app shows its own error, so a hotspot is never presented as a confirmed fire. A read-only
+C++/SQLite API serves 57.3 million monthly cell rows; the pipeline, data contract and limitations
+are public. What is usually a single-country viewer works here across the world, on one scale, with
+the uncertainty visible.
 
 ## Project details
 
