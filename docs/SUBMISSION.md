@@ -2,8 +2,8 @@
 
 Project: **NinaCal** (team **MODIS Operandi**)
 Live app: https://ninacal.earth
-Demo (30 s video): https://www.youtube.com/watch?v=u7yML7gKgFg
-Demo page (embedded video): https://ninacal.earth/demo/
+Demo: https://ninacal.earth/demo/ (embeds the 30 s video; opens the console when it ends)
+Video: https://www.youtube.com/watch?v=u7yML7gKgFg
 Code: https://github.com/hanserlodev/ninacal
 Deadline: Sunday, November 15, 11:59 PM local time.
 
@@ -60,9 +60,10 @@ hotspot, a fire and burned area; accessibility; attribution; and the cost of lar
 
 ## Demo
 
-Use https://www.youtube.com/watch?v=u7yML7gKgFg — a 30-second public video, no login, no
-password. The same video is embedded at https://ninacal.earth/demo/ if a page is preferred.
-Alternative: https://ninacal.earth (live application).
+Recommended: https://ninacal.earth/demo/ — a public page that embeds the 30-second video, no
+login or password. When the video ends it opens the console automatically, so a judge lands on
+the live app without an extra click. Direct video link:
+https://www.youtube.com/watch?v=u7yML7gKgFg. Alternative: https://ninacal.earth.
 
 ## NASA data and resources
 
@@ -105,8 +106,8 @@ the team generated them. Details: `docs/AI-USE.md`. No NASA branding was used.
 
 ## Before clicking Submit
 
-- [ ] Demo link opens without login: https://www.youtube.com/watch?v=u7yML7gKgFg
-      (or the page embedding it, https://ninacal.earth/demo/)
+- [ ] Demo link opens without login: https://ninacal.earth/demo/
+      (direct video: https://www.youtube.com/watch?v=u7yML7gKgFg)
 - [ ] Project link opens: https://ninacal.earth
 - [ ] All external resources are listed above.
 - [ ] AI use is disclosed in the form and in the project.
